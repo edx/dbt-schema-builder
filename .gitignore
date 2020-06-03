@@ -59,3 +59,6 @@ docs/dbt_schema_builder.*.rst
 # Private requirements
 requirements/private.in
 requirements/private.txt
+
+# PyCharm, etc.
+.idea/

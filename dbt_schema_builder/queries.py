@@ -1,0 +1,33 @@
+"""
+Query templates used interally by Schema Builder to get metadata about schemas
+and relations in Snowflake.
+"""
+
+COLUMN_NAME_FILTER = """
+    AND {database}.INFORMATION_SCHEMA.COLUMNS.COLUMN_NAME NOT IN ({banned_column_names})
+"""
+
+
+GET_RELATIONS_BY_SCHEMA_SQL = """
+SELECT
+  TABLE_NAME AS "TABLE_NAME",
+  COLUMN_NAME AS "COLUMN_NAME",
+  ORDINAL_POSITION AS "COLUMN_INDEX"
+FROM {database}.INFORMATION_SCHEMA.COLUMNS
+WHERE {database}.INFORMATION_SCHEMA.COLUMNS.TABLE_SCHEMA = '{schema}'
+{column_name_filter}
+ORDER BY \"TABLE_NAME\", \"COLUMN_INDEX\"
+"""
+
+
+GET_RELATIONS_BY_SCHEMA_AND_START_LETTER_SQL = """
+SELECT
+  TABLE_NAME AS "TABLE_NAME",
+  COLUMN_NAME AS "COLUMN_NAME",
+  ORDINAL_POSITION AS "COLUMN_INDEX"
+FROM {database}.INFORMATION_SCHEMA.COLUMNS
+WHERE {database}.INFORMATION_SCHEMA.COLUMNS.TABLE_SCHEMA = '{schema}'
+    AND {database}.INFORMATION_SCHEMA.COLUMNS.TABLE_NAME LIKE '{start_letter}%' ESCAPE '{escape_char}'
+    {column_name_filter}
+ORDER BY \"TABLE_NAME\", \"COLUMN_INDEX\"
+"""
