@@ -6,7 +6,7 @@ dbt-schema-builder
 
 The Schema Builder tool is used to create dbt schema files, sql models, and
 default PII / non-PII views for tables in the given Snowflake schemas. The
-script will generate models for new `<SCHEMA>_SAFE` and `<SCHEMA>_PII` schemas.
+script will generate models for new `<SCHEMA>` and `<SCHEMA>_PII` schemas.
 These will be created when you run dbt if they don't exist, presuming you have
 permissions to do so.
 
