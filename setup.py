@@ -62,13 +62,12 @@ if sys.argv[-1] == 'tag':
     sys.exit()
 
 README = open(os.path.join(os.path.dirname(__file__), 'README.rst')).read()
-CHANGELOG = open(os.path.join(os.path.dirname(__file__), 'CHANGELOG.rst')).read()
 
 setup(
     name='dbt-schema-builder',
     version=VERSION,
     description="""Automate management of PII redacted schemas for dbt projects.""",
-    long_description=README + '\n\n' + CHANGELOG,
+    long_description=README,
     author='edX',
     author_email='oscm@edx.org',
     url='https://github.com/edx/dbt-schema-builder',
@@ -77,7 +76,7 @@ setup(
     ],
     include_package_data=True,
     install_requires=load_requirements('requirements/base.in'),
-    python_requires=">=3.5",
+    python_requires=">=3.6",
     license="AGPL 3.0",
     zip_safe=False,
     keywords='Python edx',
@@ -87,7 +86,7 @@ setup(
         'License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)',
         'Natural Language :: English',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.8',
     ],
 )

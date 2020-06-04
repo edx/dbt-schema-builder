@@ -11,16 +11,10 @@ oeps:
     oep-2: True
     oep-3:
         state: False
-        reason: TODO - Implement for this application if appropriate
+        reason: This is a library and does not implement asynchronous tasks.
     oep-5:
         state: False
-        reason: TODO - Implement for this application if appropriate
+        reason: This is a library for data engineering workflows and does not need to be in Devstack.
     oep-18: True
     oep-30:
         state: True
-openedx-release:
-    # The openedx-release key is described in OEP-10:
-    #   https://open-edx-proposals.readthedocs.io/en/latest/oep-0010-proc-openedx-releases.html
-    # The FAQ might also be helpful: https://openedx.atlassian.net/wiki/spaces/COMM/pages/1331268879/Open+edX+Release+FAQ
-    maybe: true   # Delete this "maybe" line when you have decided about Open edX inclusion.
-    ref: master
