@@ -50,8 +50,7 @@ quality: ## check coding style with pycodestyle and pylint
 	pylint dbt_schema_builder tests test_utils *.py
 	rm tests/__init__.py
 	pycodestyle dbt_schema_builder tests  *.py
-	pydocstyle dbt_schema_builder tests *.py
-	isort --check-only --diff --recursive tests test_utils dbt_schema_builder *.py test_settings.py
+	isort --check-only --diff --recursive tests test_utils dbt_schema_builder *.py
 	make selfcheck
 
 

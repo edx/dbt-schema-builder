@@ -7,4 +7,5 @@ def test_fake():
     """
     Temp fake test to make tox work so we can release. Real tests coming soon...
     """
-    assert 1 == 1
+    x = 1
+    assert 1 == x
