@@ -47,7 +47,7 @@ upgrade: ## update the requirements/*.txt files with the latest packages satisfy
 
 quality: ## check coding style with pycodestyle and pylint
 	touch tests/__init__.py
-	pylint dbt_schema_builder tests test_utils manage.py *.py
+	pylint dbt_schema_builder tests test_utils *.py
 	rm tests/__init__.py
 	pycodestyle dbt_schema_builder tests  *.py
 	pydocstyle dbt_schema_builder tests *.py
