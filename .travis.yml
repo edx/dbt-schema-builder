@@ -7,14 +7,10 @@
 
 language: python
 
-python:
-  - 3.6
-  - 3.8
-
 matrix:
   include:
     - python: 3.6
-      env: TOXENV=py35
+      env: TOXENV=py36
     - python: 3.8
       env: TOXENV=py38
     - python: 3.6
@@ -45,4 +41,6 @@ deploy:
   distributions: sdist bdist_wheel
   on:
     tags: true
-    condition: '$TOXENV = quality'
+    condition: "$TOXENV = quality"
+  password:
+    secure: jPZZ2Jp94lJchw760U7S9VFW6DtLYM/FcT4KzgpCeZSTqANOVBzb3UbMhTIE0xg4Gu5vXgzvznG/axkhKIP8J9gbF/76dCXOi9m+snFEsFB5IhOGAnftwH4SGfLvnvETW01PllWjXdM7ydKZy1zhpQjVOgkoPzMLKGQUgTjpM3JdCfOf3/0ByRGh/KSpJJPxMFNZnZOd9PQMRaxFXiwr7MScCXcPkXijzTksYiMHTHv+ENOV67lbDWjXMBdyztiPk7Jgv3IYuaLs1igX8/d56sBK77crjPthEmv9pfpYklaRyjQSnNy6yg5hw4R6paIDAPI+ZjGPhqSE9QimzQYPxW3S215TGMKqreMdUnFKeFH8XH0aJviYtZqqtyYO8yVgoFBkBTz2MDTfNOkhQliY8hIDDmWgnKsYc7uZi6K/gCzH2peS+g8UJko0MKy9ieE1tZ7YYLRM7zXDyRnt1qBbjBpL41Ro/Xni696Uw3X3ko69Bd6K2KUq6J3kjkGcgXPVMxe/sCvRNpOkwp+l5+S1ELhMBr2ftawGP45y3wJZqwMJwe5VF98Q28nHXPrEKIAGmWhSirvCUZTTCySi5R8Q6OWOPR4hqFT8YsNDVZTMoqBUXCGoaR5SGU+jzlwF8A8l9oGp6HXvSQRGL6KdmAhrXZbVf/EE+haidnxgg1VWkYg=
