@@ -1,46 +1,30 @@
-# Config file for automatic testing at travis-ci.org
-# To connect a new edX repository to Travis, see
-# https://openedx.atlassian.net/wiki/spaces/EdxOps/pages/157464369/How+to+connect+a+repository+to+Travis+CI
-#
-# Be sure to change the Travis settings in the web UI to enable both
-# "Build pushed branches" and "Build pushed pull requests".
-
 language: python
-
 matrix:
   include:
-    - python: 3.6
-      env: TOXENV=py36
-    - python: 3.8
-      env: TOXENV=py38
-    - python: 3.6
-      env: TOXENV=quality
-    - python: 3.6
-      env: TOXENV=docs
-
+  - python: 3.6
+    env: TOXENV=py36
+  - python: 3.8
+    env: TOXENV=py38
+  - python: 3.6
+    env: TOXENV=quality
+  - python: 3.6
+    env: TOXENV=docs
 cache:
-  - pip
-
+- pip
 before_install:
-  - pip install --upgrade pip
-
+- pip install --upgrade pip
 install:
-  - pip install -r requirements/travis.txt
-
+- pip install -r requirements/travis.txt
 script:
-  - tox
-
+- tox
 after_success:
-  - codecov
-
-# Set token via "travis encrypt --add deploy.password"; for details, see
-# https://docs.travis-ci.com/user/deployment/pypi
+- codecov
 deploy:
   provider: pypi
-  user: "__token__"
+  user: __token__
   distributions: sdist bdist_wheel
   on:
     tags: true
     condition: "$TOXENV = quality"
   password:
-    secure: jPZZ2Jp94lJchw760U7S9VFW6DtLYM/FcT4KzgpCeZSTqANOVBzb3UbMhTIE0xg4Gu5vXgzvznG/axkhKIP8J9gbF/76dCXOi9m+snFEsFB5IhOGAnftwH4SGfLvnvETW01PllWjXdM7ydKZy1zhpQjVOgkoPzMLKGQUgTjpM3JdCfOf3/0ByRGh/KSpJJPxMFNZnZOd9PQMRaxFXiwr7MScCXcPkXijzTksYiMHTHv+ENOV67lbDWjXMBdyztiPk7Jgv3IYuaLs1igX8/d56sBK77crjPthEmv9pfpYklaRyjQSnNy6yg5hw4R6paIDAPI+ZjGPhqSE9QimzQYPxW3S215TGMKqreMdUnFKeFH8XH0aJviYtZqqtyYO8yVgoFBkBTz2MDTfNOkhQliY8hIDDmWgnKsYc7uZi6K/gCzH2peS+g8UJko0MKy9ieE1tZ7YYLRM7zXDyRnt1qBbjBpL41Ro/Xni696Uw3X3ko69Bd6K2KUq6J3kjkGcgXPVMxe/sCvRNpOkwp+l5+S1ELhMBr2ftawGP45y3wJZqwMJwe5VF98Q28nHXPrEKIAGmWhSirvCUZTTCySi5R8Q6OWOPR4hqFT8YsNDVZTMoqBUXCGoaR5SGU+jzlwF8A8l9oGp6HXvSQRGL6KdmAhrXZbVf/EE+haidnxgg1VWkYg=
+    secure: LDgEUeQUlistSes2kUop60ogpq3wJEYcPrkp5Oeh1eQcDpwkbuzxKwwBWesghI0DRi+HhgJCM47BQGSeUjnBu7vxxEjvRyfZacyXVt+w7gnjWnsi8LMCJ7auzBWawQ2AVa4wxlYdyb8NbwjZm1nU6RISlU/u1lQcwejPnFanvJSOHEnM+Jxz8nOL45Ylltqt7GAXK7nNayxeCAx37yVcMXf6HVQJE9DLxHzLftOM+/jpOSlJAOhDoaXRbh8FLS8NdBlV4BeT+lYRJSBSj00TXmWNHGWWCiXC2asfUIn7B1bO/KNkVCBRX4EIZwGzzInaGehT2tS7PqLH+AUyNAACjsWbF3/6a+9yu3ysHwCc0y1KMrEq8i/yZwnbTTxiu2Uww1qR/IPWLo7Cn9vSZKf6N4sNdpdYzu0mpe3fyBusH+8RgeelzUmUgJZnR/2PVJlYGJWuHOk5MVGCrKijQJvKEtF7Pw6w2rrPUaD2C8yUKuujE/cSNBrVwQnvQQkqF5yXISosPXc9xMELiw3Sot9W5BUsrsx9desh+hmqoslsR0On2cVVAs18L0Mdh+gKYqzpERU5DocZB3n/vHTZuQLmHlZeVlji3ZZBM5iLfJ2g2HiPbU694N3nuN1jJEIF/dK+fOi+fhsFB9PfZVYlMOjqgK0MReE3XLK+vcjojoJrK0A=
