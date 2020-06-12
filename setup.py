@@ -79,7 +79,12 @@ setup(
     python_requires=">=3.6",
     license="AGPL 3.0",
     zip_safe=False,
-    keywords='Python edx',
+    keywords='Python edx dbt schema builder',
+    entry_points={
+        'console_scripts': [
+            'dbt_schema_builder = dbt_schema_builder.schema_builder:main'
+        ]
+    },
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
