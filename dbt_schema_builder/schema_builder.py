@@ -7,9 +7,7 @@ import sys
 
 from dbt.config import PROFILES_DIR
 
-# Since this is not an installable python module and we're invoking it in a
-# very ad-hoc way, we can't use relative imports which would make pylint happy.
-from builder import SchemaBuilderTask  # pylint: disable=no-name-in-module
+from .builder import SchemaBuilderTask
 
 
 def parse_args(args):
