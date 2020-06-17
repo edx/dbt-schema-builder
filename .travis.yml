@@ -21,7 +21,7 @@ after_success:
 - codecov
 deploy:
   provider: pypi
-  user: __token__
+  user: edx
   distributions: sdist bdist_wheel
   on:
     tags: true
