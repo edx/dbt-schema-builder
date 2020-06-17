@@ -1,7 +1,7 @@
 dbt-schema-builder
 =============================
 
-|pypi-badge| |travis-badge| |codecov-badge| |doc-badge| |pyversions-badge|
+|pypi-badge| |travis-badge| |codecov-badge| |pyversions-badge|
 |license-badge|
 
 The Schema Builder tool is used to create dbt schema files, sql models, and
@@ -78,17 +78,13 @@ For more information about these options, see the `Getting Help`_ page.
     :target: https://pypi.python.org/pypi/dbt-schema-builder/
     :alt: PyPI
 
-.. |travis-badge| image:: https://travis-ci.org/edx/dbt-schema-builder.svg?branch=master
-    :target: https://travis-ci.org/edx/dbt-schema-builder
+.. |travis-badge| image:: https://travis-ci.com/edx/dbt-schema-builder.svg?branch=master
+    :target: https://travis-ci.com/edx/dbt-schema-builder
     :alt: Travis
 
 .. |codecov-badge| image:: https://codecov.io/github/edx/dbt-schema-builder/coverage.svg?branch=master
     :target: https://codecov.io/github/edx/dbt-schema-builder?branch=master
     :alt: Codecov
-
-.. |doc-badge| image:: https://readthedocs.org/projects/dbt-schema-builder/badge/?version=latest
-    :target: https://dbt-schema-builder.readthedocs.io/en/latest/
-    :alt: Documentation
 
 .. |pyversions-badge| image:: https://img.shields.io/pypi/pyversions/dbt-schema-builder.svg
     :target: https://pypi.python.org/pypi/dbt-schema-builder/
