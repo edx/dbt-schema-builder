@@ -22,8 +22,7 @@ log_manager.set_path(None)
 
 # Set up our SQL templates
 LOCAL_PATH = os.path.abspath(os.path.dirname(__file__))
-TEMPLATE_PATH = os.path.join(LOCAL_PATH, "templates")
-TEMPLATE_LOADER = jinja2.FileSystemLoader(searchpath=TEMPLATE_PATH)
+TEMPLATE_LOADER = jinja2.PackageLoader("dbt_schema_builder", "templates")
 TEMPLATE_ENV = jinja2.Environment(loader=TEMPLATE_LOADER)
 SQL_TEMPLATE_PII = TEMPLATE_ENV.get_template("model_sql_pii.tpl")
 SQL_TEMPLATE_SAFE = TEMPLATE_ENV.get_template("model_sql_safe.tpl")

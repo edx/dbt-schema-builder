@@ -1,7 +1,7 @@
 dbt-schema-builder
 =============================
 
-|pypi-badge| |travis-badge| |codecov-badge| |doc-badge| |pyversions-badge|
+|pypi-badge| |travis-badge| |codecov-badge| |pyversions-badge|
 |license-badge|
 
 The Schema Builder tool is used to create dbt schema files, sql models, and
