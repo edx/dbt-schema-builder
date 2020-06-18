@@ -32,7 +32,9 @@ every table in this schema a view will be created in the ``<SCHEMA>`` and
 
 ``--destination-project`` - the dbt project that will use the generated
 sources. Schema Builder will create or overwrite the source file(s) associated
-with the schemas passed in to ``--raw-schemas`` for this project.
+with the schemas passed in to ``--raw-schemas`` for this project. This path
+is relative to the source project path (the path that Schema Builder is being
+run from).
 
 Options
 

@@ -1,4 +1,4 @@
 include LICENSE.txt
 include README.rst
 include requirements/base.in
-recursive-include dbt_schema_builder *.html *.png *.gif *.js *.css *.jpg *.jpeg *.svg *.py *.tpl
+recursive-include dbt_schema_builder *.html *.png *.gif *.js *.css *.jpg *.jpeg *.svg *.py *.tpl *.yml
