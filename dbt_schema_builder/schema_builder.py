@@ -67,7 +67,7 @@ def parse_args(args):
     build_sub.add_argument(
         "--destination-project",
         required=True,
-        help="Required. Specify the project that will use the generated sources, relative to the 'projects' directory.",
+        help="Required. Specify the project that will use the generated sources, relative to the source project.",
     )
 
     if not args:

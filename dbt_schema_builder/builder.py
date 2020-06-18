@@ -175,13 +175,9 @@ class SchemaBuilderTask:
         """
         Find the dbt project directory based on the command line inputs.
         """
-        project_root_path = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), "..", "..", "projects")
-        )
-
         source_project_path = os.getcwd()
         destination_project_path = os.path.join(
-            project_root_path, self.args.destination_project
+            source_project_path, self.args.destination_project
         )
 
         for project_path in [source_project_path, destination_project_path]:
