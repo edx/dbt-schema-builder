@@ -2,6 +2,7 @@
         extract_translations fake_translations help \
         quality requirements selfcheck test test-all upgrade validate
 
+
 .DEFAULT_GOAL := help
 
 # For opening files in a browser. Use like: $(BROWSER)relative/path/to/file.html
