@@ -1,4 +1,4 @@
-.. dbt-schema-builder documentation master file, created by
+.. dbt-schema-builder documentation top level file, created by
    sphinx-quickstart on Tue Jun 02 16:11:12 2020.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.

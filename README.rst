@@ -78,12 +78,12 @@ For more information about these options, see the `Getting Help`_ page.
     :target: https://pypi.python.org/pypi/dbt-schema-builder/
     :alt: PyPI
 
-.. |travis-badge| image:: https://travis-ci.com/edx/dbt-schema-builder.svg?branch=master
+.. |travis-badge| image:: https://travis-ci.com/edx/dbt-schema-builder.svg?branch=main
     :target: https://travis-ci.com/edx/dbt-schema-builder
     :alt: Travis
 
-.. |codecov-badge| image:: https://codecov.io/github/edx/dbt-schema-builder/coverage.svg?branch=master
-    :target: https://codecov.io/github/edx/dbt-schema-builder?branch=master
+.. |codecov-badge| image:: https://codecov.io/github/edx/dbt-schema-builder/coverage.svg?branch=main
+    :target: https://codecov.io/github/edx/dbt-schema-builder?branch=main
     :alt: Codecov
 
 .. |pyversions-badge| image:: https://img.shields.io/pypi/pyversions/dbt-schema-builder.svg
@@ -91,5 +91,5 @@ For more information about these options, see the `Getting Help`_ page.
     :alt: Supported Python versions
 
 .. |license-badge| image:: https://img.shields.io/github/license/edx/dbt-schema-builder.svg
-    :target: https://github.com/edx/dbt-schema-builder/blob/master/LICENSE.txt
+    :target: https://github.com/edx/dbt-schema-builder/blob/main/LICENSE.txt
     :alt: License
