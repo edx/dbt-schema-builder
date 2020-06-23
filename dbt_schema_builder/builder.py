@@ -15,6 +15,7 @@ from dbt.task.compile import CompileTask
 from dbt.task.generate import _coerce_decimal, get_adapter
 
 from .queries import COLUMN_NAME_FILTER, GET_RELATIONS_BY_SCHEMA_AND_START_LETTER_SQL, GET_RELATIONS_BY_SCHEMA_SQL
+from .schema import Relation
 
 # Set up the dbt logger
 log_manager.set_path(None)
@@ -289,126 +290,6 @@ class SchemaBuilderTask:
         with open(sql_file_path, "w") as f:
             f.write(sql)
 
-    def _get_model_name_alias(self, snowflake_keywords, model_name):
-        if model_name in snowflake_keywords:
-            return "_{}".format(model_name)
-        else:
-            return model_name
-
-    def prep_metadata(self, snowflake_keywords, relation_name, column_names):
-        """
-        Transforms the data we receive back from Snowflake / dbt to a more usable form.
-        """
-        columns = []
-
-        for colname in column_names:
-            column = {"name": colname.upper()}
-            columns.append(column)
-
-        model = {
-            "name": relation_name,
-            "alias": self._get_model_name_alias(snowflake_keywords, relation_name),
-            "description": DEFAULT_DESCRIPTION,
-            "columns": columns,
-        }
-
-        return model
-
-    def _get_model_name(self, app, relation, view_type):
-        """
-        Get the model name for a given relation in the UPSTREAM project.  This
-        will be the model filename without the .sql extension, and also the
-        name of the model in `ref()`s in the upstream dbt project.
-        """
-        if view_type == "SAFE":
-            return "{}_{}".format(app, relation)
-        else:
-            return "{}_{}_{}".format(app, view_type, relation)
-
-    def _dir_is_flat(self, path):
-        """
-        Returns True iff the given directory is "flat", i.e. contains no subdirectories.
-        """
-        for entry in os.scandir(path):
-            if entry.is_dir():
-                return False
-        return True
-
-    def _manual_model_exists(self, app, app_path, relation, view_type):
-        """
-        Return true if a manual model exists for the given relation.
-
-        Args:
-            app (str): name of app, e.g. "LMS".
-            app_path (str): path to app directory, e.g. "models/PROD/LMS".
-            relation (str): name of relation, e.g. "AUTH_USER".
-            view_type (str): either "SAFE" or "PII".
-
-        Raises:
-            RuntimeError: When the manual models directory is not flat.
-        """
-        manual_models_directory = os.path.join(app_path, "{}_MANUAL".format(app))
-        if os.path.isdir(manual_models_directory):
-
-            # Ensure that the directory contents are flat.
-            if not self._dir_is_flat(manual_models_directory):
-                raise RuntimeError(
-                    'MANUAL directory is not "flat", i.e. it contains subdirectories: {}'.format(
-                        manual_models_directory,
-                    )
-                )
-
-            manual_model_name = self._get_model_name(app, relation, view_type)
-            manual_model_path = os.path.join(
-                manual_models_directory, "{}.sql".format(manual_model_name)
-            )
-            if os.path.exists(manual_model_path):
-                return True
-        return False
-
-    def find_in_current_sources(
-        self, current_raw_sources, current_downstream_sources, app, relation
-    ):
-        """
-        Find source data in an existing loaded schema yml file.
-
-        If a file already exists for this schema, find the values for the current relation so we can preserve any
-        manual modifications (tests, description, etc.).
-        """
-        if not current_raw_sources and not current_downstream_sources:
-            return None, None, None
-
-        current_raw_source = None
-        current_safe_downstream_source = None
-        current_pii_downstream_source = None
-
-        if current_raw_sources and "sources" in current_raw_sources:
-            for source in current_raw_sources["sources"]:
-                for table in source["tables"]:
-                    if table["name"] == relation:
-                        current_raw_source = table
-                        break
-
-        if current_downstream_sources and "sources" in current_downstream_sources:
-            for source in current_downstream_sources["sources"]:
-                if source["name"] == app:
-                    for table in source["tables"]:
-                        if table["name"] == relation:
-                            current_safe_downstream_source = table
-                elif source["name"] == "{}_PII".format(app):
-                    for table in source["tables"]:
-                        if table["name"] == relation:
-                            current_pii_downstream_source = table
-
-                if current_safe_downstream_source and current_pii_downstream_source:
-                    break
-
-        return (
-            current_raw_source,
-            current_safe_downstream_source,
-            current_pii_downstream_source,
-        )
-
     def clean_sql_files(self, app):
         """
         Delete existing SQL models to make sure that we don't have orphaned models for deleted tables.
@@ -655,11 +536,11 @@ class SchemaBuilderTask:
 
                     # Sort by table names here, so that the output is deterministic and can be diff'd
                     for source_relation_name in relations:
-                        relation = self._get_model_name_alias(snowflake_keywords, source_relation_name)
-                        meta_data = relations[source_relation_name]
 
-                        new_safe_relation_name = "{}_{}".format(app, relation)
-                        new_pii_relation_name = "{}_PII_{}".format(app, relation)
+                        meta_data = relations[source_relation_name]
+                        relation = Relation(
+                            source_relation_name, meta_data, app, app_path, snowflake_keywords, unmanaged_tables
+                        )
 
                         (
                             current_raw_source,
@@ -668,8 +549,6 @@ class SchemaBuilderTask:
                         ) = self.find_in_current_sources(
                             current_raw_sources,
                             current_downstream_sources,
-                            app,
-                            source_relation_name,
                         )
 
                         # Add our table to the "sources" list in the new schema.
@@ -679,54 +558,30 @@ class SchemaBuilderTask:
                             )
                         else:
                             new_schema["sources"][0]["tables"].append(
-                                {"name": source_relation_name}
+                                {"name": relation.source_relation_name}
                             )
 
                         ##############################
                         # Add our table to the new downstream sources file, preserving configuration if it exists.
                         ##############################
 
-                        # Check some properties of the relation:
-                        #
-                        # Is it "unmanaged" (i.e. it has been added to the list of unmanaged tables in
-                        # unmanaged_tables.yml, indicating that we do not want schema builder to manage this table's
-                        # view-generating models), and
-                        relation_is_unmanaged = (
-                            "{}.{}".format(app, relation) in self.unmanaged_tables
-                        )
-                        #
-                        # Manual models exist for it (i.e. someone has gone into the {APP}_MANUAL directory for this app
-                        # and manually written view-generating models for this relation).
-                        manual_safe_model_exists = self._manual_model_exists(
-                            app, app_path, relation, view_type="SAFE"
-                        )
-                        #
-                        # Views generated for this relation are to be excluded in downstream sources since the relation
-                        # was not listed in a whitelist or has otherwise been flagged for exclusion.  A None whitelist
-                        # signifies that all relations are to be included.
-                        excluded_from_downstream_sources = (
-                            self.downstream_sources_whitelist
-                            and "{}.{}".format(app, relation)
-                            not in self.downstream_sources_whitelist
-                        )
-
                         # Whenever there is no view generated for a relation, we should not add it to sources in the
                         # downstream project.  If we did, the source would be non-functional since it would not be
                         # backed by any real data!  No view is generated under the following condition: when the
                         # relation is unmanaged AND no manual models exist.
-                        if relation_is_unmanaged and not manual_safe_model_exists:
+                        if relation.is_unmanaged and not relation.manual_safe_model_exists:
                             logger.info(
                                 (
                                     "{}.{} is an unmanaged table WITHOUT a manual model, "
                                     "skipping inclusion as a source in downstream project."
-                                ).format(app, relation)
+                                ).format(relation.app, relation.relation)
                             )
-                        elif excluded_from_downstream_sources:
+                        elif relation.excluded_from_downstream_sources:
                             logger.info(
                                 (
                                     "{}.{} is absent from the downstream sources whitelist, "
                                     "skipping inclusion as a source in downstream project."
-                                ).format(app, relation)
+                                ).format(relation.app, relation.relation)
                             )
                         elif current_safe_source:
                             for source in new_downstream_sources["sources"]:
@@ -739,38 +594,36 @@ class SchemaBuilderTask:
                                 if source["name"] == safe_downstream_source_name:
                                     source["tables"].append(
                                         {
-                                            "name": relation,
+                                            "name": relation.relation,
                                             "description": DEFAULT_DESCRIPTION,
                                         }
                                     )
                                 elif source["name"] == pii_downstream_source_name:
                                     source["tables"].append(
                                         {
-                                            "name": relation,
+                                            "name": relation.relation,
                                             "description": DEFAULT_DESCRIPTION,
                                         }
                                     )
 
                         for relation_name in [
-                            new_pii_relation_name,
-                            new_safe_relation_name,
+                            relation.new_pii_relation_name,
+                            relation.new_safe_relation_name,
                         ]:
                             self.add_model_to_new_schema(
-                                new_schema, relation_name, meta_data
+                                new_schema, relation_name, relation.meta_data
                             )
 
                         ##############################
                         # Write out dbt models which are responsible for generating the views
                         ##############################
 
-                        relation_dict = self.prep_metadata(
-                            snowflake_keywords, source_relation_name, meta_data
-                        )
+                        relation_dict = self.prep_meta_data()
 
                         if relation_is_unmanaged:
                             logger.info(
                                 "{}.{} is an unmanaged table, skipping SQL generation.".format(
-                                    app, relation
+                                    self.app, self.relation
                                 )
                             )
                         else:
@@ -784,9 +637,7 @@ class SchemaBuilderTask:
 
                                 if not os.path.isdir(sql_path):
                                     os.mkdir(sql_path)
-                                model_name = self._get_model_name(
-                                    app, relation, view_type
-                                )
+                                model_name = relation._get_model_name(view_type)
                                 sql_file_name = "{}.sql".format(model_name)
                                 sql_file_path = os.path.join(sql_path, sql_file_name)
                                 sql = self.render_sql(

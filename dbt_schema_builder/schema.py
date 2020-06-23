@@ -7,7 +7,10 @@ DEFAULT_DESCRIPTION = "TODO: Replace me"
 
 class Relation(object):
 
-    def __init__(self, source_relation_name, metadata, app, app_path, snowflake_keywords):
+    def __init__(
+        self, source_relation_name, meta_data, app, app_path,
+        snowflake_keywords, unmanaged_tables
+    ):
         self.snowflake_keywords = snowflake_keywords
 
         self.source_relation_name = source_relation_name
@@ -15,10 +18,12 @@ class Relation(object):
         self.new_safe_relation_name = "{}_{}".format(app, self.relation)
         self.new_pii_relation_name = "{}_PII_{}".format(app, self.relation)
 
-        self.metadata = metadata
+        self.meta_data = meta_data
 
         self.app = app
         self.app_path = app_path
+
+        self.unmanaged_tables = unmanaged_tables
 
     def _get_model_name_alias(self):
         if self.source_relation_name in self.snowflake_keywords:
@@ -26,13 +31,13 @@ class Relation(object):
         else:
             return self.source_relation_name 
 
-    def prep_metadata(self):
+    def prep_meta_data(self):
         """
         Transforms the data we receive back from Snowflake / dbt to a more usable form.
         """
         columns = []
 
-        for colname in self.metadata:
+        for colname in self.meta_data:
             column = {"name": colname.upper()}
             columns.append(column)
 
@@ -88,7 +93,8 @@ class Relation(object):
             current_pii_downstream_source,
         )
 
-    def is_unmanaged(self, unmanaged_tables):
+    @property
+    def is_unmanaged(self):
         """
         Is it "unmanaged" (i.e. it has been added to the list of unmanaged tables in
         unmanaged_tables.yml, indicating that we do not want schema builder to manage this table's
@@ -99,7 +105,7 @@ class Relation(object):
         )
 
 
-    # make a property
+    @property
     def manual_safe_model_exists(self):
         """
         Manual models exist for it (i.e. someone has gone into the {APP}_MANUAL directory for this app
@@ -107,6 +113,7 @@ class Relation(object):
         """
         return self._manual_model_exists(view_type="SAFE")
 
+    @property
     def excluded_from_downstream_sources(self):
         """
         Views generated for this relation are to be excluded in downstream sources since the relation

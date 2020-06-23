@@ -8,11 +8,11 @@ import pytest
 from dbt_schema_builder.schema import Relation
 
 
-def test_prep_metadata():
+def test_prep_meta_data():
     relation = Relation(
-        'START', ['COLUMN_1', 'COLUMN_2'], 'LMS', 'models/PROD/LMS', ['START', 'END']
+        'START', ['COLUMN_1', 'COLUMN_2'], 'LMS', 'models/PROD/LMS', ['START', 'END'], []
     )
-    model = relation.prep_metadata()
+    model = relation.prep_meta_data()
 
     expected_model = {
         "name": "START",
@@ -28,9 +28,9 @@ def test_prep_metadata():
 
 def test_manual_model_not_exist():
     relation = Relation(
-        'TABLE', ['COLUMN_1', 'COLUMN_2'], 'LMS', 'non/existent/path', ['START', 'END']
+        'TABLE', ['COLUMN_1', 'COLUMN_2'], 'LMS', 'non/existent/path', ['START', 'END'], []
     )
-    assert not relation._manual_model_exists(view_type="SAFE")
+    assert not relation.manual_safe_model_exists
 
 def test_manual_model_not_flat(tmpdir):
     app_path_base = tmpdir.mkdir('test_app_path')
@@ -40,10 +40,10 @@ def test_manual_model_not_flat(tmpdir):
     manual_model_path.mkdir('subdirectory')
 
     relation = Relation(
-        'TABLE', ['COLUMN_1', 'COLUMN_2'], 'LMS', app_path, ['START', 'END']
+        'TABLE', ['COLUMN_1', 'COLUMN_2'], 'LMS', app_path, ['START', 'END'], []
     )
     with pytest.raises(RuntimeError) as excinfo:
-        relation._manual_model_exists(view_type="SAFE")
+        relation.manual_safe_model_exists(view_type="SAFE")
     assert 'MANUAL directory is not "flat"' in str(excinfo.value)
 
 def test_manual_model_not_flat2(tmpdir):
@@ -55,14 +55,14 @@ def test_manual_model_not_flat2(tmpdir):
     manual_model_file.write('data')
 
     relation = Relation(
-        'TABLE', ['COLUMN_1', 'COLUMN_2'], 'LMS', app_path, ['START', 'END']
+        'TABLE', ['COLUMN_1', 'COLUMN_2'], 'LMS', app_path, ['START', 'END'], []
     )
-    assert relation._manual_model_exists(view_type="SAFE")
+    assert relation.manual_safe_model_exists
 
 def test_in_current_sources():
 
     relation = Relation(
-        'THIS_TABLE', ['COLUMN_1', 'COLUMN_2'], 'LMS', 'app_path', ['START', 'END']
+        'THIS_TABLE', ['COLUMN_1', 'COLUMN_2'], 'LMS', 'app_path', ['START', 'END'], []
     )
 
     current_raw_sources = {
