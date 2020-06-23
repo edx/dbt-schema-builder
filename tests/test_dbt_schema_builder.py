@@ -2,8 +2,6 @@
 Tests for dbt_schema_builder.py.
 """
 
-import os
-
 import pytest
 from dbt_schema_builder.schema import Relation
 
@@ -43,7 +41,7 @@ def test_manual_model_not_flat(tmpdir):
         'TABLE', ['COLUMN_1', 'COLUMN_2'], 'LMS', app_path, ['START', 'END'], []
     )
     with pytest.raises(RuntimeError) as excinfo:
-        relation.manual_safe_model_exists(view_type="SAFE")
+        _ = relation.manual_safe_model_exists
     assert 'MANUAL directory is not "flat"' in str(excinfo.value)
 
 def test_manual_model_not_flat2(tmpdir):

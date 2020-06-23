@@ -539,14 +539,14 @@ class SchemaBuilderTask:
 
                         meta_data = relations[source_relation_name]
                         relation = Relation(
-                            source_relation_name, meta_data, app, app_path, snowflake_keywords, unmanaged_tables
+                            source_relation_name, meta_data, app, app_path, snowflake_keywords, self.unmanaged_tables
                         )
 
                         (
                             current_raw_source,
                             current_safe_source,
                             current_pii_source,
-                        ) = self.find_in_current_sources(
+                        ) = relation.find_in_current_sources(
                             current_raw_sources,
                             current_downstream_sources,
                         )
@@ -618,12 +618,12 @@ class SchemaBuilderTask:
                         # Write out dbt models which are responsible for generating the views
                         ##############################
 
-                        relation_dict = self.prep_meta_data()
+                        relation_dict = relation.prep_meta_data()
 
-                        if relation_is_unmanaged:
+                        if relation.is_unmanaged:
                             logger.info(
                                 "{}.{} is an unmanaged table, skipping SQL generation.".format(
-                                    self.app, self.relation
+                                    relation.app, relation.relation
                                 )
                             )
                         else:
@@ -637,7 +637,7 @@ class SchemaBuilderTask:
 
                                 if not os.path.isdir(sql_path):
                                     os.mkdir(sql_path)
-                                model_name = relation._get_model_name(view_type)
+                                model_name = relation._get_model_name(view_type)  # pylint: disable=protected-access
                                 sql_file_name = "{}.sql".format(model_name)
                                 sql_file_path = os.path.join(sql_path, sql_file_name)
                                 sql = self.render_sql(

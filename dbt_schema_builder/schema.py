@@ -1,11 +1,9 @@
 import os
-from dbt.config import RuntimeConfig
 
 DEFAULT_DESCRIPTION = "TODO: Replace me"
 
 
-
-class Relation(object):
+class Relation():
 
     def __init__(
         self, source_relation_name, meta_data, app, app_path,
@@ -29,7 +27,7 @@ class Relation(object):
         if self.source_relation_name in self.snowflake_keywords:
             return "_{}".format(self.source_relation_name)
         else:
-            return self.source_relation_name 
+            return self.source_relation_name
 
     def prep_meta_data(self):
         """
@@ -101,7 +99,7 @@ class Relation(object):
         view-generating models), and
         """
         return (
-            "{}.{}".format(app, relation) in unmanaged_tables
+            "{}.{}".format(self.app, self.relation) in self.unmanaged_tables
         )
 
 
@@ -122,7 +120,7 @@ class Relation(object):
         """
         return (
             self.downstream_sources_whitelist
-            and "{}.{}".format(app, relation)
+            and "{}.{}".format(self.app, self.relation)
             not in self.downstream_sources_whitelist
         )
 
