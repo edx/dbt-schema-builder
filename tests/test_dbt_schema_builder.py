@@ -3,7 +3,7 @@ Tests for dbt_schema_builder.py.
 """
 
 import pytest
-from dbt_schema_builder.schema import Relation
+from dbt_schema_builder.schema import Relation, Schema
 
 
 def test_prep_meta_data():
@@ -168,3 +168,80 @@ def test_in_current_sources():
     assert current_raw_source == expected_current_raw_source
     assert current_safe_downstream_source == expected_current_safe_downstream_source
     assert current_pii_downstream_source == expected_current_pii_downstream_source
+
+
+
+
+
+
+# schema tests:
+
+def test_it():
+    schema = Schema(
+        'LMS_RAW', 'LMS', 'models/PROD/LMS', 'models/PROD/LMS/LMS.yml', {}, {}, 'PROD'
+    )
+
+    current_raw_source = None
+    relation = Relation(
+        'THIS_TABLE', ['COLUMN_1', 'COLUMN_2'], 'LMS', 'models/PROD/LMS', ['START', 'END'], []
+    )
+    schema.add_table_to_new_schema(current_raw_source, relation)
+
+    current_raw_source = {"name": "THAT_TABLE", "description": "some special description"}
+    relation = Relation(
+        'THAT_TABLE', ['COLUMN_3', 'COLUMN_4'], 'LMS', 'models/PROD/LMS', ['START', 'END'], []
+    )
+    schema.add_table_to_new_schema(current_raw_source, relation)
+
+    expected_schema = {
+        "version": 2,
+        "sources": [
+            {
+                "name": 'LMS_RAW',
+                "tables": [
+                    {"name": 'THIS_TABLE'},
+                    {"name": 'THAT_TABLE', "description": "some special description"},
+                ]
+            }
+        ],
+        "models": [],
+    }
+
+    assert schema.new_schema == expected_schema
+
+
+def test_update_trifecta_models():
+    schema = Schema(
+        'LMS_RAW', 'LMS', 'models/PROD/LMS', 'models/PROD/LMS/LMS.yml', {}, {}, 'PROD'
+    )
+
+    relation = Relation(
+        'THIS_TABLE', ['COLUMN_1', 'COLUMN_2'], 'LMS', 'models/PROD/LMS', ['START', 'END'], []
+    )
+
+    schema.update_trifecta_models(relation)
+    expected_schema = {
+        "version": 2,
+        "sources": [
+            {
+                "name": "LMS_RAW",
+                "tables": []
+            }
+        ],
+        "models": [
+            {
+                "name": "LMS_PII_THIS_TABLE",
+                "columns": [
+                    {"name": "COLUMN_1"},
+                    {"name": "COLUMN_2"},
+                ]
+            },
+            {
+                "name": "LMS_THIS_TABLE",
+                "columns": [
+                    {"name": "COLUMN_1"},
+                    {"name": "COLUMN_2"},
+                ]
+            }
+        ],
+    }
