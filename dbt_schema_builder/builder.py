@@ -374,34 +374,6 @@ class SchemaBuilderTask:
 
         return current_downstream_sources
 
-    def get_columns_for_existing_table(self, new_columns, existing_columns):
-        """
-        Reconcile columns from a table that already exists in a schema file with new ones returned from Snowflake.
-
-        New columns will be added with a default description.
-        Existing columns will have all of their hand maintained data preserved.
-        Deleted columns will be removed.
-
-        existing_columns: The columns found the the schema file.
-        new_columns: The columns found in Snowflake.
-        """
-        new_cols = []
-
-        for col in existing_columns:
-            orig_col = None
-
-            for curr_col in new_columns:
-                if curr_col["name"] == col:
-                    orig_col = curr_col
-                    break
-
-            if orig_col:
-                new_cols.append(orig_col)
-            else:
-                new_cols.append({"name": col, "description": DEFAULT_DESCRIPTION})
-
-        return new_cols
-
     def write_sources_for_downstream_project(self, sources_file_path, yml):
         """
         Writes out the given schema file with the given string.
