@@ -1,5 +1,7 @@
 import os
 
+from dbt.logger import GLOBAL_LOGGER as logger
+
 DEFAULT_DESCRIPTION = "TODO: Replace me"
 
 
@@ -7,7 +9,7 @@ class Relation():
 
     def __init__(
         self, source_relation_name, meta_data, app, app_path,
-        snowflake_keywords, unmanaged_tables
+        snowflake_keywords, unmanaged_tables, downstream_sources_whitelist
     ):
         self.snowflake_keywords = snowflake_keywords
 
@@ -22,6 +24,7 @@ class Relation():
         self.app_path = app_path
 
         self.unmanaged_tables = unmanaged_tables
+        self.downstream_sources_whitelist = downstream_sources_whitelist
 
     def _get_model_name_alias(self):
         if self.source_relation_name in self.snowflake_keywords:
@@ -184,14 +187,6 @@ class Schema():
         current_downstream_sources, database
     ):
 
-        # raw scheam: CREDENTIALS_RAW
-        # app: CREDENTIALS
-        # app_path: 'models/PROD/CREDENTIALS'
-        # design file path: models/PROD/CREDENTIALS/CREDENTIALS.yml
-
-        # destination_project_path: /home/stu/Sandbox/oct/warehouse-transforms/projects/reporting
-        # database: PROD
-
         self.raw_schema = raw_schema
         self.app = app
         self.app_path = app_path
@@ -230,7 +225,9 @@ class Schema():
         }
 
     def add_table_to_new_schema(self, current_raw_source, relation):
-        # Add our table to the "sources" list in the new schema.
+        """
+        Add our table to the "sources" list in the new schema.
+        """
         if current_raw_source:
             self.new_schema["sources"][0]["tables"].append(
                 current_raw_source
@@ -240,7 +237,7 @@ class Schema():
                 {"name": relation.source_relation_name}
             )
 
-    def add_table_to_downstream_sources():
+    def add_table_to_downstream_sources(self, relation, current_safe_source, current_pii_source):
         # Whenever there is no view generated for a relation, we should not add it to sources in the
         # downstream project.  If we did, the source would be non-functional since it would not be
         # backed by any real data!  No view is generated under the following condition: when the
@@ -260,21 +257,21 @@ class Schema():
                 ).format(relation.app, relation.relation)
             )
         elif current_safe_source:
-            for source in new_downstream_sources["sources"]:
-                if source["name"] == safe_downstream_source_name:
+            for source in self.new_downstream_sources["sources"]:
+                if source["name"] == self.safe_downstream_source_name:
                     source["tables"].append(current_safe_source)
-                elif source["name"] == pii_downstream_source_name:
+                elif source["name"] == self.pii_downstream_source_name:
                     source["tables"].append(current_pii_source)
         else:
-            for source in new_downstream_sources["sources"]:
-                if source["name"] == safe_downstream_source_name:
+            for source in self.new_downstream_sources["sources"]:
+                if source["name"] == self.safe_downstream_source_name:
                     source["tables"].append(
                         {
                             "name": relation.relation,
                             "description": DEFAULT_DESCRIPTION,
                         }
                     )
-                elif source["name"] == pii_downstream_source_name:
+                elif source["name"] == self.pii_downstream_source_name:
                     source["tables"].append(
                         {
                             "name": relation.relation,

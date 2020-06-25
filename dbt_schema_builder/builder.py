@@ -478,6 +478,7 @@ class SchemaBuilderTask:
                 self.clean_sql_files(app)
 
                 for raw_schema, relations in relations_to_build.items():
+
                     app = self.remove_suffix(raw_schema, raw_suffixes)
                     app_path = os.path.join(
                         self.config.source_paths[0],
@@ -500,39 +501,14 @@ class SchemaBuilderTask:
                         app_path, design_file_path
                     )
 
-                    safe_downstream_source_name = app
-                    pii_downstream_source_name = "{}_PII".format(app)
-
                     current_downstream_sources = self.get_current_downstream_sources_attrs(
                         downstream_sources_dir_path, downstream_sources_file_path,
                     )
 
-                    # Create a new, empty object to store a new version of our schema so we don't get any tables/models
-                    # that may have been deleted since the last run.
-                    new_schema = {
-                        "version": 2,
-                        "sources": [{"name": raw_schema, "tables": []}],
-                        "models": [],
-                    }
+                    schema_object = Schema(
+                        raw_schema, app, app_path, design_file_path, current_raw_sources, current_downstream_sources
+                    )
 
-                    # Create a new, empty object to store a new version of our downstream sources so we don't get any
-                    # tables / models that may have been deleted since the last run.
-                    new_downstream_sources = {
-                        "version": 2,
-                        "sources": [
-                            {
-                                "name": safe_downstream_source_name,
-                                "database": self.config.credentials.database,
-                                "tables": [],
-                            },
-                            {
-                                "name": pii_downstream_source_name,
-                                "database": self.config.credentials.database,
-                                "tables": [],
-                            },
-                        ],
-                        "models": [],
-                    }
 
                     # Sort by table names here, so that the output is deterministic and can be diff'd
                     for source_relation_name in relations:
@@ -551,68 +527,11 @@ class SchemaBuilderTask:
                             current_downstream_sources,
                         )
 
-                        # Add our table to the "sources" list in the new schema.
-                        if current_raw_source:
-                            new_schema["sources"][0]["tables"].append(
-                                current_raw_source
-                            )
-                        else:
-                            new_schema["sources"][0]["tables"].append(
-                                {"name": relation.source_relation_name}
-                            )
+                        schema_object.add_table_to_new_schema(current_raw_source, relation)
 
-                        ##############################
-                        # Add our table to the new downstream sources file, preserving configuration if it exists.
-                        ##############################
+                        schema_object.add_table_to_downstream_sources(relation, current_safe_source, current_pii_source)
 
-                        # Whenever there is no view generated for a relation, we should not add it to sources in the
-                        # downstream project.  If we did, the source would be non-functional since it would not be
-                        # backed by any real data!  No view is generated under the following condition: when the
-                        # relation is unmanaged AND no manual models exist.
-                        if relation.is_unmanaged and not relation.manual_safe_model_exists:
-                            logger.info(
-                                (
-                                    "{}.{} is an unmanaged table WITHOUT a manual model, "
-                                    "skipping inclusion as a source in downstream project."
-                                ).format(relation.app, relation.relation)
-                            )
-                        elif relation.excluded_from_downstream_sources:
-                            logger.info(
-                                (
-                                    "{}.{} is absent from the downstream sources whitelist, "
-                                    "skipping inclusion as a source in downstream project."
-                                ).format(relation.app, relation.relation)
-                            )
-                        elif current_safe_source:
-                            for source in new_downstream_sources["sources"]:
-                                if source["name"] == safe_downstream_source_name:
-                                    source["tables"].append(current_safe_source)
-                                elif source["name"] == pii_downstream_source_name:
-                                    source["tables"].append(current_pii_source)
-                        else:
-                            for source in new_downstream_sources["sources"]:
-                                if source["name"] == safe_downstream_source_name:
-                                    source["tables"].append(
-                                        {
-                                            "name": relation.relation,
-                                            "description": DEFAULT_DESCRIPTION,
-                                        }
-                                    )
-                                elif source["name"] == pii_downstream_source_name:
-                                    source["tables"].append(
-                                        {
-                                            "name": relation.relation,
-                                            "description": DEFAULT_DESCRIPTION,
-                                        }
-                                    )
-
-                        for relation_name in [
-                            relation.new_pii_relation_name,
-                            relation.new_safe_relation_name,
-                        ]:
-                            self.add_model_to_new_schema(
-                                new_schema, relation_name, relation.meta_data
-                            )
+                        schema_object.update_trifecta_models(relation)
 
                         ##############################
                         # Write out dbt models which are responsible for generating the views
