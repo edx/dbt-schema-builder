@@ -1,3 +1,6 @@
+"""
+Various components representing DBT constructs, used by the schema builder
+"""
 import os
 
 from dbt.logger import GLOBAL_LOGGER as logger
@@ -6,6 +9,9 @@ DEFAULT_DESCRIPTION = "TODO: Replace me"
 
 
 class Relation():
+    """
+    Class to represent a DBT relation (a table/view)
+    """
 
     def __init__(
         self, source_relation_name, meta_data, app, app_path,
@@ -105,7 +111,6 @@ class Relation():
             "{}.{}".format(self.app, self.relation) in self.unmanaged_tables
         )
 
-
     @property
     def manual_safe_model_exists(self):
         """
@@ -132,9 +137,6 @@ class Relation():
         Return true if a manual model exists for the given relation.
 
         Args:
-            app (str): name of app, e.g. "LMS".
-            app_path (str): path to app directory, e.g. "models/PROD/LMS".
-            relation (str): name of relation, e.g. "AUTH_USER".
             view_type (str): either "SAFE" or "PII".
 
         Raises:
@@ -181,6 +183,9 @@ class Relation():
 
 
 class Schema():
+    """
+    Class to represent a DBT schema and provide functionality for updating its downstreams
+    """
 
     def __init__(
         self, raw_schema, app, app_path, design_file_path, current_raw_sources,
@@ -238,10 +243,12 @@ class Schema():
             )
 
     def add_table_to_downstream_sources(self, relation, current_safe_source, current_pii_source):
-        # Whenever there is no view generated for a relation, we should not add it to sources in the
-        # downstream project.  If we did, the source would be non-functional since it would not be
-        # backed by any real data!  No view is generated under the following condition: when the
-        # relation is unmanaged AND no manual models exist.
+        """
+        Whenever there is no view generated for a relation, we should not add it to sources in the
+        downstream project.  If we did, the source would be non-functional since it would not be
+        backed by any real data!  No view is generated under the following condition: when the
+        relation is unmanaged AND no manual models exist.
+        """
         if relation.is_unmanaged and not relation.manual_safe_model_exists:
             logger.info(
                 (
@@ -280,6 +287,10 @@ class Schema():
                     )
 
     def update_trifecta_models(self, relation):
+        """
+        Given a relation, add it to the 'trifecta'. These are the PII and safe views
+        constructed from the raw data.
+        """
         for relation_name in [
             relation.new_pii_relation_name,
             relation.new_safe_relation_name,

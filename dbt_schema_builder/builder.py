@@ -15,7 +15,7 @@ from dbt.task.compile import CompileTask
 from dbt.task.generate import _coerce_decimal, get_adapter
 
 from .queries import COLUMN_NAME_FILTER, GET_RELATIONS_BY_SCHEMA_AND_START_LETTER_SQL, GET_RELATIONS_BY_SCHEMA_SQL
-from .schema import Relation
+from .schema import Relation, Schema
 
 # Set up the dbt logger
 log_manager.set_path(None)
@@ -402,18 +402,6 @@ class SchemaBuilderTask:
 
         return new_cols
 
-    def add_model_to_new_schema(self, new_schema, new_relation_name, model_metadata):
-        """
-        Add models and their columns to a schema that is currently being generated.
-        """
-        # Add our table to the "models" list in the new schema
-        new_schema["models"].append({"name": new_relation_name})
-
-        # Add columns to our model
-        new_cols = [{"name": c} for c in model_metadata]
-
-        new_schema["models"][-1]["columns"] = new_cols
-
     def write_sources_for_downstream_project(self, sources_file_path, yml):
         """
         Writes out the given schema file with the given string.
@@ -506,16 +494,17 @@ class SchemaBuilderTask:
                     )
 
                     schema_object = Schema(
-                        raw_schema, app, app_path, design_file_path, current_raw_sources, current_downstream_sources
+                        raw_schema, app, app_path, design_file_path, current_raw_sources,
+                        current_downstream_sources, self.config.credentials.database
                     )
-
 
                     # Sort by table names here, so that the output is deterministic and can be diff'd
                     for source_relation_name in relations:
 
                         meta_data = relations[source_relation_name]
                         relation = Relation(
-                            source_relation_name, meta_data, app, app_path, snowflake_keywords, self.unmanaged_tables
+                            source_relation_name, meta_data, app, app_path, snowflake_keywords,
+                            self.unmanaged_tables, self.downstream_sources_whitelist
                         )
 
                         (
@@ -565,12 +554,12 @@ class SchemaBuilderTask:
                                 self.write_sql(sql_file_path, sql)
 
                     self.write_relation(
-                        design_file_path, yaml.safe_dump(new_schema, sort_keys=False)
+                        design_file_path, yaml.safe_dump(schema_object.new_schema, sort_keys=False)
                     )
 
                     # Create source definitions pertaining to app database views in the downstream dbt
                     # project, i.e. reporting.
                     self.write_sources_for_downstream_project(
                         downstream_sources_file_path,
-                        yaml.safe_dump(new_downstream_sources, sort_keys=False),
+                        yaml.safe_dump(schema_object.new_downstream_sources, sort_keys=False),
                     )

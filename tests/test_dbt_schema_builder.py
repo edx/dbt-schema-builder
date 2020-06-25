@@ -1,9 +1,9 @@
 """
 Tests for dbt_schema_builder.py.
 """
-import logging
 
 import pytest
+
 from dbt_schema_builder.schema import Relation, Schema
 
 
@@ -25,11 +25,13 @@ def test_prep_meta_data():
 
     assert model == expected_model
 
+
 def test_manual_model_not_exist():
     relation = Relation(
         'TABLE', ['COLUMN_1', 'COLUMN_2'], 'LMS', 'non/existent/path', ['START', 'END'], [], []
     )
     assert not relation.manual_safe_model_exists
+
 
 def test_manual_model_not_flat(tmpdir):
     app_path_base = tmpdir.mkdir('test_app_path')
@@ -45,6 +47,7 @@ def test_manual_model_not_flat(tmpdir):
         _ = relation.manual_safe_model_exists
     assert 'MANUAL directory is not "flat"' in str(excinfo.value)
 
+
 def test_manual_model_exists(tmpdir):
     app_path_base = tmpdir.mkdir('test_app_path')
     db_path = app_path_base.mkdir('PROD')
@@ -57,6 +60,7 @@ def test_manual_model_exists(tmpdir):
         'TABLE', ['COLUMN_1', 'COLUMN_2'], 'LMS', app_path, ['START', 'END'], [], []
     )
     assert relation.manual_safe_model_exists
+
 
 def test_in_current_sources():
 
@@ -245,6 +249,8 @@ def test_update_trifecta_models():
         ],
     }
 
+    assert schema.new_schema == expected_schema
+
 
 def test_add_table_to_downstream_sources(tmpdir):
     app_path_base = tmpdir.mkdir('models')
@@ -297,7 +303,7 @@ def test_add_table_to_downstream_sources(tmpdir):
                 "name": 'LMS',
                 "database": 'PROD',
                 "tables": [
-                    {'name': 'THIS_TABLE', 'description': 'Expect this'},
+                    {'name': 'THIS_TABLE', 'description': 'TODO: Replace me'},
                     {
                         'name': 'THAT_TABLE',
                         'description': 'Make sure all of the aspects of this are preserved',
@@ -319,10 +325,12 @@ def test_add_table_to_downstream_sources(tmpdir):
                 "name": 'LMS_PII',
                 "database": 'PROD',
                 "tables": [
-                    {'name': 'THIS_TABLE', 'description': 'Expect this'},
+                    {'name': 'THIS_TABLE', 'description': 'TODO: Replace me'},
                     {'name': 'THAT_TABLE', 'description': 'Expect this'}
                 ],
             },
         ],
         "models": [],
     }
+
+    assert schema.new_downstream_sources == expected_downstream_sources
