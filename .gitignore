@@ -62,3 +62,6 @@ requirements/private.txt
 
 # PyCharm, etc.
 **/.idea/
+
+# Vim files
+*.swp
