@@ -171,7 +171,7 @@ class SchemaBuilderTask:
         self.redactions = self.get_redactions()
         self.banned_column_names = self.get_banned_columns()
         self.unmanaged_tables = self.get_unmanaged_tables()
-        self.downstream_sources_whitelist = self.get_downstream_sources_whitelist()
+        self.downstream_sources_allow_list = self.get_downstream_sources_allow_list()
 
     def get_project_dirs(self):
         """
@@ -217,11 +217,11 @@ class SchemaBuilderTask:
 
         return redactions if redactions else {}
 
-    def get_downstream_sources_whitelist(self):
+    def get_downstream_sources_allow_list(self):
         """
-        Loads the downstream_sources_whitelist.yml file into a local list.
+        Loads the downstream_sources_allow_list.yml file into a local list.
 
-        This file allows us to whitelist certain views for inclusion as downstream sources.
+        This file allows us to include certain views as downstream sources.
 
         Returns:
           List of tables in the "<SCHEMA>.<TABLE>" format or None if the file
@@ -232,7 +232,7 @@ class SchemaBuilderTask:
           list, or contains something other than a list.
         """
         yml_file_path = os.path.join(
-            self.source_project_path, "downstream_sources_whitelist.yml"
+            self.source_project_path, "downstream_sources_allow_list.yml"
         )
         tables = None
         if os.path.exists(yml_file_path):
@@ -240,7 +240,7 @@ class SchemaBuilderTask:
                 tables = yaml.safe_load(f)
             if not tables or not isinstance(tables, list):
                 raise ValueError(
-                    "downstream_sources_whitelist.yml must contain a non-empty list."
+                    "downstream_sources_allow_list.yml must contain a non-empty list."
                 )
         return tables
 
@@ -477,7 +477,7 @@ class SchemaBuilderTask:
                         meta_data = relations[source_relation_name]
                         relation = Relation(
                             source_relation_name, meta_data, app, app_path, snowflake_keywords,
-                            self.unmanaged_tables, self.downstream_sources_whitelist
+                            self.unmanaged_tables, self.downstream_sources_allow_list
                         )
 
                         (

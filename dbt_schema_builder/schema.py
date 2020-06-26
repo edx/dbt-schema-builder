@@ -84,7 +84,7 @@ class Schema():
         elif relation.excluded_from_downstream_sources:
             logger.info(
                 (
-                    "{}.{} is absent from the downstream sources whitelist, "
+                    "{}.{} is absent from the downstream sources allow_list, "
                     "skipping inclusion as a source in downstream project."
                 ).format(relation.app, relation.relation)
             )
