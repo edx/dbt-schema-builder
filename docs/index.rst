@@ -47,6 +47,16 @@ the "profile" value in ``dbt_project.yml``
 ``--target`` -  a valid target from your profiles.yml, defaults to the default
 target in your chosen profile
 
+If you have you views you do not want to include in your downstream models, add
+those that you want to include to a file entitled
+``downstream_sources_allow_list.yml``. This file should be placed in the
+directory that you run dbt-schema-builder from. Entries should be in the
+following format:
+
+``"<SCHEMA>.<TABLE>"``
+
+All others will be omitted when the dbt-schema-builder is run. If you want to
+permit all downstream views to be created, do not add this file.
 
 Redacting PII
 -------------

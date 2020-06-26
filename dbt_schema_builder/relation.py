@@ -14,7 +14,7 @@ class Relation():
 
     def __init__(
         self, source_relation_name, meta_data, app, app_path,
-        snowflake_keywords, unmanaged_tables, downstream_sources_whitelist
+        snowflake_keywords, unmanaged_tables, downstream_sources_allow_list
     ):
         self.snowflake_keywords = snowflake_keywords
 
@@ -29,7 +29,7 @@ class Relation():
         self.app_path = app_path
 
         self.unmanaged_tables = unmanaged_tables
-        self.downstream_sources_whitelist = downstream_sources_whitelist
+        self.downstream_sources_allow_list = downstream_sources_allow_list
 
     def _get_model_name_alias(self):
         if self.source_relation_name in self.snowflake_keywords:
@@ -122,13 +122,13 @@ class Relation():
     def excluded_from_downstream_sources(self):
         """
         Views generated for this relation are to be excluded in downstream sources since the relation
-        was not listed in a whitelist or has otherwise been flagged for exclusion.  A None whitelist
+        was not listed in an allow_list or has otherwise been flagged for exclusion.  An empty allow_list
         signifies that all relations are to be included.
         """
         return (
-            self.downstream_sources_whitelist
+            self.downstream_sources_allow_list
             and "{}.{}".format(self.app, self.relation)
-            not in self.downstream_sources_whitelist
+            not in self.downstream_sources_allow_list
         )
 
     def _manual_model_exists(self, view_type):

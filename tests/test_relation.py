@@ -26,6 +26,14 @@ def test_prep_meta_data():
     assert model == expected_model
 
 
+def test_excluded_from_downstream_sources():
+    relation = Relation(
+        'NOT_THIS_TABLE', ['COLUMN_1', 'COLUMN_2'], 'LMS', 'non/existent/path', ['START', 'END'], [],
+        ['LMS.THIS_TABLE', 'LMS.THAT_TABLE']
+    )
+    assert relation.excluded_from_downstream_sources
+
+
 def test_manual_model_not_exist():
     relation = Relation(
         'TABLE', ['COLUMN_1', 'COLUMN_2'], 'LMS', 'non/existent/path', ['START', 'END'], [], []
