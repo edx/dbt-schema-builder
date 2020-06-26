@@ -15,7 +15,8 @@ from dbt.task.compile import CompileTask
 from dbt.task.generate import _coerce_decimal, get_adapter
 
 from .queries import COLUMN_NAME_FILTER, GET_RELATIONS_BY_SCHEMA_AND_START_LETTER_SQL, GET_RELATIONS_BY_SCHEMA_SQL
-from .schema import Relation, Schema
+from .relation import Relation
+from .schema import Schema
 
 # Set up the dbt logger
 log_manager.set_path(None)
