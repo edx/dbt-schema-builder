@@ -52,19 +52,6 @@ def parse_args(args):
     build_sub.set_defaults(cls=SchemaBuilderTask, which="build")
 
     build_sub.add_argument(
-        "--raw-schemas",
-        required=True,
-        nargs="+",
-        help="Required. Specify the RAW schemas to inspect when building schema.yml files.",
-    )
-
-    build_sub.add_argument(
-        "--raw-suffixes",
-        nargs="+",
-        help="Specify the suffixes to remove when building PII/Non-PII schema for Stitch.",
-    )
-
-    build_sub.add_argument(
         "--destination-project",
         required=True,
         help="Required. Specify the project that will use the generated sources, relative to the source project.",

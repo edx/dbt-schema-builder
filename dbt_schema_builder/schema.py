@@ -1,137 +1,73 @@
 """
-Class and helpers for dealing with DBT schemas
+Class and helpers for dealing with raw schemas
 """
-
-from dbt.logger import GLOBAL_LOGGER as logger
-
-from .relation import DEFAULT_DESCRIPTION
 
 
 class Schema():
     """
-    Class to represent a DBT schema and provide functionality for updating its downstreams
+    Class to represent a raw Schema used to back an application schema
     """
 
-    def __init__(
-        self, raw_schema, app, app_path, design_file_path, current_raw_sources,
-        current_downstream_sources, database
-    ):
+    def __init__(self, schema_name, exclusion_list, inclusion_list, relations=None):
+        self.schema_name = schema_name
+        self.exclusion_list = exclusion_list
+        self.inclusion_list = inclusion_list
+        self.relations = relations
 
-        self.raw_schema = raw_schema
-        self.app = app
-        self.app_path = app_path
-        self.design_file_path = design_file_path
-        self.current_raw_sources = current_raw_sources
-        self.current_downstream_sources = current_downstream_sources
-        self.safe_downstream_source_name = app
-        self.pii_downstream_source_name = "{}_PII".format(app)
+    def __repr__(self):
+        return self.schema_name
 
-        # Create a new, empty object to store a new version of our schema so we
-        # don't get any tables/models that may have been deleted since the last run.
-        self.new_schema = {
-            "version": 2,
-            "sources": [{"name": self.raw_schema, "tables": []}],
-            "models": [],
-        }
-
-        # Create a new, empty object to store a new version of our downstream
-        # sources so we don't get any tables / models that may have been
-        # deleted since the last run.
-        self.new_downstream_sources = {
-            "version": 2,
-            "sources": [
-                {
-                    "name": self.safe_downstream_source_name,
-                    "database": database,
-                    "tables": [],
-                },
-                {
-                    "name": self.pii_downstream_source_name,
-                    "database": database,
-                    "tables": [],
-                },
-            ],
-            "models": [],
-        }
-
-    def add_table_to_new_schema(self, current_raw_source, relation):
+    @classmethod
+    def from_config(cls, schema_name, config):
         """
-        Add our table to the "sources" list in the new schema.
+        Construct a Schema object from a config dictionary. This is encapuslated
+        into it's own function to help declutter the `run` function in
+        builder.py.
+        TODO: add code to parse out soft delete and unmanaged table configs here
         """
-        if current_raw_source:
-            self.new_schema["sources"][0]["tables"].append(
-                current_raw_source
-            )
+        if config:
+            exclusion_list = config['EXCLUDE'] if config.get('EXCLUDE') else []
+            inclusion_list = config['INCLUDE'] if config.get('INCLUDE') else []
         else:
-            self.new_schema["sources"][0]["tables"].append(
-                {"name": relation.source_relation_name}
+            exclusion_list = []
+            inclusion_list = []
+
+        if exclusion_list and inclusion_list:
+            raise InvalidConfigurationException(
+                'Schema {} has both INCLUDE and EXCLUDE sections in its'
+                'sections in its configuration file'.format(schema_name)
             )
 
-    def add_table_to_downstream_sources(self, relation, current_safe_source, current_pii_source):
-        """
-        Whenever there is no view generated for a relation, we should not add it to sources in the
-        downstream project.  If we did, the source would be non-functional since it would not be
-        backed by any real data!  No view is generated under the following condition: when the
-        relation is unmanaged AND no manual models exist.
-        """
-        if relation.is_unmanaged and not relation.manual_safe_model_exists:
-            logger.info(
-                (
-                    "{}.{} is an unmanaged table WITHOUT a manual model, "
-                    "skipping inclusion as a source in downstream project."
-                ).format(relation.app, relation.relation)
-            )
-        elif relation.excluded_from_downstream_sources:
-            logger.info(
-                (
-                    "{}.{} is absent from the downstream sources allow_list, "
-                    "skipping inclusion as a source in downstream project."
-                ).format(relation.app, relation.relation)
-            )
-        elif current_safe_source:
-            for source in self.new_downstream_sources["sources"]:
-                if source["name"] == self.safe_downstream_source_name:
-                    source["tables"].append(current_safe_source)
-                elif source["name"] == self.pii_downstream_source_name:
-                    source["tables"].append(current_pii_source)
-        else:
-            for source in self.new_downstream_sources["sources"]:
-                if source["name"] == self.safe_downstream_source_name:
-                    source["tables"].append(
-                        {
-                            "name": relation.relation,
-                            "description": DEFAULT_DESCRIPTION,
-                        }
-                    )
-                elif source["name"] == self.pii_downstream_source_name:
-                    source["tables"].append(
-                        {
-                            "name": relation.relation,
-                            "description": DEFAULT_DESCRIPTION,
-                        }
-                    )
+        schema = Schema(
+            schema_name,
+            exclusion_list,
+            inclusion_list,
+            relations=[]
+        )
+        return schema
 
-    def update_trifecta_models(self, relation):
+    def filter_relations(self):
         """
-        Given a relation, add it to the 'trifecta'. These are the PII and safe views
-        constructed from the raw data.
+        Filter the relations in this Schema, based upon the exclusion and
+        inclusion lists.
         """
-        for relation_name in [
-            relation.new_pii_relation_name,
-            relation.new_safe_relation_name,
-        ]:
-            self.add_model_to_new_schema(
-                relation_name, relation.meta_data
-            )
+        filtered_relations = []
+        for relation in self.relations:
 
-    def add_model_to_new_schema(self, new_relation_name, model_meta_data):
-        """
-        Add models and their columns to a schema that is currently being generated.
-        """
-        # Add our table to the "models" list in the new schema
-        self.new_schema["models"].append({"name": new_relation_name})
+            if self.exclusion_list and not self.inclusion_list:
+                if relation.source_relation_name not in self.exclusion_list:
+                    filtered_relations.append(relation)
+            elif not self.exclusion_list and self.inclusion_list:
+                if relation.source_relation_name in self.inclusion_list:
+                    filtered_relations.append(relation)
+            elif not self.exclusion_list and not self.inclusion_list:
+                filtered_relations.append(relation)
+            else:
+                raise InvalidConfigurationException(
+                    "This schema has both an INCLUDE and EXCLUDE list."
+                )
+        return filtered_relations
 
-        # Add columns to our model
-        new_cols = [{"name": c} for c in model_meta_data]
 
-        self.new_schema["models"][-1]["columns"] = new_cols
+class InvalidConfigurationException(Exception):
+    pass

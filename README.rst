@@ -5,21 +5,26 @@ dbt-schema-builder
 |license-badge|
 
 The Schema Builder tool is used to create dbt schema files, sql models, and
-default PII / non-PII views for tables in the given Snowflake schemas. For
-each given ``<SCHEMA>_RAW`` schema the script will generate dbt models for a
-``<SCHEMA>`` and ``<SCHEMA>_PII`` schema. We refer to these schemas as a
+default PII / non-PII views for tables in the given Snowflake schemas.
+
+For each specified application schema, the script will generate dbt models for
+a ``<SCHEMA>`` and ``<SCHEMA>_PII`` schema. We refer to these schemas as a
 "trifecta".
 
-* ``<SCHEMA>_RAW`` contains the original source tables.
+* ``<SCHEMA>_<RAW_SUFFIX>`` contains the original source tables.
 * ``<SCHEMA>_PII`` contains views on the _RAW tables that have un-redacted PII.
 * ``<SCHEMA>`` contains views on the _RAW tables sensitive data redacted.
+
+Application schemas can be sourced from multiple raw schemas. This allows you
+to specify which tables should be pulled from which raw schema to construct the
+"trifecta".
 
 Schema Builder ensures that all three schemas provide the same interface to the
 data (number and order of columns match what is present in the _RAW schema).
 
 Once the script is successfully run, you can execute a `dbt run` to create or
 update the views in ``<SCHEMA>`` and ``<SCHEMA>_PII``. If your source data in
-the ``<SCHEMA>_RAW`` schema changes you should run Schema Builder frequently
+the ``<SCHEMA>_<RAW_SUFFIX>`` schema changes you should run Schema Builder frequently
 to keep up with changes in the tables and columns stored there.
 
 Schema Builder will also automatically create sources in one or more other dbt

@@ -24,11 +24,30 @@ inside an existing dbt project, see :ref:`getting_started` for more information.
 to your dbt profiles.yml>] [--profile <profile name>] [--target <a target from
 profiles.yml>]``
 
-Required Parameters
+Config file
 
-``--raw-schemas`` - a space separated list of source schemas to work on. For
-every table in this schema a view will be created in the ``<SCHEMA>`` and
-``<SCHEMA_PII>`` schema based on your settings.
+In order to run, you must have a schema config file (``schema_config.yml``)
+in the directory in which you are running schema builder. This file must
+be in the following format::
+
+    <APPLICATION SCHEMA_1>:
+        <RAW SCHEMA 1>:
+            INCLUDE:
+                - TABLE_1
+        <RAW SCHEMA 2>:
+            EXCLUDE:
+                - TABLE_1
+    <APPLICATION SCHEMA_2>:
+        <RAW SCHEMA 3>:
+
+In the above example, the ``APPLICATION_SCHEMA_1`` will be built by combining
+*ONLY* ``TABLE_1`` from ``RAW_SCHEMA_1`` and all tables *BUT* ``TABLE_1`` from
+``RAW_SCHEMA_2``. ``APPLICATION_SCHEMA_2`` will be built from every table in
+``RAW_SCHEMA_3``.
+
+NOTE: the order of the ``RAW`` schemas above does not matter.
+
+Required Parameters
 
 ``--destination-project`` - the dbt project that will use the generated
 sources. Schema Builder will create or overwrite the source file(s) associated
