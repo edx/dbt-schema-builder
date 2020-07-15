@@ -31,6 +31,9 @@ class Relation():
         self.unmanaged_tables = unmanaged_tables
         self.downstream_sources_allow_list = downstream_sources_allow_list
 
+    def __repr__(self):
+        return self.source_relation_name
+
     def _get_model_name_alias(self):
         if self.source_relation_name in self.snowflake_keywords:
             return "_{}".format(self.source_relation_name)
