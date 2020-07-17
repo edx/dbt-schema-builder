@@ -18,7 +18,7 @@ def test_valid_config():
                 ]
             },
             'RAW_SCHEMA_2': {
-                'INCLUDE': [
+                'EXCLUDE': [
                     'TABLE_1',
                     'TABLE_2',
                 ]
@@ -49,3 +49,66 @@ def test_invalid_config_keys():
     with pytest.raises(InvalidConfigurationException) as excinfo:
         validate_schema_config(config)
     assert "has both an EXCLUDE and INCUDE section" in str(excinfo.value)
+
+
+def test_valid_soft_delete_keys():
+    config = {
+        'APP_1': {
+            'RAW_SCHEMA_1': {
+                'INCLUDE': [
+                    'TABLE_1',
+                    'TABLE_2',
+                ]
+            },
+            'RAW_SCHEMA_2': {
+                'EXCLUDE': [
+                    'TABLE_1',
+                    'TABLE_2',
+                ],
+                'SOFT_DELETE': {
+                    'SOFT_DELETE_COLUMN_NAME': 'SOFT_DELETE_VALUE'
+                }
+            }
+        },
+        'APP_2': {
+            'RAW_SCHEMA_1': {},
+        },
+    }
+    assert validate_schema_config(config)
+
+
+def test_invalid_soft_delete_keys():
+    config = {
+        'APP_1': {
+            'RAW_SCHEMA_1': {
+                'INCLUDE': [
+                    'TABLE_1',
+                    'TABLE_2',
+                ],
+                'SOFT_DELETE': [
+                    'SOFT_DELETE_COLUMN'
+                ]
+            }
+        }
+    }
+    with pytest.raises(InvalidConfigurationException) as excinfo:
+        validate_schema_config(config)
+    assert "The SOFT_DELETE key in RAW_SCHEMA_1 must map" in str(excinfo.value)
+    config = {
+        'APP_1': {
+            'RAW_SCHEMA_2': {
+                'EXCLUDE': [
+                    'TABLE_1',
+                    'TABLE_2',
+                ],
+                'SOFT_DELETE': {
+                    'SOFT_DELETE_COLUMN_NAME_1': 'SOFT_DELETE_VALUE',
+                    'SOFT_DELETE_COLUMN_NAME_2': 'SOFT_DELETE_VALUE'
+                }
+            }
+        }
+    }
+    with pytest.raises(InvalidConfigurationException) as excinfo:
+        validate_schema_config(config)
+    err_msg = "SOFT_DELETE key in RAW_SCHEMA_2 must only have one key/value" 
+    assert err_msg in str(excinfo.value)

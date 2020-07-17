@@ -543,7 +543,7 @@ def validate_schema_config(config):
     expectations before proceeding. If not, raise an exception to prevent
     invalid schemas from being built
     """
-    valid_keys = ['EXCLUDE', 'INCLUDE']
+    valid_keys = ['EXCLUDE', 'INCLUDE', 'SOFT_DELETE']
     for _, app_config in config.items():
         for schema, schema_config in app_config.items():
             # This represents the case in which an application schema does
@@ -564,6 +564,21 @@ def validate_schema_config(config):
                         schema
                     )
                 )
+            if 'SOFT_DELETE' in keys:
+                soft_delete_key_value = schema_config['SOFT_DELETE']
+                if not isinstance(soft_delete_key_value, dict):
+                    raise InvalidConfigurationException(
+                        "The SOFT_DELETE key in {} must map to the following "
+                        "format 'SOFT_DELETE_COLUMN_NAME': 'SOFT_DELETE_VALUE'".format(
+                            schema
+                        )
+                    )
+                if len(soft_delete_key_value) != 1:
+                    raise InvalidConfigurationException(
+                        "The SOFT_DELETE key in {} must only have one key/value pair".format(
+                            schema
+                        )
+                    )
             for key in keys:
                 if key not in valid_keys:
                     raise InvalidConfigurationException(
