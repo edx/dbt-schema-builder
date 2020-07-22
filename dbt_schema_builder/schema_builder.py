@@ -21,6 +21,17 @@ def parse_args(args):
     )
 
     base_subparser = argparse.ArgumentParser(add_help=False)
+
+    base_subparser.add_argument(
+        '--project-dir',
+        default=None,
+        type=str,
+        help='''
+            Which directory to look in for the dbt_project.yml file.
+            Default is the current working directory and its parents.
+            '''
+    )
+
     base_subparser.add_argument(
         "--profiles-dir",
         default=PROFILES_DIR,
