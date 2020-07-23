@@ -6,6 +6,17 @@ from dbt_schema_builder.relation import Relation
 from dbt_schema_builder.schema import Schema
 
 
+def test_raw_schema_invalid_key():
+    raw_schema = Schema(
+        'LMS_RAW',
+        []
+        [],
+        None,
+        None,
+        relations=[]
+    )
+
+
 def test_raw_schema_filter_with_exclusion_list():
     relations = [
         Relation(
@@ -22,7 +33,14 @@ def test_raw_schema_filter_with_exclusion_list():
         ),
     ]
     exclusion_list = ['NOT_THIS_TABLE']
-    raw_schema = Schema('LMS_RAW', exclusion_list, [], relations=relations)
+    raw_schema = Schema(
+        'LMS_RAW',
+        exclusion_list,
+        [],
+        None,
+        None,
+        relations=relations
+    )
     filtered_relations = raw_schema.filter_relations()
 
     assert len(filtered_relations) == 2
@@ -44,7 +62,50 @@ def test_raw_schema_filter_with_inclusion_list():
         ),
     ]
     inclusion_list = ['ONLY_THIS_TABLE']
-    raw_schema = Schema('LMS_RAW', [], inclusion_list, relations=relations)
+    raw_schema = Schema(
+        'LMS_RAW',
+        [],
+        inclusion_list,
+        None,
+        None,
+        relations=relations
+    )
     filtered_relations = raw_schema.filter_relations()
 
     assert len(filtered_relations) == 1
+
+
+def test_raw_schema_sql_clause_null():
+    raw_schema = Schema(
+        'LMS_RAW',
+        [],
+        [],
+        'SOFT_DELETE',
+        None,
+        relations=[]
+    )
+    raw_schema.soft_delete_sql_clause() == "SOFT_DELETE IS NULL"
+
+
+def test_raw_schema_sql_clause_boolean():
+    raw_schema = Schema(
+        'LMS_RAW',
+        [],
+        [],
+        'SOFT_DELETE',
+        False,
+        relations=[]
+    )
+    raw_schema.soft_delete_sql_clause() == "NOT SOFT_DELETE"
+
+
+def test_raw_schema_sql_clause_string():
+    raw_schema = Schema(
+        'LMS_RAW',
+        [],
+        [],
+        'SOFT_DELETE',
+        'SOMETHING',
+        relations=[]
+    )
+    raw_schema.soft_delete_sql_clause() == "SOFT_DELETE == 'SOMETHING'"

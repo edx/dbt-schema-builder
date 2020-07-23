@@ -8,9 +8,9 @@ from dbt_schema_builder.schema import Schema
 
 
 def test_add_source_to_new_schema():
-    schema_1 = Schema('LMS_TEST_RAW', [], [])
-    schema_2 = Schema('LMS_RAW', [], [])
-    schema_3 = Schema('LMS_STITCH_RAW', [], [])
+    schema_1 = Schema('LMS_TEST_RAW', [], [], None, None)
+    schema_2 = Schema('LMS_RAW', [], [], None, None)
+    schema_3 = Schema('LMS_STITCH_RAW', [], [], None, None)
     raw_schemas = [schema_1, schema_2, schema_3]
     app = App(
         raw_schemas,
@@ -70,7 +70,7 @@ def test_add_source_to_new_schema():
 
 def test_update_trifecta_models():
     raw_schemas = [
-        Schema('LMS_RAW', [], [])
+        Schema('LMS_RAW', [], [], None, None)
     ]
     app = App(
         raw_schemas,
@@ -131,7 +131,7 @@ def test_add_table_to_downstream_sources(tmpdir):
     manual_model_file.write('data')
 
     raw_schemas = [
-        Schema('LMS_RAW', [], [])
+        Schema('LMS_RAW', [], [], None, None)
     ]
     app = App(
         raw_schemas,
