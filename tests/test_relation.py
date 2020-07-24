@@ -224,19 +224,66 @@ def test_in_current_sources():
     assert current_pii_downstream_source == expected_current_pii_downstream_source
 
 
+def _get_fake_relation_dict():
+    """
+    Returns the bare usable relation dit we can use for testing SQL templates
+    """
+    return {
+        "name": "RELATION_NAME",
+        "alias": "RELATION_ALIAS",
+        "description": "RELATION_DESCRIPTION",
+        "columns": [
+            {"name": "COLUMN_NAME"},
+            {"name": "SOFT_DELETE_COLUMN"}
+        ],
+    }
+
+
+def _get_fake_raw_schema(soft_delete_column_name=None, soft_delete_sql_clause=None):
+    """
+    Returns the bare usable object we can use to fake a Schema for testing SQL templates
+
+    This only works because class and dict syntax is the same in Jinja.
+    """
+    return {
+        "schema_name": "SCHEMA_NAME",
+        "soft_delete_column_name": soft_delete_column_name,
+        "soft_delete_sql_clause": lambda: "{} {}".format(soft_delete_column_name, soft_delete_sql_clause)
+    }
+
+
 def test_sql_no_soft_delete_no_pii_no_redactions():
-    sql = Relation.render_sql('APP_NAME', 'SAFE', {}, 'SCHEMA_RAW', [])
+    relation_dict = _get_fake_relation_dict()
+    raw_schema = _get_fake_raw_schema()
+    sql = Relation.render_sql(
+        'APP_NAME',
+        'SAFE',
+        relation_dict,
+        raw_schema,
+        []
+    )
 
     assert 'APP_NAME' in sql
     assert 'PII' not in sql
-    assert 'SCHEMA_RAW' in sql
+    assert 'SCHEMA_NAME' in sql
     assert 'WHERE' not in sql
 
 
 def test_sql_soft_delete_no_pii_no_redactions():
-    sql = Relation.render_sql('APP_NAME', 'SAFE', {'SOFT_DELETE': {'FOO': 'IS NULL'}}, 'SCHEMA_RAW', [])
+    relation_dict = _get_fake_relation_dict()
+    raw_schema = _get_fake_raw_schema(
+        soft_delete_column_name='SOFT_DELETE_COLUMN',
+        soft_delete_sql_clause='IS NULL'
+    )
+    sql = Relation.render_sql(
+        'APP_NAME',
+        'SAFE',
+        relation_dict,
+        raw_schema,
+        []
+    )
 
     assert 'APP_NAME' in sql
     assert 'PII' not in sql
-    assert 'SCHEMA_RAW' in sql
-    assert 'WHERE FOO IS NULL' in sql
+    assert 'SCHEMA_NAME' in sql
+    assert 'WHERE SOFT_DELETE_COLUMN IS NULL' in sql

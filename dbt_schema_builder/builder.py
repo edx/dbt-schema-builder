@@ -45,9 +45,6 @@ class GetCatalogTask(CompileTask):
         }
     }
     """
-    #def __init__(self, config):
-    #    self.config = config
-
     def _get_column_name_filter(self, banned_column_names):
         """
         Create the SQL string to omit banned_column_names from the Snowflake metadata queries.
@@ -121,7 +118,7 @@ class GetCatalogTask(CompileTask):
 
         return catalog_data
 
-    def run(self, schema, banned_column_names):
+    def run(self, schema, banned_column_names):  # pylint: disable=arguments-differ
         """
         Run the task.
         """

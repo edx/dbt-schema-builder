@@ -33,11 +33,6 @@ def get_valid_test_config():
     }
 
 
-def test_render_sql_success():
-    config = get_valid_test_config()
-    # builder = SchemaBuilder()
-
-
 def test_valid_config():
     config = get_valid_test_config()
     assert SchemaBuilder.validate_schema_config(config)

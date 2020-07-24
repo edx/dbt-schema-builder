@@ -219,6 +219,9 @@ class Relation:
             f.write(sql)
 
     def write_sql(self, raw_schema):
+        """
+        Renders the SQL for this relation and writes out.
+        """
         relation_dict = self.prep_meta_data()
 
         if self.is_unmanaged:

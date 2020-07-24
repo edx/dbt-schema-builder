@@ -2,13 +2,12 @@
 Class and helpers for dealing with Application schemas
 """
 import yaml
-
 from dbt.logger import GLOBAL_LOGGER as logger
 
 from .relation import DEFAULT_DESCRIPTION
 
 
-class App():
+class App:
     """
     Class to represent an application whose data is managed by DBT and provides
     functionality for updating its downstreams. An app can be backed by multiple
