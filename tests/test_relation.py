@@ -9,7 +9,14 @@ from dbt_schema_builder.relation import Relation
 
 def test_prep_meta_data():
     relation = Relation(
-        'START', ['COLUMN_1', 'COLUMN_2'], 'LMS', 'models/PROD/LMS', ['START', 'END'], [], []
+        'START',
+        ['COLUMN_1', 'COLUMN_2'],
+        'LMS',
+        'models/PROD/LMS',
+        ['START', 'END'],
+        [],
+        [],
+        []
     )
     model = relation.prep_meta_data()
 
@@ -28,15 +35,28 @@ def test_prep_meta_data():
 
 def test_excluded_from_downstream_sources():
     relation = Relation(
-        'NOT_THIS_TABLE', ['COLUMN_1', 'COLUMN_2'], 'LMS', 'non/existent/path', ['START', 'END'], [],
-        ['LMS.THIS_TABLE', 'LMS.THAT_TABLE']
+        'NOT_THIS_TABLE',
+        ['COLUMN_1', 'COLUMN_2'],
+        'LMS',
+        'non/existent/path',
+        ['START', 'END'],
+        [],
+        [],
+        ['LMS.THIS_TABLE', 'LMS.THAT_TABLE'],
     )
     assert relation.excluded_from_downstream_sources
 
 
 def test_manual_model_not_exist():
     relation = Relation(
-        'TABLE', ['COLUMN_1', 'COLUMN_2'], 'LMS', 'non/existent/path', ['START', 'END'], [], []
+        'TABLE',
+        ['COLUMN_1', 'COLUMN_2'],
+        'LMS',
+        'non/existent/path',
+        ['START', 'END'],
+        [],
+        [],
+        []
     )
     assert not relation.manual_safe_model_exists
 
@@ -49,7 +69,14 @@ def test_manual_model_not_flat(tmpdir):
     manual_model_path.mkdir('subdirectory')
 
     relation = Relation(
-        'TABLE', ['COLUMN_1', 'COLUMN_2'], 'LMS', app_path, ['START', 'END'], [], []
+        'TABLE',
+        ['COLUMN_1', 'COLUMN_2'],
+        'LMS',
+        app_path,
+        ['START', 'END'],
+        [],
+        [],
+        []
     )
     with pytest.raises(RuntimeError) as excinfo:
         _ = relation.manual_safe_model_exists
@@ -65,7 +92,14 @@ def test_manual_model_exists(tmpdir):
     manual_model_file.write('data')
 
     relation = Relation(
-        'TABLE', ['COLUMN_1', 'COLUMN_2'], 'LMS', app_path, ['START', 'END'], [], []
+        'TABLE',
+        ['COLUMN_1', 'COLUMN_2'],
+        'LMS',
+        app_path,
+        ['START', 'END'],
+        [],
+        [],
+        []
     )
     assert relation.manual_safe_model_exists
 
@@ -73,7 +107,14 @@ def test_manual_model_exists(tmpdir):
 def test_in_current_sources():
 
     relation = Relation(
-        'THIS_TABLE', ['COLUMN_1', 'COLUMN_2'], 'LMS', 'app_path', ['START', 'END'], [], []
+        'THIS_TABLE',
+        ['COLUMN_1', 'COLUMN_2'],
+        'LMS',
+        'app_path',
+        ['START', 'END'],
+        [],
+        [],
+        []
     )
 
     current_raw_sources = {
@@ -181,3 +222,21 @@ def test_in_current_sources():
     assert current_raw_source == expected_current_raw_source
     assert current_safe_downstream_source == expected_current_safe_downstream_source
     assert current_pii_downstream_source == expected_current_pii_downstream_source
+
+
+def test_sql_no_soft_delete_no_pii_no_redactions():
+    sql = Relation.render_sql('APP_NAME', 'SAFE', {}, 'SCHEMA_RAW', [])
+
+    assert 'APP_NAME' in sql
+    assert 'PII' not in sql
+    assert 'SCHEMA_RAW' in sql
+    assert 'WHERE' not in sql
+
+
+def test_sql_soft_delete_no_pii_no_redactions():
+    sql = Relation.render_sql('APP_NAME', 'SAFE', {'SOFT_DELETE': {'FOO': 'IS NULL'}}, 'SCHEMA_RAW', [])
+
+    assert 'APP_NAME' in sql
+    assert 'PII' not in sql
+    assert 'SCHEMA_RAW' in sql
+    assert 'WHERE FOO IS NULL' in sql

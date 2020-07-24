@@ -30,6 +30,7 @@ def test_add_source_to_new_schema():
         'models/PROD/LMS',
         ['START', 'END'],
         [],
+        [],
         []
     )
     app.add_source_to_new_schema(current_raw_source, relation, schema_2)
@@ -41,6 +42,7 @@ def test_add_source_to_new_schema():
         'LMS',
         'models/PROD/LMS',
         ['START', 'END'],
+        [],
         [],
         []
     )
@@ -88,6 +90,7 @@ def test_update_trifecta_models():
         'LMS',
         'models/PROD/LMS',
         ['START', 'END'],
+        [],
         [],
         []
     )
@@ -150,6 +153,7 @@ def test_add_table_to_downstream_sources(tmpdir):
         'models/PROD/LMS',
         ['START', 'END'],
         [],
+        [],
         []
     )
 
@@ -161,6 +165,7 @@ def test_add_table_to_downstream_sources(tmpdir):
         'LMS',
         'models/PROD/LMS',
         ['START', 'END'],
+        [],
         [],
         []
     )

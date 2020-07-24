@@ -4,19 +4,29 @@ Class and helpers for dealing with DBT relations
 
 import os
 
+import jinja2
+from dbt.logger import GLOBAL_LOGGER as logger
+
 DEFAULT_DESCRIPTION = "TODO: Replace me"
 
+# Set up our SQL templates
+TEMPLATE_LOADER = jinja2.PackageLoader("dbt_schema_builder", "templates")
+TEMPLATE_ENV = jinja2.Environment(loader=TEMPLATE_LOADER)
+SQL_TEMPLATE_PII = TEMPLATE_ENV.get_template("model_sql_pii.tpl")
+SQL_TEMPLATE_SAFE = TEMPLATE_ENV.get_template("model_sql_safe.tpl")
 
-class Relation():
+
+class Relation:
     """
     Class to represent a DBT relation (a table/view)
     """
 
     def __init__(
         self, source_relation_name, meta_data, app, app_path,
-        snowflake_keywords, unmanaged_tables, downstream_sources_allow_list
+        snowflake_keywords, unmanaged_tables, redactions, downstream_sources_allow_list
     ):
         self.snowflake_keywords = snowflake_keywords
+        self.redactions = redactions
 
         self.source_relation_name = source_relation_name
         self.relation = self._get_model_name_alias()
@@ -155,7 +165,7 @@ class Relation():
                     )
                 )
 
-            manual_model_name = self._get_model_name(view_type)
+            manual_model_name = self.get_model_name(view_type)
             manual_model_path = os.path.join(
                 manual_models_directory, "{}.sql".format(manual_model_name)
             )
@@ -163,7 +173,7 @@ class Relation():
                 return True
         return False
 
-    def _get_model_name(self, view_type):
+    def get_model_name(self, view_type):
         """
         Get the model name for a given relation in the UPSTREAM project.  This
         will be the model filename without the .sql extension, and also the
@@ -182,3 +192,56 @@ class Relation():
             if entry.is_dir():
                 return False
         return True
+
+    @staticmethod
+    def render_sql(app, view_type, relation_dict, raw_schema, redactions):
+        """
+        Renders the appropriate SQL file template for the source and returns the rendered string.
+        """
+        if view_type == "SAFE":
+            tpl = SQL_TEMPLATE_SAFE
+        else:
+            tpl = SQL_TEMPLATE_PII
+
+        return tpl.render(
+            app=app,
+            raw_schema=raw_schema,
+            relation=relation_dict,
+            redactions=redactions,
+        )
+
+    @staticmethod
+    def write_sql_file(sql_file_path, sql):
+        """
+        Writes out the given SQL file with the given string.
+        """
+        with open(sql_file_path, "w") as f:
+            f.write(sql)
+
+    def write_sql(self, raw_schema):
+        relation_dict = self.prep_meta_data()
+
+        if self.is_unmanaged:
+            logger.info(
+                "{}.{} is an unmanaged table, skipping SQL generation.".format(
+                    self.app, self.relation
+                )
+            )
+        else:
+            for view_type in ("SAFE", "PII"):
+                if view_type == "SAFE":
+                    sql_path = os.path.join(self.app_path, self.app.app)
+                else:
+                    sql_path = os.path.join(
+                        self.app_path, "{}_{}".format(self.app.app, view_type)
+                    )
+
+                if not os.path.isdir(sql_path):
+                    os.mkdir(sql_path)
+                model_name = self.get_model_name(view_type)
+                sql_file_name = "{}.sql".format(model_name)
+                sql_file_path = os.path.join(sql_path, sql_file_name)
+                sql = self.render_sql(
+                    self.app.app, view_type, relation_dict, raw_schema, self.redactions
+                )
+                self.write_sql_file(sql_file_path, sql)

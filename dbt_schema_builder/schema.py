@@ -3,23 +3,42 @@ Class and helpers for dealing with raw schemas
 """
 
 
-class Schema():
+class Schema:
     """
     Class to represent a raw Schema used to back an application schema
     """
 
     def __init__(self, schema_name, exclusion_list, inclusion_list, soft_delete_column_name,
-                 soft_delete_column_value, relations=None
-    ):
+                 soft_delete_sql_predicate, relations=None):
         self.schema_name = schema_name
         self.exclusion_list = exclusion_list
         self.inclusion_list = inclusion_list
         self.soft_delete_column_name = soft_delete_column_name
-        self.soft_delete_column_value = soft_delete_column_value
+        self.soft_delete_sql_predicate = soft_delete_sql_predicate
         self.relations = relations
+
+        self.validate()
 
     def __repr__(self):
         return self.schema_name
+
+    def validate(self):
+        """
+        Confirm that the class is instantiated correctly.
+        """
+        if self.soft_delete_column_name is not None:
+            if self.soft_delete_sql_predicate in (None, '') or not isinstance(self.soft_delete_sql_predicate, str):
+                raise InvalidConfigurationException(
+                    'Schema {} has an invalid SOFT_DELETE configuration. '
+                    'SOFT_DELETE must be a single dict with the column name to look for and '
+                    'the SQL needed to exclude the soft deleted rows. '.format(self.schema_name)
+                )
+
+        if self.exclusion_list and self.inclusion_list:
+            raise InvalidConfigurationException(
+                'Schema {} has both INCLUDE and EXCLUDE sections in its'
+                'sections in its configuration file'.format(self.schema_name)
+            )
 
     @classmethod
     def from_config(cls, schema_name, config):
@@ -27,34 +46,28 @@ class Schema():
         Construct a Schema object from a config dictionary. This is encapuslated
         into it's own function to help declutter the `run` function in
         builder.py.
-        TODO: add code to parse out soft delete and unmanaged table configs here
+        TODO: add code to parse out un-managed table configs here
         """
+        exclusion_list = []
+        inclusion_list = []
+        soft_delete_column_name = None
+        soft_delete_sql_predicate = None
+
         if config:
-            exclusion_list = config['EXCLUDE'] if config.get('EXCLUDE') else []
-            inclusion_list = config['INCLUDE'] if config.get('INCLUDE') else []
-            if config.get('SOFT_DELETE'):
+            exclusion_list = config.get('EXCLUDE', [])
+            inclusion_list = config.get('INCLUDE', [])
+
+            if 'SOFT_DELETE' in config:
                 for k, v in config['SOFT_DELETE'].items():
                     soft_delete_column_name = k
-                    soft_delete_column_value = v
-            else:
-                soft_delete_column_name = None
-                soft_delete_column_value = None
-        else:
-            exclusion_list = []
-            inclusion_list = []
-
-        if exclusion_list and inclusion_list:
-            raise InvalidConfigurationException(
-                'Schema {} has both INCLUDE and EXCLUDE sections in its'
-                'sections in its configuration file'.format(schema_name)
-            )
+                    soft_delete_sql_predicate = v
 
         schema = Schema(
             schema_name,
             exclusion_list,
             inclusion_list,
             soft_delete_column_name,
-            soft_delete_column_value,
+            soft_delete_sql_predicate,
             relations=[]
         )
         return schema
@@ -81,42 +94,18 @@ class Schema():
                 )
         return filtered_relations
 
+    def has_soft_delete_predicate(self):
+        return self.soft_delete_column_name is not None
+
     def soft_delete_sql_clause(self):
         """
+        Return the SQL to exclude soft deleted rows based on configuration.
         """
-        if self.soft_delete_column_value is None:
-            return "{} IS NULL".format(self.soft_delete_column_name)
-        elif isinstance(self.soft_delete_column_value, bool):
-            if self.soft_delete_column_value:
-                return "{}".format(self.soft_delete_column_name)
-            else:
-                return "NOT {}".format(self.soft_delete_column_name)
-        elif isinstance(self.soft_delete_column_value, str):
-            return "{} = '{}'".format(
-                self.soft_delete_column_name, self.soft_delete_column_value
-            )
+        if self.soft_delete_column_name is None:
+            return ""
+
+        return "{} {}".format(self.soft_delete_column_name, self.soft_delete_sql_predicate)
 
 
 class InvalidConfigurationException(Exception):
     pass
-
-
-
-def convert_to_sql(value):
-    """
-    """
-    if value is None:
-        return None
-    elif isinstance(value, bool):
-        return value
-    elif isinstance(value, str):
-        if value.lower() in ['null', 'none']:
-            return None
-        elif value.lower() == 'true':
-            return True
-        elif value.lower() == 'false':
-            return False
-        else:
-            return value
-    else:
-        raise InvalidConfigurationException()

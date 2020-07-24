@@ -6,12 +6,10 @@ import os
 import re
 import string
 
-import jinja2
 import yaml
 from dbt.config import RuntimeConfig
 from dbt.logger import GLOBAL_LOGGER as logger
 from dbt.logger import log_manager
-from dbt.task.compile import CompileTask
 from dbt.task.generate import _coerce_decimal, get_adapter
 
 from .app import App
@@ -23,18 +21,12 @@ from .schema import InvalidConfigurationException, Schema
 log_manager.set_path(None)
 # log_manager.set_debug()  # Uncomment for dbt's debug level logging
 
-# Set up our SQL templates
-LOCAL_PATH = os.path.abspath(os.path.dirname(__file__))
-TEMPLATE_LOADER = jinja2.PackageLoader("dbt_schema_builder", "templates")
-TEMPLATE_ENV = jinja2.Environment(loader=TEMPLATE_LOADER)
-SQL_TEMPLATE_PII = TEMPLATE_ENV.get_template("model_sql_pii.tpl")
-SQL_TEMPLATE_SAFE = TEMPLATE_ENV.get_template("model_sql_safe.tpl")
-SQL_ESCAPE_CHAR = "^"
-
 DEFAULT_DESCRIPTION = "TODO: Replace me"
+SQL_ESCAPE_CHAR = "^"
+LOCAL_PATH = os.path.abspath(os.path.dirname(__file__))
 
 
-class GetCatalogTask(CompileTask):
+class GetCatalogTask:
     """
     A dbt task to load the information schema to dict in the form of:
     {
@@ -52,6 +44,8 @@ class GetCatalogTask(CompileTask):
         }
     }
     """
+    def __init__(self, config):
+        self.config = config
 
     def _get_column_name_filter(self, banned_column_names):
         """
@@ -126,11 +120,9 @@ class GetCatalogTask(CompileTask):
 
         return catalog_data
 
-    def run(self, schema, banned_column_names):  # pylint: disable=arguments-differ
+    def run(self, schema, banned_column_names):
         """
         Run the task.
-
-        TODO: Explain why parameters must differ from overridden 'run' method, forcing us to ignore a pylint warning.
         """
         # Check for any non-word characters that might indicate a SQL injection attack
         if re.search("[^a-zA-Z0-9_]", schema):
@@ -156,20 +148,24 @@ class GetCatalogTask(CompileTask):
         return catalog
 
 
-class SchemaBuilderTask:
+class SchemaBuilder:
     """
     This class handles the actual heavy lifting of the schema builder.
     """
-
-    def __init__(self, args):
-        self.args = args
-        self.config = RuntimeConfig.from_args(args)
-
-        (
-            self.source_project_path,
-            self.destination_project_path,
-        ) = self.get_project_dirs()
+    def __init__(self,
+                 source_path,
+                 database_name,
+                 source_project_path,
+                 destination_project_path,
+                 get_catalog_task
+                 ):
+        self.source_path = source_path
+        self.database_name = database_name
+        self.source_project_path = source_project_path
+        self.destination_project_path = destination_project_path
+        self.get_catalog_task = get_catalog_task
         self.redactions = self.get_redactions()
+        self.snowflake_keywords = self.get_snowflake_keywords()
         self.banned_column_names = self.get_banned_columns()
         self.unmanaged_tables = self.get_unmanaged_tables()
         self.downstream_sources_allow_list = self.get_downstream_sources_allow_list()
@@ -185,27 +181,59 @@ class SchemaBuilderTask:
         with open(schema_config_file_path, "r") as f:
             config = yaml.safe_load(f)
 
-        validate_schema_config(config)
+        self.validate_schema_config(config)
 
         return config
 
-    def get_project_dirs(self):
+    @staticmethod
+    def validate_schema_config(config):
         """
-        Find the dbt project directory based on the command line inputs.
+        Read through an app-schema config dict, making sure that it meets certain
+        expectations before proceeding. If not, raise an exception to prevent
+        invalid schemas from being built
         """
-        source_project_path = os.getcwd()
-        destination_project_path = os.path.join(
-            source_project_path, self.args.destination_project
-        )
-
-        for project_path in [source_project_path, destination_project_path]:
-            if not os.path.exists(os.path.join(project_path, "dbt_project.yml")):
-                raise Exception(
-                    "fatal: {} is not a dbt project. Does not exist or is missing a "
-                    "dbt_project.yml file.".format(project_path)
-                )
-
-        return source_project_path, destination_project_path
+        valid_keys = ['EXCLUDE', 'INCLUDE', 'SOFT_DELETE']
+        for _, app_config in config.items():
+            for schema, schema_config in app_config.items():
+                # This represents the case in which an application schema does
+                # not have any special logic concerning which tables to include
+                # or exclude
+                if not schema_config:
+                    continue
+                keys = schema_config.keys()
+                if 'EXCLUDE' in keys and 'INCLUDE' in keys:
+                    raise InvalidConfigurationException(
+                        "{} has both an EXCLUDE and INCUDE section".format(
+                            schema
+                        )
+                    )
+                if 'EXCLUDE' not in keys and 'INCLUDE' not in keys:
+                    raise InvalidConfigurationException(
+                        "{} must have either an EXCLUDE or INCUDE section".format(
+                            schema
+                        )
+                    )
+                if 'SOFT_DELETE' in keys:
+                    soft_delete_key_value = schema_config['SOFT_DELETE']
+                    if not isinstance(soft_delete_key_value, dict):
+                        raise InvalidConfigurationException(
+                            "The SOFT_DELETE key in {} must map to the following "
+                            "format 'SOFT_DELETE_COLUMN_NAME': 'SOFT_DELETE_VALUE'".format(
+                                schema
+                            )
+                        )
+                    if len(soft_delete_key_value) != 1:
+                        raise InvalidConfigurationException(
+                            "The SOFT_DELETE key in {} must only have one key/value pair".format(
+                                schema
+                            )
+                        )
+                for key in keys:
+                    if key not in valid_keys:
+                        raise InvalidConfigurationException(
+                            "{} is not a valid key".format(key)
+                        )
+        return True
 
     def get_banned_columns(self):
         """
@@ -276,44 +304,11 @@ class SchemaBuilderTask:
         # We simply treat that as an empty list.
         return tables if tables else []
 
-    def render_sql(self, app, view_type, relation_dict, raw_schema):
-        """
-        Renders the appropriate SQL file template for the source and returns the rendered string.
-        """
-        if view_type == "SAFE":
-            tpl = SQL_TEMPLATE_SAFE
-        else:
-            tpl = SQL_TEMPLATE_PII
-
-        return tpl.render(
-            app=app,
-            raw_schema=raw_schema,
-            relation=relation_dict,
-            redactions=self.redactions,
-        )
-
-    def write_relation(self, design_file_path, yml):
-        """
-        Writes out the given schema file with the given string.
-        """
-        logger.info("Creating schema file: {}".format(design_file_path))
-        with open(design_file_path, "w") as f:
-            f.write(yml)
-
-    def write_sql(self, sql_file_path, sql):
-        """
-        Writes out the given SQL file with the given string.
-        """
-        with open(sql_file_path, "w") as f:
-            f.write(sql)
-
     def clean_sql_files(self, app):
         """
         Delete existing SQL models to make sure that we don't have orphaned models for deleted tables.
         """
-        app_path = os.path.join(
-            self.config.source_paths[0], self.config.credentials.database, app
-        )
+        app_path = os.path.join(self.source_path, self.database_name, app)
 
         # Only delete from these paths so we leave the manual files intact
         for managed_path in ("_PII", ""):
@@ -322,35 +317,13 @@ class SchemaBuilderTask:
             for f in glob.glob(schema_sql_glob):
                 os.remove(f)
 
-    def get_relations(self, schema):
-        """
-        Look up all of the relations in Snowflake using dbt's get_catalog macro.
+    @staticmethod
+    def get_snowflake_keywords():
+        with open(os.path.join(LOCAL_PATH, "snowflake_keywords.yml"), "r") as f:
+            return yaml.safe_load(f)
 
-        If you see an error like "Warning: No relations found in selected schemas", please see the section on adding new
-        schemas in the README for more info.
-        """
-        task = GetCatalogTask((), self.config)
-        all_relations = task.run(schema, self.banned_column_names)
-
-        selected_relations = {}
-        selected_relations[schema] = {}
-        curr_table_name = None
-        curr_table_cols = None
-
-        for r in all_relations:
-            if r["TABLE_NAME"] != curr_table_name:
-                if curr_table_name:
-                    selected_relations[schema][curr_table_name] = curr_table_cols
-                curr_table_name = r["TABLE_NAME"]
-                curr_table_cols = []
-            curr_table_cols.append(r["COLUMN_NAME"])
-
-        if curr_table_name:
-            selected_relations[schema][curr_table_name] = curr_table_cols
-
-        return selected_relations
-
-    def get_current_raw_schema_attrs(self, app_path, design_file_path):
+    @staticmethod
+    def get_current_raw_schema_attrs(app_path, design_file_path):
         """
         Make sure the path exists for this schema, and check if there's an existing file that we need to preserve.
         """
@@ -367,9 +340,8 @@ class SchemaBuilderTask:
 
         return current_schema
 
-    def get_current_downstream_sources_attrs(
-        self, downstream_sources_dir_path, downstream_sources_file_path
-    ):
+    @staticmethod
+    def get_current_downstream_sources_attrs(downstream_sources_dir_path, downstream_sources_file_path):
         """
         Make sure the path exists for holding downstream sources files, and check if there's an existing file that we
         need to preserve.
@@ -391,7 +363,8 @@ class SchemaBuilderTask:
 
         return current_downstream_sources
 
-    def write_sources_for_downstream_project(self, sources_file_path, yml):
+    @staticmethod
+    def write_sources_for_downstream_project(sources_file_path, yml):
         """
         Writes out the given schema file with the given string.
         """
@@ -399,189 +372,163 @@ class SchemaBuilderTask:
         with open(sources_file_path, "w") as f:
             f.write(yml)
 
+    def get_relations(self, schema):
+        """
+        Look up all of the relations in Snowflake using dbt's get_catalog macro.
+        """
+        all_relations = self.get_catalog_task.run(schema, self.banned_column_names)
+
+        selected_relations = {schema: {}}
+        curr_table_name = None
+        curr_table_cols = None
+
+        for r in all_relations:
+            if r["TABLE_NAME"] != curr_table_name:
+                if curr_table_name:
+                    selected_relations[schema][curr_table_name] = curr_table_cols
+                curr_table_name = r["TABLE_NAME"]
+                curr_table_cols = []
+            curr_table_cols.append(r["COLUMN_NAME"])
+
+        if curr_table_name:
+            selected_relations[schema][curr_table_name] = curr_table_cols
+
+        return selected_relations
+
+    def build_app(self, app_name, app_config):
+        """
+        Build the requested application schema from the raw schemas.
+        """
+        # Create an App object to represent the current Application
+        # that we will be building schemas for
+        app_path = os.path.join(self.source_path, self.database_name, app_name)
+        design_file_name = "{}.yml".format(app_name)
+        design_file_path = os.path.join(app_path, design_file_name)
+        downstream_sources_dir_path = os.path.join(
+            self.destination_project_path,
+            "models",
+            "automatically_generated_sources",
+        )
+        downstream_sources_file_name = "{}.yml".format(app_name)
+        downstream_sources_file_path = os.path.join(
+            downstream_sources_dir_path, downstream_sources_file_name,
+        )
+
+        current_raw_sources = self.get_current_raw_schema_attrs(
+            app_path, design_file_path
+        )
+
+        current_downstream_sources = self.get_current_downstream_sources_attrs(
+            downstream_sources_dir_path, downstream_sources_file_path,
+        )
+
+        # Construct the raw schemas that act as sources for this application
+        # and gather their relations
+        app_raw_schemas = []
+        for raw_schema_name, raw_schema_config in app_config.items():
+            raw_schema = Schema.from_config(
+                raw_schema_name, raw_schema_config
+            )
+            raw_schema_relations = self.get_relations(raw_schema_name)
+            for source_relation_name, meta_data in raw_schema_relations[raw_schema_name].items():
+                relation = Relation(
+                    source_relation_name, meta_data, app_name,
+                    app_path, self.snowflake_keywords,
+                    self.unmanaged_tables, self.redactions,
+                    self.downstream_sources_allow_list
+                )
+                raw_schema.relations.append(relation)
+            app_raw_schemas.append(raw_schema)
+
+        app_object = App(
+            app_raw_schemas, app_name, app_path, design_file_path, current_raw_sources,
+            current_downstream_sources, self.database_name
+        )
+
+        logger.info("Building schema for the {} app".format(app_object.app))
+
+        self.clean_sql_files(app_object.app)
+
+        # Go through each raw schema that backs this Application, building out
+        # the model files for each relation
+        for raw_schema in app_object.raw_schemas:
+            logger.info("Using raw schema {}".format(raw_schema.schema_name))
+            filtered_relations = raw_schema.filter_relations()
+            logger.info(
+                "Using {} out of {} relations in this schema".format(
+                    len(filtered_relations), len(raw_schema.relations)
+                )
+            )
+            for relation in filtered_relations:
+                (
+                    current_raw_source,
+                    current_safe_source,
+                    current_pii_source,
+                ) = relation.find_in_current_sources(
+                    current_raw_sources,
+                    current_downstream_sources,
+                )
+
+                app_object.add_source_to_new_schema(current_raw_source, relation, raw_schema)
+                app_object.add_table_to_downstream_sources(relation, current_safe_source, current_pii_source)
+                app_object.update_trifecta_models(relation)
+
+                ##############################
+                # Write out dbt models which are responsible for generating the views
+                ##############################
+                relation.write_sql(raw_schema)
+
+        app_object.write_app_schema(design_file_path)
+
+        # Create source definitions pertaining to app database views in the downstream dbt
+        # project, i.e. reporting.
+        self.write_sources_for_downstream_project(
+            downstream_sources_file_path,
+            yaml.safe_dump(app_object.new_downstream_sources, sort_keys=False),
+        )
+
+
+class SchemaBuilderTask:
+    """
+    This class handles the dbt configuration and wraps the SchemaBuilder steps.
+    """
+
+    def __init__(self, args):
+        self.args = args
+        self.config = RuntimeConfig.from_args(args)
+        self.source_project_path, self.destination_project_path = self.get_project_dirs()
+        self.builder = SchemaBuilder(
+            self.config.source_paths[0],
+            self.config.credentials.database,
+            self.source_project_path,
+            self.destination_project_path,
+            GetCatalogTask(self.config)
+        )
+
+    def get_project_dirs(self):
+        """
+        Find the dbt project directory based on the command line inputs.
+        """
+        source_project_path = os.getcwd()
+        destination_project_path = os.path.join(
+            source_project_path, self.args.destination_project
+        )
+
+        for project_path in [source_project_path, destination_project_path]:
+            if not os.path.exists(os.path.join(project_path, "dbt_project.yml")):
+                raise Exception(
+                    "fatal: {} is not a dbt project. Does not exist or is missing a "
+                    "dbt_project.yml file.".format(project_path)
+                )
+
+        return source_project_path, destination_project_path
+
     def run(self):
         """
-        Build the requested schemas.
+        Wraps the SchemaBuilder steps
         """
-        # pylint: disable=too-many-nested-blocks
-        # TODO: simplify this function, it doesn't fit on one page and goes too deep.
-
         with log_manager.applicationbound():
-            os.chdir(self.source_project_path)
+            os.chdir(self.builder.source_project_path)
 
-            with open(os.path.join(LOCAL_PATH, "snowflake_keywords.yml"), "r") as f:
-                snowflake_keywords = yaml.safe_load(f)
-
-            for app_name, app_config in self.app_schema_configs.items():
-
-                # Create an App object to represent the current Application
-                # that we will be building schemas for
-                app_path = os.path.join(
-                    self.config.source_paths[0],
-                    self.config.credentials.database,
-                    app_name,
-                )
-                design_file_name = "{}.yml".format(app_name)
-                design_file_path = os.path.join(app_path, design_file_name)
-                downstream_sources_dir_path = os.path.join(
-                    self.destination_project_path,
-                    "models",
-                    "automatically_generated_sources",
-                )
-                downstream_sources_file_name = "{}.yml".format(app_name)
-                downstream_sources_file_path = os.path.join(
-                    downstream_sources_dir_path, downstream_sources_file_name,
-                )
-
-                current_raw_sources = self.get_current_raw_schema_attrs(
-                    app_path, design_file_path
-                )
-
-                current_downstream_sources = self.get_current_downstream_sources_attrs(
-                    downstream_sources_dir_path, downstream_sources_file_path,
-                )
-
-                # Construct the raw schemas that act as sources for this application
-                # and gather their relations
-                app_raw_schemas = []
-                for raw_schema_name, raw_schema_config in app_config.items():
-                    raw_schema = Schema.from_config(
-                        raw_schema_name, raw_schema_config
-                    )
-                    raw_schema_relations = self.get_relations(raw_schema_name)
-                    for source_relation_name, meta_data in raw_schema_relations[raw_schema_name].items():
-                        relation = Relation(
-                            source_relation_name, meta_data, app_name,
-                            app_path, snowflake_keywords, self.unmanaged_tables,
-                            self.downstream_sources_allow_list
-                        )
-                        raw_schema.relations.append(relation)
-                    app_raw_schemas.append(raw_schema)
-
-                app_object = App(
-                    app_raw_schemas, app_name, app_path, design_file_path, current_raw_sources,
-                    current_downstream_sources, self.config.credentials.database
-                )
-
-                logger.info("Building schema for the {} app".format(app_object.app))
-
-                self.clean_sql_files(app_object.app)
-
-                # Go through each raw schema that backs this Application, building out
-                # the model files for each relation
-                for raw_schema in app_object.raw_schemas:
-                    logger.info("Using raw schema {}".format(raw_schema.schema_name))
-                    filtered_relations = raw_schema.filter_relations()
-                    logger.info(
-                        "Using {} out of {} relations in this schema".format(
-                            len(filtered_relations), len(raw_schema.relations)
-                        )
-                    )
-                    for relation in filtered_relations:
-
-                        (
-                            current_raw_source,
-                            current_safe_source,
-                            current_pii_source,
-                        ) = relation.find_in_current_sources(
-                            current_raw_sources,
-                            current_downstream_sources,
-                        )
-
-                        app_object.add_source_to_new_schema(current_raw_source, relation, raw_schema)
-
-                        app_object.add_table_to_downstream_sources(relation, current_safe_source, current_pii_source)
-
-                        app_object.update_trifecta_models(relation)
-
-                        ##############################
-                        # Write out dbt models which are responsible for generating the views
-                        ##############################
-
-                        relation_dict = relation.prep_meta_data()
-
-                        if relation.is_unmanaged:
-                            logger.info(
-                                "{}.{} is an unmanaged table, skipping SQL generation.".format(
-                                    relation.app, relation.relation
-                                )
-                            )
-                        else:
-                            for view_type in ("SAFE", "PII"):
-                                if view_type == "SAFE":
-                                    sql_path = os.path.join(app_path, app_name)
-                                else:
-                                    sql_path = os.path.join(
-                                        app_path, "{}_{}".format(app_name, view_type)
-                                    )
-
-                                if not os.path.isdir(sql_path):
-                                    os.mkdir(sql_path)
-                                model_name = relation._get_model_name(view_type)  # pylint: disable=protected-access
-                                sql_file_name = "{}.sql".format(model_name)
-                                sql_file_path = os.path.join(sql_path, sql_file_name)
-                                sql = self.render_sql(
-                                    app_name, view_type, relation_dict, raw_schema
-                                )
-                                self.write_sql(sql_file_path, sql)
-
-                self.write_relation(
-                    design_file_path, yaml.safe_dump(app_object.new_schema, sort_keys=False)
-                )
-
-                # Create source definitions pertaining to app database views in the downstream dbt
-                # project, i.e. reporting.
-                self.write_sources_for_downstream_project(
-                    downstream_sources_file_path,
-                    yaml.safe_dump(app_object.new_downstream_sources, sort_keys=False),
-                )
-
-
-def validate_schema_config(config):
-    """
-    Read through an app-schema config dict, making sure that it meets certain
-    expectations before proceeding. If not, raise an exception to prevent
-    invalid schemas from being built
-    """
-    valid_keys = ['EXCLUDE', 'INCLUDE', 'SOFT_DELETE']
-    for _, app_config in config.items():
-        for schema, schema_config in app_config.items():
-            # This represents the case in which an application schema does
-            # not have any special logic concerning which tables to include
-            # or exclude
-            if not schema_config:
-                continue
-            keys = schema_config.keys()
-            if 'EXCLUDE' in keys and 'INCLUDE' in keys:
-                raise InvalidConfigurationException(
-                    "{} has both an EXCLUDE and INCUDE section".format(
-                        schema
-                    )
-                )
-            if 'EXCLUDE' not in keys and 'INCLUDE' not in keys:
-                raise InvalidConfigurationException(
-                    "{} must have either an EXCLUDE or INCUDE section".format(
-                        schema
-                    )
-                )
-            if 'SOFT_DELETE' in keys:
-                soft_delete_key_value = schema_config['SOFT_DELETE']
-                if not isinstance(soft_delete_key_value, dict):
-                    raise InvalidConfigurationException(
-                        "The SOFT_DELETE key in {} must map to the following "
-                        "format 'SOFT_DELETE_COLUMN_NAME': 'SOFT_DELETE_VALUE'".format(
-                            schema
-                        )
-                    )
-                if len(soft_delete_key_value) != 1:
-                    raise InvalidConfigurationException(
-                        "The SOFT_DELETE key in {} must only have one key/value pair".format(
-                            schema
-                        )
-                    )
-            for key in keys:
-                if key not in valid_keys:
-                    raise InvalidConfigurationException(
-                        "{} is not a valid key".format(key)
-                    )
-    return True
+            for app_name, app_config in self.builder.app_schema_configs.items():
+                self.builder.build_app(app_name, app_config)

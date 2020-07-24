@@ -1,6 +1,7 @@
 """
 Class and helpers for dealing with Application schemas
 """
+import yaml
 
 from dbt.logger import GLOBAL_LOGGER as logger
 
@@ -152,3 +153,12 @@ class App():
         new_cols = [{"name": c} for c in model_meta_data]
 
         self.new_schema["models"][-1]["columns"] = new_cols
+
+    def write_app_schema(self, design_file_path):
+        """
+        Writes out the given schema file with the given string.
+        """
+        logger.info("Creating schema file: {}".format(design_file_path))
+
+        with open(design_file_path, "w") as f:
+            f.write(yaml.safe_dump(self.new_schema, sort_keys=False))

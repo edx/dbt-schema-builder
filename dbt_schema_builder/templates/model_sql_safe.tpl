@@ -12,4 +12,7 @@ SELECT
   {%- endif -%}
   {{- ", " if not loop.last }}
 {%- endfor %}
-FROM {{ '{{' }} source('{{raw_schema}}', '{{relation.name}}') {{ '}}' }}
+FROM {{ '{{' }} source('{{raw_schema.schema_name}}', '{{relation.name}}') {{ '}}' }}
+{% if raw_schema.has_soft_delete_predicate() %}
+WHERE {{raw_schema.soft_delete_sql_clause()}}
+{%- endif -%}
