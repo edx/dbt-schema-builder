@@ -230,10 +230,10 @@ class Relation:
         else:
             for view_type in ("SAFE", "PII"):
                 if view_type == "SAFE":
-                    sql_path = os.path.join(self.app_path, self.app.app)
+                    sql_path = os.path.join(self.app_path, self.app)
                 else:
                     sql_path = os.path.join(
-                        self.app_path, "{}_{}".format(self.app.app, view_type)
+                        self.app_path, "{}_{}".format(self.app, view_type)
                     )
 
                 if not os.path.isdir(sql_path):
@@ -242,6 +242,6 @@ class Relation:
                 sql_file_name = "{}.sql".format(model_name)
                 sql_file_path = os.path.join(sql_path, sql_file_name)
                 sql = self.render_sql(
-                    self.app.app, view_type, relation_dict, raw_schema, self.redactions
+                    self.app, view_type, relation_dict, raw_schema, self.redactions
                 )
                 self.write_sql_file(sql_file_path, sql)

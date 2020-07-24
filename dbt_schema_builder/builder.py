@@ -10,6 +10,7 @@ import yaml
 from dbt.config import RuntimeConfig
 from dbt.logger import GLOBAL_LOGGER as logger
 from dbt.logger import log_manager
+from dbt.task.compile import CompileTask
 from dbt.task.generate import _coerce_decimal, get_adapter
 
 from .app import App
@@ -26,7 +27,7 @@ SQL_ESCAPE_CHAR = "^"
 LOCAL_PATH = os.path.abspath(os.path.dirname(__file__))
 
 
-class GetCatalogTask:
+class GetCatalogTask(CompileTask):
     """
     A dbt task to load the information schema to dict in the form of:
     {
@@ -44,8 +45,8 @@ class GetCatalogTask:
         }
     }
     """
-    def __init__(self, config):
-        self.config = config
+    #def __init__(self, config):
+    #    self.config = config
 
     def _get_column_name_filter(self, banned_column_names):
         """
@@ -207,7 +208,7 @@ class SchemaBuilder:
                             schema
                         )
                     )
-                if 'EXCLUDE' not in keys and 'INCLUDE' not in keys:
+                if 'EXCLUDE' not in keys and 'INCLUDE' not in keys and 'SOFT_DELETE' not in keys:
                     raise InvalidConfigurationException(
                         "{} must have either an EXCLUDE or INCUDE section".format(
                             schema
@@ -502,7 +503,7 @@ class SchemaBuilderTask:
             self.config.credentials.database,
             self.source_project_path,
             self.destination_project_path,
-            GetCatalogTask(self.config)
+            GetCatalogTask((), self.config)
         )
 
     def get_project_dirs(self):
@@ -531,4 +532,6 @@ class SchemaBuilderTask:
             os.chdir(self.builder.source_project_path)
 
             for app_name, app_config in self.builder.app_schema_configs.items():
+                logger.info('\n')
+                logger.info('------- {} -------'.format(app_name))
                 self.builder.build_app(app_name, app_config)
