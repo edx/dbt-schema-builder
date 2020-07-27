@@ -94,9 +94,6 @@ class Schema:
                 )
         return filtered_relations
 
-    def has_soft_delete_predicate(self):
-        return self.soft_delete_column_name is not None
-
     def soft_delete_sql_clause(self):
         """
         Return the SQL to exclude soft deleted rows based on configuration.

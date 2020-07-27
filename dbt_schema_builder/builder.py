@@ -205,12 +205,6 @@ class SchemaBuilder:
                             schema
                         )
                     )
-                if 'EXCLUDE' not in keys and 'INCLUDE' not in keys and 'SOFT_DELETE' not in keys:
-                    raise InvalidConfigurationException(
-                        "{} must have either an EXCLUDE or INCUDE section".format(
-                            schema
-                        )
-                    )
                 if 'SOFT_DELETE' in keys:
                     soft_delete_key_value = schema_config['SOFT_DELETE']
                     if not isinstance(soft_delete_key_value, dict):
