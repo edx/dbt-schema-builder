@@ -47,7 +47,25 @@ In the above example, the ``APPLICATION_SCHEMA_1`` will be built by combining
 
 NOTE: the order of the ``RAW`` schemas above does not matter.
 
+Another configuration section optionally allows for source tables with soft
+deletes (not actually deleted from the source, usually just having a column
+that denotes that they have been deleted) to have those soft deleted rows be
+excluded from the downstream views.
+
+This feature is turned on and off per-schema and requires you to add the SQL
+you would like to *exclude* those rows::
+
+    <APPLICATION SCHEMA_1>:
+        <RAW SCHEMA 1>:
+            SOFT_DELETE:
+                DELETED_AT: IS NOT NULL
+
+This configuration will add the following SQL to the downstream views:
+
+``WHERE DELETED_AT IS NOT NULL``
+
 Required Parameters
+-------------------
 
 ``--destination-project`` - the dbt project that will use the generated
 sources. Schema Builder will create or overwrite the source file(s) associated
