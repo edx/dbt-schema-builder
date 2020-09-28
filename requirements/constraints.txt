@@ -13,3 +13,6 @@ idna==2.8
 
 # azure-storage-common, dbt-core, google-api-core, minimal-snowplow-tracker, snowflake-connector-python vs. travis
 requests==2.22.0
+
+# quality (jsonschema, pytest - 2.0.0) vs. travis (tox, virtualenv - 1.7.0)
+importlib-metadata==1.7.0
