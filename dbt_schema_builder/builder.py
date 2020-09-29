@@ -494,7 +494,7 @@ class SchemaBuilderTask:
             self.config.credentials.database,
             self.source_project_path,
             self.destination_project_path,
-            GetCatalogTask((), self.config)
+            GetCatalogTask(self.args, self.config)
         )
 
     def get_project_dirs(self):

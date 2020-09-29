@@ -60,7 +60,7 @@ def parse_args(args):
         parents=[base_subparser],
         help="Creates or updates schema.yml files from database catalog",
     )
-    build_sub.set_defaults(cls=SchemaBuilderTask, which="build")
+    build_sub.set_defaults(cls=SchemaBuilderTask, which="build", defer=None, state=None)
 
     build_sub.add_argument(
         "--destination-project",
