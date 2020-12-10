@@ -1,4 +1,4 @@
 # Core requirements for using this application
 -c constraints.txt
 
-dbt==0.18.0
+dbt==0.18.1
