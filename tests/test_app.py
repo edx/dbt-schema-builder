@@ -33,7 +33,7 @@ def test_add_source_to_new_schema():
         [],
         []
     )
-    app.add_source_to_new_schema(current_raw_source, relation, schema_2)
+    app.add_source_to_new_schema(current_raw_source, relation, 'PROD', schema_2)
 
     current_raw_source = {"name": "THAT_TABLE", "description": "some special description"}
     relation = Relation(
@@ -46,7 +46,7 @@ def test_add_source_to_new_schema():
         [],
         []
     )
-    app.add_source_to_new_schema(current_raw_source, relation, schema_2)
+    app.add_source_to_new_schema(current_raw_source, relation, 'PROD', schema_2)
 
     expected_schema = {
         "version": 2,
@@ -55,10 +55,12 @@ def test_add_source_to_new_schema():
                 "name": 'LMS_TEST_RAW', "database": "PROD", "tables": []
             },
             {
-                "name": 'LMS_RAW', "database": "PROD", "tables": [
+                "name": 'LMS_RAW',
+                "tables": [
                     {"name": 'THIS_TABLE'},
                     {"name": 'THAT_TABLE', "description": "some special description"},
-                ]
+                ],
+                "database": "PROD"
             },
             {
                 "name": 'LMS_STITCH_RAW', "database": "PROD", "tables": []
@@ -66,7 +68,6 @@ def test_add_source_to_new_schema():
         ],
         "models": [],
     }
-
     assert app.new_schema == expected_schema
 
 

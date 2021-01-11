@@ -8,6 +8,7 @@ import string
 
 import yaml
 from dbt.config import RuntimeConfig
+from dbt.exceptions import DatabaseException
 from dbt.logger import GLOBAL_LOGGER as logger
 from dbt.logger import log_manager
 from dbt.task.compile import CompileTask
@@ -25,6 +26,10 @@ log_manager.set_path(None)
 DEFAULT_DESCRIPTION = "TODO: Replace me"
 SQL_ESCAPE_CHAR = "^"
 LOCAL_PATH = os.path.abspath(os.path.dirname(__file__))
+
+
+class InvalidDatabaseException(Exception):
+    pass
 
 
 class GetCatalogTask(CompileTask):
@@ -45,7 +50,7 @@ class GetCatalogTask(CompileTask):
         }
     }
     """
-    def _get_column_name_filter(self, banned_column_names):
+    def _get_column_name_filter(self, source_database, banned_column_names):
         """
         Create the SQL string to omit banned_column_names from the Snowflake metadata queries.
         """
@@ -53,23 +58,31 @@ class GetCatalogTask(CompileTask):
             return ""
 
         return COLUMN_NAME_FILTER.format(
-            database=self.config.credentials.database,
+            database=source_database,
             banned_column_names=",".join(
                 ["'{}'".format(x) for x in banned_column_names]
             ),
         )
 
-    def fetch_full_catalog(self, adapter, schema, banned_column_names):
+    def fetch_full_catalog(self, adapter, source_database, schema, banned_column_names):
         """
         Query Snowflake for all columns in the given schema in one query.
         """
         with adapter.connection_named("generate_catalog"):
             sql = GET_RELATIONS_BY_SCHEMA_SQL.format(
-                database=self.config.credentials.database,
+                database=source_database,
                 schema=schema,
-                column_name_filter=self._get_column_name_filter(banned_column_names),
+                column_name_filter=self._get_column_name_filter(source_database, banned_column_names),
             )
-            _, catalog_table = adapter.execute(sql, fetch=True)
+            try:
+                _, catalog_table = adapter.execute(sql, fetch=True)
+            except DatabaseException:
+                raise InvalidDatabaseException(
+                    "The database {} was not found in Snowflake. Make sure schema_config.yml file is "
+                    "valid and that the Snowflake user has access to the database in question".format(
+                        source_database
+                    )
+                )
 
         catalog_data = [
             dict(zip(catalog_table.column_names, map(_coerce_decimal, row)))
@@ -78,7 +91,7 @@ class GetCatalogTask(CompileTask):
 
         return catalog_data
 
-    def fetch_catalog_by_letter(self, adapter, schema, banned_column_names):
+    def fetch_catalog_by_letter(self, adapter, source_database, schema, banned_column_names):
         """
         Query Snowflake for all columns in the given schema over several queries.
 
@@ -95,15 +108,23 @@ class GetCatalogTask(CompileTask):
 
                 # Get the list of table names for this schema
                 sql = GET_RELATIONS_BY_SCHEMA_AND_START_LETTER_SQL.format(
-                    database=self.config.credentials.database,
+                    database=source_database,
                     schema=schema,
                     start_letter=start_letter,
                     column_name_filter=self._get_column_name_filter(
-                        banned_column_names
+                        source_database, banned_column_names
                     ),
                     escape_char=SQL_ESCAPE_CHAR,
                 )
-                _, catalog_tables = adapter.execute(sql, fetch=True)
+                try:
+                    _, catalog_tables = adapter.execute(sql, fetch=True)
+                except DatabaseException:
+                    raise InvalidDatabaseException(
+                        "The database {} was not found in Snowflake. Make sure schema_config.yml file is "
+                        "valid and that the Snowflake user has access to the database in question".format(
+                            source_database
+                        )
+                    )
                 all_letters.append(catalog_tables)
 
         catalog_data = []
@@ -118,7 +139,7 @@ class GetCatalogTask(CompileTask):
 
         return catalog_data
 
-    def run(self, schema, banned_column_names):  # pylint: disable=arguments-differ
+    def run(self, source_database, schema, banned_column_names):  # pylint: disable=arguments-differ
         """
         Run the task.
         """
@@ -133,7 +154,7 @@ class GetCatalogTask(CompileTask):
         adapter = get_adapter(self.config)
 
         try:
-            catalog = self.fetch_full_catalog(adapter, schema, banned_column_names)
+            catalog = self.fetch_full_catalog(adapter, source_database, schema, banned_column_names)
         except Exception as e:  # pylint: disable=broad-except
             # TODO: Catch a less-broad exception than Exception.
             if "Information schema query returned too much data" not in str(e):
@@ -141,7 +162,7 @@ class GetCatalogTask(CompileTask):
             logger.info(
                 "Schema too large to fetch at once, fetching by first letter instead."
             )
-            catalog = self.fetch_catalog_by_letter(adapter, schema, banned_column_names)
+            catalog = self.fetch_catalog_by_letter(adapter, source_database, schema, banned_column_names)
 
         return catalog
 
@@ -152,13 +173,11 @@ class SchemaBuilder:
     """
     def __init__(self,
                  source_path,
-                 database_name,
                  source_project_path,
                  destination_project_path,
                  get_catalog_task
                  ):
         self.source_path = source_path
-        self.database_name = database_name
         self.source_project_path = source_project_path
         self.destination_project_path = destination_project_path
         self.get_catalog_task = get_catalog_task
@@ -191,33 +210,48 @@ class SchemaBuilder:
         invalid schemas from being built
         """
         valid_keys = ['EXCLUDE', 'INCLUDE', 'SOFT_DELETE']
-        for _, app_config in config.items():
-            for schema, schema_config in app_config.items():
+        database_schema_pattern = re.compile(r'^[A-Za-z0-9_$]+\.[A-Za-z0-9_$]+$')
+        for destination_schema, destination_schema_config in config.items():
+            if not re.search(database_schema_pattern, destination_schema):
+                raise InvalidConfigurationException(
+                    "Invalid destination schema path in schema_config.yml. "
+                    "These must be in the format <DATABASE_NAME>.<SCHEMA_NAME>. "
+                    "Found {}".format(destination_schema)
+                )
+            for source_schema, source_schema_config in destination_schema_config.items():
+
+                if not re.search(database_schema_pattern, source_schema):
+                    raise InvalidConfigurationException(
+                        "Invalid source schema path in schema_config.yml. "
+                        "These must be in the format <DATABASE_NAME>.<SCHEMA_NAME>. "
+                        "Found {}".format(source_schema)
+                    )
+
                 # This represents the case in which an application schema does
                 # not have any special logic concerning which tables to include
                 # or exclude
-                if not schema_config:
+                if not source_schema_config:
                     continue
-                keys = schema_config.keys()
+                keys = source_schema_config.keys()
                 if 'EXCLUDE' in keys and 'INCLUDE' in keys:
                     raise InvalidConfigurationException(
                         "{} has both an EXCLUDE and INCUDE section".format(
-                            schema
+                            source_schema
                         )
                     )
                 if 'SOFT_DELETE' in keys:
-                    soft_delete_key_value = schema_config['SOFT_DELETE']
+                    soft_delete_key_value = source_schema_config['SOFT_DELETE']
                     if not isinstance(soft_delete_key_value, dict):
                         raise InvalidConfigurationException(
                             "The SOFT_DELETE key in {} must map to the following "
                             "format 'SOFT_DELETE_COLUMN_NAME': 'SOFT_DELETE_VALUE'".format(
-                                schema
+                                source_schema
                             )
                         )
                     if len(soft_delete_key_value) != 1:
                         raise InvalidConfigurationException(
                             "The SOFT_DELETE key in {} must only have one key/value pair".format(
-                                schema
+                                source_schema
                             )
                         )
                 for key in keys:
@@ -296,12 +330,10 @@ class SchemaBuilder:
         # We simply treat that as an empty list.
         return tables if tables else []
 
-    def clean_sql_files(self, app):
+    def clean_sql_files(self, app, app_path):
         """
         Delete existing SQL models to make sure that we don't have orphaned models for deleted tables.
         """
-        app_path = os.path.join(self.source_path, self.database_name, app)
-
         # Only delete from these paths so we leave the manual files intact
         for managed_path in ("_PII", ""):
             schema_sql_glob = os.path.join(app_path, app + managed_path, "*.sql")
@@ -314,14 +346,27 @@ class SchemaBuilder:
         with open(os.path.join(LOCAL_PATH, "snowflake_keywords.yml"), "r") as f:
             return yaml.safe_load(f)
 
-    @staticmethod
-    def get_current_raw_schema_attrs(app_path, design_file_path):
+    def build_app_path(self, app_destination_database, app_destination_schema):
         """
-        Make sure the path exists for this schema, and check if there's an existing file that we need to preserve.
+        Create a path to the directory into which schema files will be built
         """
+        db_path = os.path.join(self.source_path, app_destination_database)
+
+        if not os.path.isdir(db_path):
+            os.mkdir(db_path)
+
+        app_path = os.path.join(db_path, app_destination_schema)
+
         if not os.path.isdir(app_path):
             os.mkdir(app_path)
 
+        return app_path
+
+    @staticmethod
+    def get_current_raw_schema_attrs(design_file_path):
+        """
+        Make sure the path exists for this schema, and check if there's an existing file that we need to preserve.
+        """
         if os.path.exists(design_file_path):
             with open(design_file_path, "r") as f:
                 current_schema = yaml.safe_load(f)
@@ -364,11 +409,11 @@ class SchemaBuilder:
         with open(sources_file_path, "w") as f:
             f.write(yml)
 
-    def get_relations(self, schema):
+    def get_relations(self, app_source_database, schema):
         """
         Look up all of the relations in Snowflake using dbt's get_catalog macro.
         """
-        all_relations = self.get_catalog_task.run(schema, self.banned_column_names)
+        all_relations = self.get_catalog_task.run(app_source_database, schema, self.banned_column_names)
 
         selected_relations = {schema: {}}
         curr_table_name = None
@@ -393,22 +438,24 @@ class SchemaBuilder:
         """
         # Create an App object to represent the current Application
         # that we will be building schemas for
-        app_path = os.path.join(self.source_path, self.database_name, app_name)
-        design_file_name = "{}.yml".format(app_name)
+        app_destination_database = app_name.split('.')[0]
+        app_destination_schema = app_name.split('.')[1]
+
+        app_path = self.build_app_path(app_destination_database, app_destination_schema)
+
+        design_file_name = "{}.yml".format(app_destination_schema)
         design_file_path = os.path.join(app_path, design_file_name)
         downstream_sources_dir_path = os.path.join(
             self.destination_project_path,
             "models",
             "automatically_generated_sources",
         )
-        downstream_sources_file_name = "{}.yml".format(app_name)
+        downstream_sources_file_name = "{}.yml".format(app_destination_schema)
         downstream_sources_file_path = os.path.join(
             downstream_sources_dir_path, downstream_sources_file_name,
         )
 
-        current_raw_sources = self.get_current_raw_schema_attrs(
-            app_path, design_file_path
-        )
+        current_raw_sources = self.get_current_raw_schema_attrs(design_file_path)
 
         current_downstream_sources = self.get_current_downstream_sources_attrs(
             downstream_sources_dir_path, downstream_sources_file_path,
@@ -418,13 +465,15 @@ class SchemaBuilder:
         # and gather their relations
         app_raw_schemas = []
         for raw_schema_name, raw_schema_config in app_config.items():
+            app_source_database = raw_schema_name.split('.')[0]
+            app_source_schema = raw_schema_name.split('.')[1]
             raw_schema = Schema.from_config(
-                raw_schema_name, raw_schema_config
+                app_source_schema, raw_schema_config
             )
-            raw_schema_relations = self.get_relations(raw_schema_name)
-            for source_relation_name, meta_data in raw_schema_relations[raw_schema_name].items():
+            raw_schema_relations = self.get_relations(app_source_database, app_source_schema)
+            for source_relation_name, meta_data in raw_schema_relations[app_source_schema].items():
                 relation = Relation(
-                    source_relation_name, meta_data, app_name,
+                    source_relation_name, meta_data, app_destination_schema,
                     app_path, self.snowflake_keywords,
                     self.unmanaged_tables, self.redactions,
                     self.downstream_sources_allow_list
@@ -433,13 +482,13 @@ class SchemaBuilder:
             app_raw_schemas.append(raw_schema)
 
         app_object = App(
-            app_raw_schemas, app_name, app_path, design_file_path, current_raw_sources,
-            current_downstream_sources, self.database_name
+            app_raw_schemas, app_destination_schema, app_path, design_file_path, current_raw_sources,
+            current_downstream_sources, app_destination_database
         )
 
         logger.info("Building schema for the {} app".format(app_object.app))
 
-        self.clean_sql_files(app_object.app)
+        self.clean_sql_files(app_object.app, app_path)
 
         # Go through each raw schema that backs this Application, building out
         # the model files for each relation
@@ -461,7 +510,7 @@ class SchemaBuilder:
                     current_downstream_sources,
                 )
 
-                app_object.add_source_to_new_schema(current_raw_source, relation, raw_schema)
+                app_object.add_source_to_new_schema(current_raw_source, relation, app_source_database, raw_schema)
                 app_object.add_table_to_downstream_sources(relation, current_safe_source, current_pii_source)
                 app_object.update_trifecta_models(relation)
 
@@ -491,7 +540,6 @@ class SchemaBuilderTask:
         self.source_project_path, self.destination_project_path = self.get_project_dirs()
         self.builder = SchemaBuilder(
             self.config.source_paths[0],
-            self.config.credentials.database,
             self.source_project_path,
             self.destination_project_path,
             GetCatalogTask(self.args, self.config)

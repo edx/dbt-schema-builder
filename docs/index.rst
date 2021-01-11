@@ -30,15 +30,33 @@ In order to run, you must have a schema config file (``schema_config.yml``)
 in the directory in which you are running schema builder. This file must
 be in the following format::
 
-    <APPLICATION SCHEMA_1>:
-        <RAW SCHEMA 1>:
+    <DESTINATION_DATABASE>.<APPLICATION SCHEMA_1>:
+        <SOURCE_DATABASE>.<RAW SCHEMA 1>:
             INCLUDE:
                 - TABLE_1
-        <RAW SCHEMA 2>:
+        <SOURCE_DATABASE>.<RAW SCHEMA 2>:
             EXCLUDE:
                 - TABLE_1
-    <APPLICATION SCHEMA_2>:
-        <RAW SCHEMA 3>:
+    <DESTINATION_DATABASE>.<APPLICATION SCHEMA_2>:
+        <SOURCE_DATABASE>.<RAW SCHEMA 3>:
+
+At a high level, this file is describing how Schema Builder will use one or more
+source schemas to build out the dbt models for a destination schema.
+
+The top level keys in this file, i.e. `<DESTINATION_DATABASE>.<APPLICATION SCHEMA_1>`
+define the database and schema name that will be built by Schema Builder. There
+will be no change applied to the destinations. These are simply used as
+paths when building out a directory of dbt model files.
+
+The next level of keys in this file, i.e. `<SOURCE_DATABASE>.<RAW SCHEMA 3>`,
+define the database and schema name in Snowflake from which the current state
+of tables and columns will be queried. This structure data, along with any
+additional configurations, will be used to generate the dbt models in the
+destination schema described above.
+
+NOTE: source schemas and destination schemas can use different databases. This
+is particularly useful if you are trying to use a raw schema from a data-share
+to create downstream models in a database that your account has ownership of.
 
 In the above example, the ``APPLICATION_SCHEMA_1`` will be built by combining
 *ONLY* ``TABLE_1`` from ``RAW_SCHEMA_1`` and all tables *BUT* ``TABLE_1`` from
@@ -55,8 +73,8 @@ excluded from the downstream views.
 This feature is turned on and off per-schema and requires you to add the SQL
 you would like to *exclude* those rows::
 
-    <APPLICATION SCHEMA_1>:
-        <RAW SCHEMA 1>:
+    <DATABASE>.<APPLICATION SCHEMA_1>:
+        <DATABASE>.<RAW SCHEMA 1>:
             SOFT_DELETE:
                 DELETED_AT: IS NOT NULL
 
