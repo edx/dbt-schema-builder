@@ -33,7 +33,7 @@ class App:
         self.new_schema = {
             "version": 2,
             "sources": [
-                {"name": rs.schema_name, "tables": []}
+                {"name": rs.schema_name, "database": database, "tables": []}
                 for rs in self.raw_schemas
             ],
             "models": [],

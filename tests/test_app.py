@@ -52,16 +52,16 @@ def test_add_source_to_new_schema():
         "version": 2,
         "sources": [
             {
-                "name": 'LMS_TEST_RAW', "tables": []
+                "name": 'LMS_TEST_RAW', "database": "PROD", "tables": []
             },
             {
-                "name": 'LMS_RAW', "tables": [
+                "name": 'LMS_RAW', "database": "PROD", "tables": [
                     {"name": 'THIS_TABLE'},
                     {"name": 'THAT_TABLE', "description": "some special description"},
                 ]
             },
             {
-                "name": 'LMS_STITCH_RAW', "tables": []
+                "name": 'LMS_STITCH_RAW', "database": "PROD", "tables": []
             },
         ],
         "models": [],
@@ -101,6 +101,7 @@ def test_update_trifecta_models():
         "sources": [
             {
                 "name": "LMS_RAW",
+                "database": "PROD",
                 "tables": []
             }
         ],
