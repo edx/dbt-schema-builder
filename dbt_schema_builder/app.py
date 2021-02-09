@@ -65,7 +65,7 @@ class App:
         """
         return self.app
 
-    def add_source_to_new_schema(self, current_raw_source, relation, raw_schema):
+    def add_source_to_new_schema(self, current_raw_source, relation, source_database, raw_schema):
         """
         Add our table to the appropriate raw schema entry in our "sources" list
         in the new schema.
@@ -74,6 +74,8 @@ class App:
             if item['name'] == raw_schema.schema_name:
                 source_index = index
                 break
+
+        self.new_schema["sources"][source_index]["database"] = source_database
 
         if current_raw_source:
             self.new_schema["sources"][source_index]["tables"].append(

@@ -10,14 +10,14 @@ from dbt_schema_builder.schema import InvalidConfigurationException
 
 def get_valid_test_config():
     return {
-        'APP_1': {
-            'RAW_SCHEMA_1': {
+        'DB_1.APP_1': {
+            'DB_1.RAW_SCHEMA_1': {
                 'INCLUDE': [
                     'TABLE_1',
                     'TABLE_2',
                 ]
             },
-            'RAW_SCHEMA_2': {
+            'DB_1.RAW_SCHEMA_2': {
                 'EXCLUDE': [
                     'TABLE_1',
                     'TABLE_2',
@@ -27,8 +27,8 @@ def get_valid_test_config():
                 }
             }
         },
-        'APP_2': {
-            'RAW_SCHEMA_1': {},
+        'DB_1.APP_2': {
+            'DB_1.RAW_SCHEMA_1': {},
         },
     }
 
@@ -40,8 +40,8 @@ def test_valid_config():
 
 def test_invalid_config_keys():
     config = {
-        'APP_1': {
-            'RAW_SCHEMA_1': {
+        'DB_1.APP_1': {
+            'DB_1.RAW_SCHEMA_1': {
                 'INCLUDE': [
                     'TABLE_1',
                     'TABLE_2',
@@ -60,8 +60,8 @@ def test_invalid_config_keys():
 
 def test_invalid_soft_delete_keys():
     config = {
-        'APP_1': {
-            'RAW_SCHEMA_1': {
+        'DB_1.APP_1': {
+            'DB_1.RAW_SCHEMA_1': {
                 'INCLUDE': [
                     'TABLE_1',
                     'TABLE_2',
@@ -75,11 +75,11 @@ def test_invalid_soft_delete_keys():
     with pytest.raises(InvalidConfigurationException) as excinfo:
         SchemaBuilder.validate_schema_config(config)
 
-    assert "The SOFT_DELETE key in RAW_SCHEMA_1 must map" in str(excinfo.value)
+    assert "The SOFT_DELETE key in DB_1.RAW_SCHEMA_1 must map" in str(excinfo.value)
 
     config = {
-        'APP_1': {
-            'RAW_SCHEMA_2': {
+        'DB_1.APP_1': {
+            'DB_1.RAW_SCHEMA_2': {
                 'EXCLUDE': [
                     'TABLE_1',
                     'TABLE_2',
@@ -95,6 +95,33 @@ def test_invalid_soft_delete_keys():
     with pytest.raises(InvalidConfigurationException) as excinfo:
         SchemaBuilder.validate_schema_config(config)
 
-    err_msg = "SOFT_DELETE key in RAW_SCHEMA_2 must only have one key/value"
+    err_msg = "SOFT_DELETE key in DB_1.RAW_SCHEMA_2 must only have one key/value"
 
+    assert err_msg in str(excinfo.value)
+
+
+def test_bad_destination_config_format():
+    config = {
+        'DB_1': {
+            'DB_1.RAW_SCHEMA_1': {},
+        }
+    }
+    with pytest.raises(InvalidConfigurationException) as excinfo:
+        SchemaBuilder.validate_schema_config(config)
+
+    err_msg = "Invalid destination schema path in schema_config.yml"
+    assert err_msg in str(excinfo.value)
+
+
+def test_bad_source_config_format():
+    config = {
+        'DB_1.APP_1': {
+            'RAW_SCHEMA_1': {},
+        }
+    }
+
+    with pytest.raises(InvalidConfigurationException) as excinfo:
+        SchemaBuilder.validate_schema_config(config)
+
+    err_msg = "Invalid source schema path in schema_config.yml"
     assert err_msg in str(excinfo.value)
