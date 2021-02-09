@@ -16,3 +16,7 @@ requests==2.22.0
 
 # quality (jsonschema, pytest - 2.0.0) vs. travis (tox, virtualenv - 1.7.0)
 importlib-metadata==1.7.0
+
+pyopenssl==19.1.0
+ 
+diff-cover<4.2.0
