@@ -1,0 +1,46 @@
+name: "try1"
+version: "1.0.0"
+config-version: 2
+
+profile: "try1"
+
+source-paths: ["models"]
+analysis-paths: ["analysis"]
+test-paths: ["tests"]
+data-paths: ["data"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_modules"
+
+models:
+  try1:
+    campaigns:
+      materialized: table
+    companies:
+      materialized: table
+    contacts:
+      materialized: table
+    contacts_by_company:
+      materialized: table
+    deals:
+      materialized: table
+    deal_pipelines:
+      materialized: table
+    contact_lists:
+      materialized: table
+    email_events:
+      materialized: table
+    engagements:
+      materialized: table
+    forms:
+      materialized: table
+    owners:
+      materialized: table
+    subscription_changes:
+      materialized: table
+    workflows:
+      materialized: table
