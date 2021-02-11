@@ -125,3 +125,46 @@ def test_bad_source_config_format():
 
     err_msg = "Invalid source schema path in schema_config.yml"
     assert err_msg in str(excinfo.value)
+
+
+def test_valid_unmanaged_tables_file():
+    unmanaged_tables = []
+    assert SchemaBuilder.validate_unmanaged_tables(unmanaged_tables)
+    unmanaged_tables = [
+        'SCHEMA_1.TABLE_1',
+        'SCHEMA_1.TABLE_.*',
+        'SCHEMA_2.TABLE_[0-9]',
+    ]
+    assert SchemaBuilder.validate_unmanaged_tables(unmanaged_tables)
+
+
+def test_invalid_unmanaged_tables_file():
+    unmanaged_tables = [
+        'SCHEMA_1.TABLE_1',
+        'BAD_SCHEMA',
+        'SCHEMA_2.TABLE_1',
+    ]
+    with pytest.raises(InvalidConfigurationException) as excinfo:
+        SchemaBuilder.validate_unmanaged_tables(unmanaged_tables)
+
+    err_msg = (
+        'Entry "BAD_SCHEMA" in unmanaged_files.yml is not formatted '
+        'correctly.'
+    )
+    assert err_msg in str(excinfo.value)
+
+
+def test_bad_regex_unmanaged_tables_file():
+    unmanaged_tables = [
+        'SCHEMA_1.TABLE_1',
+        'SCHEMA_1.BAD_REGEX[',
+        'SCHEMA_2.TABLE_1',
+    ]
+    with pytest.raises(InvalidConfigurationException) as excinfo:
+        SchemaBuilder.validate_unmanaged_tables(unmanaged_tables)
+
+    err_msg = (
+        'Entry "SCHEMA_1.BAD_REGEX[" in unmanaged_files.yml contains '
+        'an invalid regular expression'
+    )
+    assert err_msg in str(excinfo.value)

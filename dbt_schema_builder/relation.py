@@ -3,6 +3,7 @@ Class and helpers for dealing with DBT relations
 """
 
 import os
+import re
 
 import jinja2
 from dbt.logger import GLOBAL_LOGGER as logger
@@ -117,11 +118,16 @@ class Relation:
         """
         Is it "unmanaged" (i.e. it has been added to the list of unmanaged tables in
         unmanaged_tables.yml, indicating that we do not want schema builder to manage this table's
-        view-generating models), and
+        view-generating models)
         """
-        return (
-            "{}.{}".format(self.app, self.relation) in self.unmanaged_tables
-        )
+        for unmanaged_table in self.unmanaged_tables:
+            # make sure to include the EOL character in the regex, to prevent
+            # matching a substring in a larger string.
+            unmanaged_table_regex = re.compile(r'{}$'.format(unmanaged_table))
+            relation_name = "{}.{}".format(self.app, self.relation)
+            if re.search(unmanaged_table_regex, relation_name):
+                return True
+        return False
 
     @property
     def manual_safe_model_exists(self):

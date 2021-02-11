@@ -43,7 +43,13 @@ These tables will not have any views built for them. If you wish to have them
 present in the <SCHEMA_PII> or <SCHEMA> schemas you will need to manually add
 models for them to the <SCHEMA>_MANUAL directory by hand.
 
-This YML file is managed by hand. An example file::
+This YML file is managed by hand. It supports two formats for identifying
+tables for manual managed tables::
+
+    - SCHEMA_NAME.TABLE_NAME          # explicitly define the snowflake identifier
+    - SCHEMA_NAME.WILDCARD_TABLE_.*   # explicitly define the schema and use a regex for the table name
+
+Here is an example file::
 
     # This file contains list tables that should have their models managed by
     # the schema builder tool in that form of SCHEMA.TABLE.
@@ -53,5 +59,5 @@ This YML file is managed by hand. An example file::
     # - LMS.AUTH_USER
 
     - FOO_SCHEMA.BAR_TABLE
-    - BAZ_SCHAME.BING_TABLE
+    - BAZ_SCHAME.BING_TABLE_[0-9]
 
