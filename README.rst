@@ -60,12 +60,12 @@ can find it at `ISSUE_TEMPLATE.md <.github/ISSUE_TEMPLATE.md>`_.
 Running Schema Builder tool 
 ---------------------------
 If you want to run dbt-schema-builder, clone this repository.
-You need a python virtual environment to run this, create and activate a python 3.6 virtual environment using your favorite tool
+You need a python virtual environment to run this, create and activate a python (3.6 or 3.8) virtual environment using your favorite tool
 
 Inside dbt-schema-builder folder, run the following to update the versions in all of the local requirements files    
 ::
     $ cd dbt-schema-builder
-    $ make upgrade
+    $ make requirements
 
 The following command will install Schema Builder and dependencies installed in your virtualenv
 ::
