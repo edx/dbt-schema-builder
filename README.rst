@@ -57,6 +57,27 @@ can find it at `PULL_REQUEST_TEMPLATE.md <.github/PULL_REQUEST_TEMPLATE.md>`_.
 The issue report template should be automatically applied if you are creating an issue on GitHub as well. Otherwise you
 can find it at `ISSUE_TEMPLATE.md <.github/ISSUE_TEMPLATE.md>`_.
 
+Running Schema Builder tool 
+---------------------------
+If you want to run dbt-schema-builder, clone this repository.
+You need a python virtual environment to run this, create and activate a python 3.6 virtual environment using your favorite tool
+
+Inside dbt-schema-builder folder, run the following to update the versions in all of the local requirements files    
+::
+    $ cd dbt-schema-builder
+    $ make upgrade
+
+The following command will install Schema Builder and dependencies installed in your virtualenv
+::
+    $ pip install .
+
+Now you should be all set to run dbt-schema-builder tool
+
+cd into your dbt project directory in which you want to run dbt-schema-builder tool. Replace the parameters with approciate values.
+
+Perform a schema-builder PR-generation by running the command below. 
+::
+    $ dbt_schema_builder build --destination-project <dbt-project-path> --profile <profile-name> --target <target-environment> --profiles-dir <profiles.yml-path> 
 
 Reporting Security Issues
 -------------------------
