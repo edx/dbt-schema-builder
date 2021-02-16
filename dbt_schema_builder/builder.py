@@ -320,15 +320,53 @@ class SchemaBuilder:
 
         This file allows us to skip certain tables from being managed by this process.
         """
+        tables = []
         unmanaged_tables_file_path = os.path.join(
             self.source_project_path, "unmanaged_tables.yml"
         )
         with open(unmanaged_tables_file_path, "r") as f:
             tables = yaml.safe_load(f)
 
-        # The file may be empty, in which case safe_load() will return None.
-        # We simply treat that as an empty list.
-        return tables if tables else []
+        self.validate_unmanaged_tables(tables)
+
+        return tables
+
+    @staticmethod
+    def validate_unmanaged_tables(table_identifiers):
+        """
+        Ensure that each entry in the unmanaged_tables list is in one of the following
+        formats:
+        - SCHEMA_NAME.TABLE_NAME
+        - SCHEMA_NAME.VALID_REGEX
+        Otherwise, raise an InvalidConfigurationException
+        """
+        if not table_identifiers:
+            return True
+
+        table_identifier_regex = re.compile(
+            r'^(?P<schema>[A-Za-z0-9_$]+)\.(?P<table>.*)'
+        )
+
+        for table_identifier in table_identifiers:
+            if not re.search(table_identifier_regex, table_identifier):
+                raise InvalidConfigurationException(
+                    'Entry "{}" in unmanaged_files.yml is not formatted correctly.'
+                    'It must be in one of the following formats: '
+                    'SCHEMA_NAME.TABLE_NAME or SCHEMA_NAME.VALID_REGEX'.format(
+                        table_identifier
+                    )
+                )
+            table = re.search(
+                table_identifier_regex, table_identifier
+            ).group('table')
+            try:
+                re.compile(table)
+            except re.error:
+                raise InvalidConfigurationException(
+                    'Entry "{}" in unmanaged_files.yml contains an invalid '
+                    'regular expression'.format(table_identifier)
+                )
+        return True
 
     def clean_sql_files(self, app, app_path):
         """
