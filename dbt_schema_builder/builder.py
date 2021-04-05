@@ -76,13 +76,13 @@ class GetCatalogTask(CompileTask):
             )
             try:
                 _, catalog_table = adapter.execute(sql, fetch=True)
-            except DatabaseException:
+            except DatabaseException as e:
                 raise InvalidDatabaseException(
                     "The database {} was not found in Snowflake. Make sure schema_config.yml file is "
                     "valid and that the Snowflake user has access to the database in question".format(
                         source_database
                     )
-                )
+                ) from e
 
         catalog_data = [
             dict(zip(catalog_table.column_names, map(_coerce_decimal, row)))
@@ -118,13 +118,13 @@ class GetCatalogTask(CompileTask):
                 )
                 try:
                     _, catalog_tables = adapter.execute(sql, fetch=True)
-                except DatabaseException:
+                except DatabaseException as e:
                     raise InvalidDatabaseException(
                         "The database {} was not found in Snowflake. Make sure schema_config.yml file is "
                         "valid and that the Snowflake user has access to the database in question".format(
                             source_database
                         )
-                    )
+                    ) from e
                 all_letters.append(catalog_tables)
 
         catalog_data = []
@@ -361,11 +361,11 @@ class SchemaBuilder:
             ).group('table')
             try:
                 re.compile(table)
-            except re.error:
+            except re.error as e:
                 raise InvalidConfigurationException(
                     'Entry "{}" in unmanaged_files.yml contains an invalid '
                     'regular expression'.format(table_identifier)
-                )
+                ) from e
         return True
 
     def clean_sql_files(self, app, app_path):
