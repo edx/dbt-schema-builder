@@ -6,13 +6,13 @@
 #
 agate==1.6.1
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   dbt-core
 asgiref==3.3.2
     # via django
 asn1crypto==1.4.0
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   oscrypto
     #   snowflake-connector-python
 astroid==2.5.2
@@ -21,57 +21,57 @@ astroid==2.5.2
     #   pylint-celery
 attrs==20.3.0
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   jsonschema
     #   pytest
 azure-common==1.1.27
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   dbt-snowflake
     #   snowflake-connector-python
 azure-core==1.13.0
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   azure-storage-blob
 azure-storage-blob==12.8.0
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   dbt-snowflake
     #   snowflake-connector-python
 babel==2.9.0
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   agate
 boto3==1.15.18
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   dbt-redshift
     #   snowflake-connector-python
 botocore==1.18.18
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   boto3
     #   s3transfer
 cachetools==4.2.1
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   google-auth
 certifi==2020.12.5
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   msrest
     #   requests
     #   snowflake-connector-python
 cffi==1.14.5
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   cryptography
     #   dbt-core
     #   google-crc32c
     #   snowflake-connector-python
 chardet==3.0.4
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   requests
 click-log==0.3.2
     # via edx-lint
@@ -84,26 +84,27 @@ code-annotations==1.1.1
     # via edx-lint
 colorama==0.4.3
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   dbt-core
 coverage==5.5
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   pytest-cov
 cryptography==3.4.7
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   azure-storage-blob
     #   dbt-snowflake
     #   pyopenssl
+    #   secretstorage
     #   snowflake-connector-python
 dbt-bigquery==0.19.1
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   dbt
 dbt-core==0.19.1
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   dbt
     #   dbt-bigquery
     #   dbt-postgres
@@ -111,181 +112,185 @@ dbt-core==0.19.1
     #   dbt-snowflake
 dbt-postgres==0.19.1
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   dbt
     #   dbt-redshift
 dbt-redshift==0.19.1
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   dbt
 dbt-snowflake==0.19.1
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   dbt
 dbt==0.19.1
-    # via -r requirements/test.txt
+    # via -r test.txt
 decorator==4.4.2
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   networkx
-django==3.1.7
+django==3.1.9
     # via
     #   code-annotations
     #   edx-lint
 edx-lint==5.0.0
-    # via -r requirements/quality.in
+    # via -r quality.in
 google-api-core[grpc]==1.23.0
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   dbt-bigquery
     #   google-cloud-bigquery
     #   google-cloud-core
 google-auth==1.28.0
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   google-api-core
 google-cloud-bigquery==2.3.1
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   dbt-bigquery
 google-cloud-core==1.4.4
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   dbt-bigquery
     #   google-cloud-bigquery
 google-crc32c==1.1.2
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   google-resumable-media
 google-resumable-media==1.2.0
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   google-cloud-bigquery
 googleapis-common-protos==1.52.0
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   dbt-bigquery
     #   google-api-core
 grpcio==1.36.1
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   google-api-core
 hologram==0.0.13
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   dbt-core
 idna==2.8
     # via
-    #   -c requirements/constraints.txt
-    #   -r requirements/test.txt
+    #   -c constraints.txt
+    #   -r test.txt
     #   dbt-core
     #   requests
 importlib-metadata==1.7.0
     # via
-    #   -c requirements/constraints.txt
-    #   -r requirements/test.txt
+    #   -c constraints.txt
+    #   -r test.txt
     #   jsonschema
 iniconfig==1.1.1
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   pytest
 isodate==0.6.0
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   agate
     #   dbt-core
     #   msrest
 isort==5.8.0
     # via
-    #   -r requirements/quality.in
+    #   -r quality.in
     #   pylint
+jeepney==0.6.0
+    # via
+    #   keyring
+    #   secretstorage
 jinja2==2.11.2
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   code-annotations
     #   dbt-core
 jmespath==0.10.0
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   boto3
     #   botocore
 json-rpc==1.13.0
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   dbt-core
 jsonschema==3.1.1
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   hologram
 keyring==21.8.0
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   snowflake-connector-python
 lazy-object-proxy==1.6.0
     # via astroid
 leather==0.3.3
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   agate
 logbook==1.5.3
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   dbt-core
 markupsafe==1.1.1
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   jinja2
 mashumaro==2.0
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   dbt-core
 mccabe==0.6.1
     # via pylint
 minimal-snowplow-tracker==0.0.2
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   dbt-core
 msgpack==1.0.2
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   mashumaro
 msrest==0.6.21
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   azure-storage-blob
 networkx==2.5.1
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   dbt-core
 oauthlib==3.1.0
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   requests-oauthlib
 oscrypto==1.2.1
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   snowflake-connector-python
 packaging==20.9
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   pytest
 parsedatetime==2.6
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   agate
 pbr==5.5.1
     # via stevedore
 pluggy==0.13.1
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   pytest
 proto-plus==1.18.1
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   google-cloud-bigquery
 protobuf==3.15.7
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   dbt-bigquery
     #   google-api-core
     #   google-cloud-bigquery
@@ -293,36 +298,36 @@ protobuf==3.15.7
     #   proto-plus
 psycopg2-binary==2.8.6
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   dbt-postgres
 py==1.10.0
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   pytest
 pyasn1-modules==0.2.8
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   google-auth
 pyasn1==0.4.8
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   pyasn1-modules
     #   rsa
 pycodestyle==2.7.0
-    # via -r requirements/quality.in
+    # via -r quality.in
 pycparser==2.20
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   cffi
 pycryptodomex==3.10.1
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   snowflake-connector-python
 pydocstyle==6.0.0
-    # via -r requirements/quality.in
+    # via -r quality.in
 pyjwt==1.7.1
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   snowflake-connector-python
 pylint-celery==0.3
     # via edx-lint
@@ -340,58 +345,58 @@ pylint==2.7.4
     #   pylint-plugin-utils
 pyopenssl==19.1.0
     # via
-    #   -c requirements/constraints.txt
-    #   -r requirements/test.txt
+    #   -c constraints.txt
+    #   -r test.txt
     #   snowflake-connector-python
 pyparsing==2.4.7
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   packaging
 pyrsistent==0.17.3
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   jsonschema
 pytest-cov==2.11.1
-    # via -r requirements/test.txt
+    # via -r test.txt
 pytest==6.2.3
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   pytest-cov
 python-dateutil==2.8.1
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   botocore
     #   hologram
 python-slugify==4.0.1
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   agate
     #   code-annotations
 pytimeparse==1.1.8
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   agate
 pytz==2020.5
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   babel
     #   django
     #   google-api-core
     #   snowflake-connector-python
 pyyaml==5.4.1
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   code-annotations
     #   dbt-core
     #   mashumaro
 requests-oauthlib==1.3.0
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   msrest
 requests==2.22.0
     # via
-    #   -c requirements/constraints.txt
-    #   -r requirements/test.txt
+    #   -c constraints.txt
+    #   -r test.txt
     #   azure-core
     #   dbt-core
     #   google-api-core
@@ -401,15 +406,17 @@ requests==2.22.0
     #   snowflake-connector-python
 rsa==4.7.2
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   google-auth
 s3transfer==0.3.6
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   boto3
+secretstorage==3.3.1
+    # via keyring
 six==1.15.0
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   agate
     #   azure-core
     #   dbt-bigquery
@@ -431,45 +438,45 @@ snowballstemmer==2.1.0
     # via pydocstyle
 snowflake-connector-python[secure-local-storage]==2.3.6
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   dbt-snowflake
 sqlparse==0.3.1
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   dbt-core
     #   django
 stevedore==3.3.0
     # via code-annotations
 text-unidecode==1.3
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   python-slugify
 toml==0.10.2
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   pylint
     #   pytest
 typing-extensions==3.7.4.3
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   dbt-core
     #   mashumaro
 urllib3==1.25.11
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   botocore
     #   dbt-snowflake
     #   requests
     #   snowflake-connector-python
 werkzeug==1.0.1
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   dbt-core
 wrapt==1.12.1
     # via astroid
 zipp==3.4.1
     # via
-    #   -r requirements/test.txt
+    #   -r test.txt
     #   importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
