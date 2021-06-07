@@ -209,11 +209,21 @@ class Relation:
         else:
             tpl = SQL_TEMPLATE_PII
 
+        literal_redactions = {
+            column:redaction for column, redaction in redactions.items() if isinstance(redaction, str) or isinstance(redaction, int)
+        }
+
+        hashed_redactions = {
+            column:redaction_config for column, redaction_config in redactions.items()
+            if isinstance(redaction_config, dict) 
+        }
+
         return tpl.render(
             app=app,
             raw_schema=raw_schema,
             relation=relation_dict,
-            redactions=redactions,
+            literal_redactions=literal_redactions,
+            hashed_redactions=hashed_redactions,
         )
 
     @staticmethod

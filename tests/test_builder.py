@@ -168,3 +168,69 @@ def test_bad_regex_unmanaged_tables_file():
         'an invalid regular expression'
     )
     assert err_msg in str(excinfo.value)
+
+def test_empty_redactions_file():
+    redactions = {}
+    assert SchemaBuilder.validate_redactions(redactions)
+
+def test_valid_redactions_file():
+    redactions = {
+        'SCHEMA1.TABLE1': {
+            'COLUMN1': '''redacted''',
+            'COLUMN2': '''redacted@email.com''',
+            'COLUMN3': {
+                'hashed': True,
+                'input': 'COLUMN3',
+            },
+            'COLUMN4': {
+                'hashed': True,
+                'input': 'LOWER(COLUMN4)',
+            },
+        },
+    }
+    assert SchemaBuilder.validate_redactions(redactions)
+
+def test_invalid_redactions_file_missing_keys():
+    invalid_redactions = {
+        'SCHEMA1.TABLE1': {
+            'COLUMN1': '''redacted''',
+            'COLUMN2': '''redacted@email.com''',
+            'COLUMN3': {
+                'hashed': True,
+            },
+            'COLUMN4': {
+                'hashed': True,
+                'input': 'LOWER(COLUMN4)',
+            },
+        },
+    }
+    with pytest.raises(InvalidConfigurationException) as excinfo:
+        SchemaBuilder.validate_redactions(invalid_redactions)
+
+    err_msg = (
+        'missing key'
+    )
+    assert err_msg in str(excinfo.value)
+
+def test_invalid_redactions_file_invalid_sql():
+    invalid_redactions = {
+        'SCHEMA1.TABLE1': {
+            'COLUMN1': '''redacted''',
+            'COLUMN2': '''redacted@email.com''',
+            'COLUMN3': {
+                'hashed': True,
+                'input': 'COLUMN3',
+            },
+            'COLUMN4': {
+                'hashed': True,
+                'input': 'LOWER(COLUMN4',
+            },
+        },
+    }
+    with pytest.raises(InvalidConfigurationException) as excinfo:
+        SchemaBuilder.validate_redactions(invalid_redactions)
+
+    err_msg = (
+        'invalid sql'
+    )
+    assert err_msg in str(excinfo.value)

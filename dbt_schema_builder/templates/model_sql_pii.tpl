@@ -4,7 +4,11 @@
 {% set soft_del_ns = {'found':false} %}
 SELECT
 {% for col in relation.columns %}
+    {% if col.name in hashed_redactions -%}
+    SHA2({{ hashed_redactions[col.name]['input']|safe }}) as {{ hashed_redactions[col.name]['output_name']|upper|indent -}}
+    {% else -%}
     {{ col.name|upper|indent }}
+    {%- endif -%}
     {{- ", " if not loop.last }}
     {%- if col.name|upper == raw_schema.soft_delete_column_name|upper -%}
         {%- if soft_del_ns.update({'found':true}) -%}{% endif %}

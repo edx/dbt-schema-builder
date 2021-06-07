@@ -285,7 +285,28 @@ class SchemaBuilder:
         with open(redaction_file_path, "r") as f:
             redactions = yaml.safe_load(f)
 
+        # self.validate_redactions(redactions)
+
         return redactions if redactions else {}
+
+    @staticmethod
+    def validate_redactions(redactions):
+        sql_name_regex = re.compile(r'^[A-Za-z0-9_]+$')
+        sql_function_regex = re.compile(r'^\w+\(\w+\)$')
+        acceptable_keys = ['hashed', 'input']
+        if not redactions:
+            return True
+        for schema, columns in redactions.items():
+            for column, redaction_stuff in columns.items():
+                if isinstance(redaction_stuff, dict):
+                    if 'input' not in redaction_stuff.keys():
+                        raise InvalidConfigurationException('missing key')
+                    if [key for key in redaction_stuff.keys() if key not in acceptable_keys]:
+                        raise InvalidConfigurationException('invalid key')
+                    column_input = redaction_stuff['input']
+                    if not re.search(sql_name_regex, column_input) and not re.search(sql_function_regex, column_input):
+                        raise InvalidConfigurationException('invalid sql')
+        return True
 
     def get_downstream_sources_allow_list(self):
         """
@@ -510,10 +531,14 @@ class SchemaBuilder:
             )
             raw_schema_relations = self.get_relations(app_source_database, app_source_schema)
             for source_relation_name, meta_data in raw_schema_relations[app_source_schema].items():
+                try:
+                    relation_redactions = self.redactions["{}.{}".format(app_destination_schema, source_relation_name)]
+                except KeyError:
+                    relation_redactions = {}
                 relation = Relation(
                     source_relation_name, meta_data, app_destination_schema,
                     app_path, self.snowflake_keywords,
-                    self.unmanaged_tables, self.redactions,
+                    self.unmanaged_tables, relation_redactions,
                     self.downstream_sources_allow_list
                 )
                 raw_schema.relations.append(relation)

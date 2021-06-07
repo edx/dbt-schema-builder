@@ -2,6 +2,8 @@
 Tests for the Relation class
 """
 
+import re
+
 import pytest
 
 from dbt_schema_builder.relation import Relation
@@ -226,14 +228,15 @@ def test_in_current_sources():
 
 def _get_fake_relation_dict():
     """
-    Returns the bare usable relation dit we can use for testing SQL templates
+    Returns the bare usable relation dict we can use for testing SQL templates
     """
     return {
         "name": "RELATION_NAME",
         "alias": "RELATION_ALIAS",
         "description": "RELATION_DESCRIPTION",
         "columns": [
-            {"name": "COLUMN_NAME"},
+            {"name": "COLUMN_NAME1"},
+            {"name": "COLUMN_NAME2"},
             {"name": "SOFT_DELETE_COLUMN"}
         ],
     }
@@ -260,7 +263,7 @@ def test_sql_no_soft_delete_no_pii_no_redactions():
         'SAFE',
         relation_dict,
         raw_schema,
-        []
+        {}
     )
 
     assert 'APP_NAME' in sql
@@ -280,10 +283,81 @@ def test_sql_soft_delete_no_pii_no_redactions():
         'SAFE',
         relation_dict,
         raw_schema,
-        []
+        {}
     )
 
     assert 'APP_NAME' in sql
     assert 'PII' not in sql
     assert 'SCHEMA_NAME' in sql
     assert 'WHERE SOFT_DELETE_COLUMN IS NULL' in sql
+
+
+def test_render_safe_view_with_string_redactions():
+    relation_dict = _get_fake_relation_dict()
+    raw_schema = _get_fake_raw_schema()
+    redaction_config = {
+        'COLUMN_NAME1': "'redacted'",
+    }
+    sql = Relation.render_sql(
+        'APP_NAME',
+        'SAFE',
+        relation_dict,
+        raw_schema,
+        redaction_config
+    )
+
+    assert 'APP_NAME' in sql
+    assert 'PII' not in sql
+    assert 'SCHEMA_NAME' in sql
+    assert "'redacted' as COLUMN_NAME1" in sql
+    assert "\n  COLUMN_NAME2" in sql
+
+
+def test_render_safe_view_with_hashed_redactions():
+    relation_dict = _get_fake_relation_dict()
+    raw_schema = _get_fake_raw_schema()
+    redaction_config = {
+        'COLUMN_NAME1': {
+            'hashed': True,
+            'input': 'LOWER(COLUMN_NAME1)',
+            'output_name': 'HASHED_COLUMN_NAME1',
+        }
+    }
+    sql = Relation.render_sql(
+        'APP_NAME',
+        'SAFE',
+        relation_dict,
+        raw_schema,
+        redaction_config
+    )
+
+    assert 'APP_NAME' in sql
+    assert 'PII' not in sql
+    assert 'SCHEMA_NAME' in sql
+    assert "SHA2(LOWER(COLUMN_NAME1)) as HASHED_COLUMN_NAME1" in sql
+    assert "\n  COLUMN_NAME2" in sql
+
+
+def test_render_pii_view_with_hashed_and_string_redactions():
+    relation_dict = _get_fake_relation_dict()
+    raw_schema = _get_fake_raw_schema()
+    redaction_config = {
+        'COLUMN_NAME1': {
+            'hashed': True,
+            'input': 'LOWER(COLUMN_NAME1)',
+            'output_name': 'HASHED_COLUMN_NAME1',
+        },
+        'COLUMN_NAME2': "'redacted'",
+    }
+    sql = Relation.render_sql(
+        'APP_NAME',
+        'PII',
+        relation_dict,
+        raw_schema,
+        redaction_config
+    )
+
+    assert 'APP_NAME_PII' in sql
+    assert 'SCHEMA_NAME' in sql
+    assert "SHA2(LOWER(COLUMN_NAME1)) as HASHED_COLUMN_NAME1" in sql
+    assert re.search("\n\s+COLUMN_NAME2", sql)

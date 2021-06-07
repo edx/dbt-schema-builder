@@ -5,8 +5,10 @@
 SELECT
 {% for col in relation.columns -%}
   {% set app_table = app|upper ~ '.' ~ relation.name|upper %}
-  {% if app_table in redactions and col.name in redactions[app_table] -%}
-    {{ redactions[app_table][col.name]|safe }} as {{ col.name|upper|indent -}}
+  {% if col.name in literal_redactions -%}
+    {{ literal_redactions[col.name]|safe }} as {{ col.name|upper|indent -}}
+  {% elif col.name in hashed_redactions -%}
+    SHA2({{ hashed_redactions[col.name]['input']|safe }}) as {{ hashed_redactions[col.name]['output_name']|upper|indent -}}
   {% else -%}
     {{ col.name|upper|indent }}
   {%- endif -%}
