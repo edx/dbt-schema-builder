@@ -6,124 +6,125 @@
 #
 agate==1.6.1
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   dbt-core
 appdirs==1.4.4
     # via
-    #   -r requirements/travis.txt
+    #   -r travis.txt
     #   virtualenv
 asgiref==3.3.2
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   django
 asn1crypto==1.4.0
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   oscrypto
     #   snowflake-connector-python
 astroid==2.5.2
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   pylint
     #   pylint-celery
 attrs==20.3.0
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   jsonschema
     #   pytest
 azure-common==1.1.27
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   dbt-snowflake
     #   snowflake-connector-python
 azure-core==1.13.0
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   azure-storage-blob
 azure-storage-blob==12.8.0
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   dbt-snowflake
     #   snowflake-connector-python
 babel==2.9.0
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   agate
 boto3==1.15.18
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   dbt-redshift
     #   snowflake-connector-python
 botocore==1.18.18
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   boto3
     #   s3transfer
 cachetools==4.2.1
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   google-auth
 certifi==2020.12.5
     # via
-    #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
+    #   -r quality.txt
+    #   -r travis.txt
     #   msrest
     #   requests
     #   snowflake-connector-python
 cffi==1.14.5
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   cryptography
     #   dbt-core
     #   google-crc32c
     #   snowflake-connector-python
 chardet==3.0.4
     # via
-    #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
+    #   -r quality.txt
+    #   -r travis.txt
     #   requests
 click-log==0.3.2
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   edx-lint
 click==7.1.2
     # via
-    #   -r requirements/pip-tools.txt
-    #   -r requirements/quality.txt
+    #   -r pip-tools.txt
+    #   -r quality.txt
     #   click-log
     #   code-annotations
     #   edx-lint
     #   pip-tools
 code-annotations==1.1.1
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   edx-lint
 codecov==2.1.11
-    # via -r requirements/travis.txt
+    # via -r travis.txt
 colorama==0.4.3
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   dbt-core
 coverage==5.5
     # via
-    #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
+    #   -r quality.txt
+    #   -r travis.txt
     #   codecov
     #   pytest-cov
 cryptography==3.4.7
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   azure-storage-blob
     #   dbt-snowflake
     #   pyopenssl
+    #   secretstorage
     #   snowflake-connector-python
 dbt-bigquery==0.19.1
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   dbt
 dbt-core==0.19.1
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   dbt
     #   dbt-bigquery
     #   dbt-postgres
@@ -131,219 +132,224 @@ dbt-core==0.19.1
     #   dbt-snowflake
 dbt-postgres==0.19.1
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   dbt
     #   dbt-redshift
 dbt-redshift==0.19.1
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   dbt
 dbt-snowflake==0.19.1
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   dbt
 dbt==0.19.1
-    # via -r requirements/quality.txt
+    # via -r quality.txt
 decorator==4.4.2
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   networkx
 diff-cover==4.1.1
     # via
-    #   -c requirements/constraints.txt
-    #   -r requirements/dev.in
+    #   -c constraints.txt
+    #   -r dev.in
 distlib==0.3.1
     # via
-    #   -r requirements/travis.txt
+    #   -r travis.txt
     #   virtualenv
-django==3.1.7
+django==3.1.12
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   code-annotations
     #   edx-lint
 edx-lint==5.0.0
-    # via -r requirements/quality.txt
+    # via -r quality.txt
 filelock==3.0.12
     # via
-    #   -r requirements/travis.txt
+    #   -r travis.txt
     #   tox
     #   virtualenv
 google-api-core[grpc]==1.23.0
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   dbt-bigquery
     #   google-cloud-bigquery
     #   google-cloud-core
 google-auth==1.28.0
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   google-api-core
 google-cloud-bigquery==2.3.1
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   dbt-bigquery
 google-cloud-core==1.4.4
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   dbt-bigquery
     #   google-cloud-bigquery
 google-crc32c==1.1.2
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   google-resumable-media
 google-resumable-media==1.2.0
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   google-cloud-bigquery
 googleapis-common-protos==1.52.0
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   dbt-bigquery
     #   google-api-core
 grpcio==1.36.1
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   google-api-core
 hologram==0.0.13
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   dbt-core
 idna==2.8
     # via
-    #   -c requirements/constraints.txt
-    #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
+    #   -c constraints.txt
+    #   -r quality.txt
+    #   -r travis.txt
     #   dbt-core
     #   requests
 importlib-metadata==1.7.0
     # via
-    #   -c requirements/constraints.txt
-    #   -r requirements/quality.txt
+    #   -c constraints.txt
+    #   -r quality.txt
     #   jsonschema
 inflect==5.3.0
     # via jinja2-pluralize
 iniconfig==1.1.1
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   pytest
 isodate==0.6.0
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   agate
     #   dbt-core
     #   msrest
 isort==5.8.0
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   pylint
+jeepney==0.6.0
+    # via
+    #   -r quality.txt
+    #   keyring
+    #   secretstorage
 jinja2-pluralize==0.3.0
     # via diff-cover
 jinja2==2.11.2
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   code-annotations
     #   dbt-core
     #   diff-cover
     #   jinja2-pluralize
 jmespath==0.10.0
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   boto3
     #   botocore
 json-rpc==1.13.0
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   dbt-core
 jsonschema==3.1.1
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   hologram
 keyring==21.8.0
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   snowflake-connector-python
 lazy-object-proxy==1.6.0
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   astroid
 leather==0.3.3
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   agate
 logbook==1.5.3
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   dbt-core
 markupsafe==1.1.1
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   jinja2
 mashumaro==2.0
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   dbt-core
 mccabe==0.6.1
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   pylint
 minimal-snowplow-tracker==0.0.2
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   dbt-core
 msgpack==1.0.2
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   mashumaro
 msrest==0.6.21
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   azure-storage-blob
 networkx==2.5.1
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   dbt-core
 oauthlib==3.1.0
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   requests-oauthlib
 oscrypto==1.2.1
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   snowflake-connector-python
 packaging==20.9
     # via
-    #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
+    #   -r quality.txt
+    #   -r travis.txt
     #   pytest
     #   tox
 parsedatetime==2.6
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   agate
 pbr==5.5.1
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   stevedore
 pep517==0.10.0
     # via
-    #   -r requirements/pip-tools.txt
+    #   -r pip-tools.txt
     #   pip-tools
 pip-tools==6.0.1
-    # via -r requirements/pip-tools.txt
+    # via -r pip-tools.txt
 pluggy==0.13.1
     # via
-    #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
+    #   -r quality.txt
+    #   -r travis.txt
     #   diff-cover
     #   pytest
     #   tox
 proto-plus==1.18.1
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   google-cloud-bigquery
 protobuf==3.15.7
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   dbt-bigquery
     #   google-api-core
     #   google-cloud-bigquery
@@ -351,117 +357,117 @@ protobuf==3.15.7
     #   proto-plus
 psycopg2-binary==2.8.6
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   dbt-postgres
 py==1.10.0
     # via
-    #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
+    #   -r quality.txt
+    #   -r travis.txt
     #   pytest
     #   tox
 pyasn1-modules==0.2.8
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   google-auth
 pyasn1==0.4.8
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   pyasn1-modules
     #   rsa
 pycodestyle==2.7.0
-    # via -r requirements/quality.txt
+    # via -r quality.txt
 pycparser==2.20
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   cffi
 pycryptodomex==3.10.1
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   snowflake-connector-python
 pydocstyle==6.0.0
-    # via -r requirements/quality.txt
+    # via -r quality.txt
 pygments==2.8.1
     # via diff-cover
 pyjwt==1.7.1
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   snowflake-connector-python
 pylint-celery==0.3
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   edx-lint
 pylint-django==2.4.2
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   edx-lint
 pylint-plugin-utils==0.6
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   pylint-celery
     #   pylint-django
 pylint==2.7.4
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   edx-lint
     #   pylint-celery
     #   pylint-django
     #   pylint-plugin-utils
 pyopenssl==19.1.0
     # via
-    #   -c requirements/constraints.txt
-    #   -r requirements/quality.txt
+    #   -c constraints.txt
+    #   -r quality.txt
     #   snowflake-connector-python
 pyparsing==2.4.7
     # via
-    #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
+    #   -r quality.txt
+    #   -r travis.txt
     #   packaging
 pyrsistent==0.17.3
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   jsonschema
 pytest-cov==2.11.1
-    # via -r requirements/quality.txt
+    # via -r quality.txt
 pytest==6.2.3
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   pytest-cov
 python-dateutil==2.8.1
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   botocore
     #   hologram
 python-slugify==4.0.1
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   agate
     #   code-annotations
 pytimeparse==1.1.8
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   agate
 pytz==2020.5
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   babel
     #   django
     #   google-api-core
     #   snowflake-connector-python
 pyyaml==5.4.1
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   code-annotations
     #   dbt-core
     #   mashumaro
 requests-oauthlib==1.3.0
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   msrest
 requests==2.22.0
     # via
-    #   -c requirements/constraints.txt
-    #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
+    #   -c constraints.txt
+    #   -r quality.txt
+    #   -r travis.txt
     #   azure-core
     #   codecov
     #   dbt-core
@@ -472,16 +478,20 @@ requests==2.22.0
     #   snowflake-connector-python
 rsa==4.7.2
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   google-auth
 s3transfer==0.3.6
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   boto3
+secretstorage==3.3.1
+    # via
+    #   -r quality.txt
+    #   keyring
 six==1.15.0
     # via
-    #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
+    #   -r quality.txt
+    #   -r travis.txt
     #   agate
     #   azure-core
     #   dbt-bigquery
@@ -503,68 +513,68 @@ six==1.15.0
     #   virtualenv
 snowballstemmer==2.1.0
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   pydocstyle
 snowflake-connector-python[secure-local-storage]==2.3.6
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   dbt-snowflake
 sqlparse==0.3.1
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   dbt-core
     #   django
 stevedore==3.3.0
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   code-annotations
 text-unidecode==1.3
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   python-slugify
 toml==0.10.2
     # via
-    #   -r requirements/pip-tools.txt
-    #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
+    #   -r pip-tools.txt
+    #   -r quality.txt
+    #   -r travis.txt
     #   pep517
     #   pylint
     #   pytest
     #   tox
 tox-battery==0.6.1
-    # via -r requirements/dev.in
+    # via -r dev.in
 tox==3.23.0
     # via
-    #   -r requirements/travis.txt
+    #   -r travis.txt
     #   tox-battery
 typing-extensions==3.7.4.3
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   dbt-core
     #   mashumaro
 urllib3==1.25.11
     # via
-    #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
+    #   -r quality.txt
+    #   -r travis.txt
     #   botocore
     #   dbt-snowflake
     #   requests
     #   snowflake-connector-python
 virtualenv==20.4.3
     # via
-    #   -r requirements/travis.txt
+    #   -r travis.txt
     #   tox
 werkzeug==1.0.1
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   dbt-core
 wrapt==1.12.1
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   astroid
 zipp==3.4.1
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
