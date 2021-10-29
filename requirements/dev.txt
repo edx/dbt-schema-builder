@@ -13,12 +13,12 @@ asn1crypto==1.4.0
     #   -r requirements/quality.txt
     #   oscrypto
     #   snowflake-connector-python
-astroid==2.9.0
+astroid==2.9.3
     # via
     #   -r requirements/quality.txt
     #   pylint
     #   pylint-celery
-attrs==21.2.0
+attrs==21.4.0
     # via
     #   -r requirements/quality.txt
     #   jsonschema
@@ -27,7 +27,7 @@ azure-common==1.1.27
     # via
     #   -r requirements/quality.txt
     #   snowflake-connector-python
-azure-core==1.21.0
+azure-core==1.21.1
     # via
     #   -r requirements/quality.txt
     #   azure-storage-blob
@@ -39,16 +39,12 @@ babel==2.9.1
     # via
     #   -r requirements/quality.txt
     #   agate
-backports.entry-points-selectable==1.1.1
-    # via
-    #   -r requirements/travis.txt
-    #   virtualenv
-boto3==1.20.20
+boto3==1.20.32
     # via
     #   -r requirements/quality.txt
     #   dbt-redshift
     #   snowflake-connector-python
-botocore==1.23.20
+botocore==1.23.32
     # via
     #   -r requirements/quality.txt
     #   boto3
@@ -59,8 +55,8 @@ cachetools==4.2.4
     #   google-auth
 certifi==2021.10.8
     # via
+    #   -r requirements/ci.txt
     #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
     #   msrest
     #   requests
     #   snowflake-connector-python
@@ -75,10 +71,10 @@ chardet==4.0.0
     #   -r requirements/quality.txt
     #   diff-cover
     #   snowflake-connector-python
-charset-normalizer==2.0.9
+charset-normalizer==2.0.10
     # via
+    #   -r requirements/ci.txt
     #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
     #   requests
 click==8.0.3
     # via
@@ -97,15 +93,15 @@ code-annotations==1.2.0
     #   -r requirements/quality.txt
     #   edx-lint
 codecov==2.1.12
-    # via -r requirements/travis.txt
+    # via -r requirements/ci.txt
 colorama==0.4.4
     # via
     #   -r requirements/quality.txt
     #   dbt-core
 coverage[toml]==6.2
     # via
+    #   -r requirements/ci.txt
     #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
     #   codecov
     #   pytest-cov
 cryptography==3.4.8
@@ -114,7 +110,6 @@ cryptography==3.4.8
     #   azure-storage-blob
     #   dbt-snowflake
     #   pyopenssl
-    #   secretstorage
     #   snowflake-connector-python
 dbt==0.21.1
     # via -r requirements/quality.txt
@@ -149,15 +144,15 @@ dbt-snowflake==0.21.1
     #   dbt
 diff-cover==6.4.4
     # via -r requirements/dev.in
-distlib==0.3.3
+distlib==0.3.4
     # via
-    #   -r requirements/travis.txt
+    #   -r requirements/ci.txt
     #   virtualenv
 edx-lint==5.2.1
     # via -r requirements/quality.txt
-filelock==3.4.0
+filelock==3.4.2
     # via
-    #   -r requirements/travis.txt
+    #   -r requirements/ci.txt
     #   tox
     #   virtualenv
 google-api-core[grpc]==1.31.2
@@ -188,12 +183,12 @@ google-resumable-media==2.1.0
     # via
     #   -r requirements/quality.txt
     #   google-cloud-bigquery
-googleapis-common-protos==1.53.0
+googleapis-common-protos==1.54.0
     # via
     #   -r requirements/quality.txt
     #   dbt-bigquery
     #   google-api-core
-grpcio==1.42.0
+grpcio==1.43.0
     # via
     #   -r requirements/quality.txt
     #   google-api-core
@@ -204,12 +199,12 @@ hologram==0.0.14
     #   dbt-core
 idna==3.3
     # via
+    #   -r requirements/ci.txt
     #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
     #   dbt-core
     #   requests
     #   snowflake-connector-python
-importlib-metadata==4.8.2
+importlib-metadata==4.10.0
     # via
     #   -r requirements/quality.txt
     #   jsonschema
@@ -217,7 +212,7 @@ iniconfig==1.1.1
     # via
     #   -r requirements/quality.txt
     #   pytest
-isodate==0.6.0
+isodate==0.6.1
     # via
     #   -r requirements/quality.txt
     #   agate
@@ -227,11 +222,6 @@ isort==5.10.1
     # via
     #   -r requirements/quality.txt
     #   pylint
-jeepney==0.7.1
-    # via
-    #   -r requirements/quality.txt
-    #   keyring
-    #   secretstorage
 jinja2==2.11.3
     # via
     #   -r requirements/quality.txt
@@ -255,7 +245,7 @@ keyring==21.8.0
     # via
     #   -r requirements/quality.txt
     #   snowflake-connector-python
-lazy-object-proxy==1.6.0
+lazy-object-proxy==1.7.1
     # via
     #   -r requirements/quality.txt
     #   astroid
@@ -306,8 +296,8 @@ oscrypto==1.2.1
 packaging==20.9
     # via
     #   -c requirements/constraints.txt
+    #   -r requirements/ci.txt
     #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
     #   dbt-core
     #   google-api-core
     #   google-cloud-bigquery
@@ -327,16 +317,16 @@ pep517==0.12.0
     #   pip-tools
 pip-tools==6.4.0
     # via -r requirements/pip-tools.txt
-platformdirs==2.4.0
+platformdirs==2.4.1
     # via
+    #   -r requirements/ci.txt
     #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
     #   pylint
     #   virtualenv
 pluggy==1.0.0
     # via
+    #   -r requirements/ci.txt
     #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
     #   diff-cover
     #   pytest
     #   tox
@@ -344,7 +334,7 @@ proto-plus==1.19.8
     # via
     #   -r requirements/quality.txt
     #   google-cloud-bigquery
-protobuf==3.19.1
+protobuf==3.19.2
     # via
     #   -r requirements/quality.txt
     #   dbt-bigquery
@@ -352,14 +342,14 @@ protobuf==3.19.1
     #   google-cloud-bigquery
     #   googleapis-common-protos
     #   proto-plus
-psycopg2-binary==2.9.2
+psycopg2-binary==2.9.3
     # via
     #   -r requirements/quality.txt
     #   dbt-postgres
 py==1.11.0
     # via
+    #   -r requirements/ci.txt
     #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
     #   pytest
     #   tox
 pyasn1==0.4.8
@@ -383,7 +373,7 @@ pycryptodomex==3.12.0
     #   snowflake-connector-python
 pydocstyle==6.1.1
     # via -r requirements/quality.txt
-pygments==2.10.0
+pygments==2.11.2
     # via diff-cover
 pyjwt==2.3.0
     # via
@@ -400,11 +390,11 @@ pylint-celery==0.3
     # via
     #   -r requirements/quality.txt
     #   edx-lint
-pylint-django==2.4.4
+pylint-django==2.5.0
     # via
     #   -r requirements/quality.txt
     #   edx-lint
-pylint-plugin-utils==0.6
+pylint-plugin-utils==0.7
     # via
     #   -r requirements/quality.txt
     #   pylint-celery
@@ -415,8 +405,8 @@ pyopenssl==20.0.1
     #   snowflake-connector-python
 pyparsing==3.0.6
     # via
+    #   -r requirements/ci.txt
     #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
     #   packaging
 pyrsistent==0.18.0
     # via
@@ -455,10 +445,10 @@ pyyaml==6.0
     #   code-annotations
     #   dbt-core
     #   mashumaro
-requests==2.26.0
+requests==2.27.1
     # via
+    #   -r requirements/ci.txt
     #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
     #   azure-core
     #   codecov
     #   dbt-core
@@ -481,14 +471,10 @@ s3transfer==0.5.0
     # via
     #   -r requirements/quality.txt
     #   boto3
-secretstorage==3.3.1
-    # via
-    #   -r requirements/quality.txt
-    #   keyring
 six==1.16.0
     # via
+    #   -r requirements/ci.txt
     #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
     #   agate
     #   azure-core
     #   dbt-bigquery
@@ -527,20 +513,20 @@ text-unidecode==1.3
     #   python-slugify
 toml==0.10.2
     # via
+    #   -r requirements/ci.txt
     #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
     #   pylint
     #   pytest
     #   tox
-tomli==1.2.2
+tomli==2.0.0
     # via
     #   -r requirements/pip-tools.txt
     #   -r requirements/quality.txt
     #   coverage
     #   pep517
-tox==3.24.4
+tox==3.24.5
     # via
-    #   -r requirements/travis.txt
+    #   -r requirements/ci.txt
     #   tox-battery
 tox-battery==0.6.1
     # via -r requirements/dev.in
@@ -551,21 +537,21 @@ typing-extensions==3.10.0.2
     #   dbt-core
     #   mashumaro
     #   pylint
-urllib3==1.26.7
+urllib3==1.26.8
     # via
+    #   -r requirements/ci.txt
     #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
     #   botocore
     #   requests
-virtualenv==20.10.0
+virtualenv==20.13.0
     # via
-    #   -r requirements/travis.txt
+    #   -r requirements/ci.txt
     #   tox
 werkzeug==2.0.2
     # via
     #   -r requirements/quality.txt
     #   dbt-core
-wheel==0.37.0
+wheel==0.37.1
     # via
     #   -r requirements/pip-tools.txt
     #   pip-tools
@@ -573,7 +559,7 @@ wrapt==1.13.3
     # via
     #   -r requirements/quality.txt
     #   astroid
-zipp==3.6.0
+zipp==3.7.0
     # via
     #   -r requirements/quality.txt
     #   importlib-metadata

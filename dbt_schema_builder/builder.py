@@ -6,6 +6,7 @@ import os
 import re
 import string
 
+import dbt.utils
 import yaml
 from dbt.config import RuntimeConfig
 from dbt.exceptions import DatabaseException
@@ -13,7 +14,6 @@ from dbt.logger import GLOBAL_LOGGER as logger
 from dbt.logger import log_manager
 from dbt.task.compile import CompileTask
 from dbt.task.generate import get_adapter
-import dbt.utils
 
 from .app import App
 from .queries import COLUMN_NAME_FILTER, GET_RELATIONS_BY_SCHEMA_AND_START_LETTER_SQL, GET_RELATIONS_BY_SCHEMA_SQL
@@ -86,7 +86,9 @@ class GetCatalogTask(CompileTask):
                 ) from e
 
         catalog_data = [
-            dict(zip(catalog_table.column_names, map(dbt.utils._coerce_decimal, row)))
+            dict(
+                zip(catalog_table.column_names, map(dbt.utils._coerce_decimal, row))  # pylint: disable=protected-access
+            )
             for row in catalog_table
         ]
 
@@ -133,7 +135,7 @@ class GetCatalogTask(CompileTask):
         for letter in all_letters:
             catalog_data.extend(
                 [
-                    dict(zip(letter.column_names, map(_coerce_decimal, row)))
+                    dict(zip(letter.column_names, map(_coerce_decimal, row)))  # pylint: disable=undefined-variable
                     for row in letter
                 ]
             )
