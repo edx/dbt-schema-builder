@@ -47,7 +47,7 @@ babel==2.9.1
     #   agate
 backports.entry-points-selectable==1.1.0
     # via
-    #   -r requirements/travis.txt
+    #   -r requirements/ci.txt
     #   virtualenv
 boto3==1.15.18
     # via
@@ -67,7 +67,7 @@ certifi==2020.12.5
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
+    #   -r requirements/ci.txt
     #   msrest
     #   requests
     #   snowflake-connector-python
@@ -81,7 +81,7 @@ cffi==1.14.6
 chardet==3.0.4
     # via
     #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
+    #   -r requirements/ci.txt
     #   requests
 click==8.0.1
     # via
@@ -100,7 +100,7 @@ code-annotations==1.1.2
     #   -r requirements/quality.txt
     #   edx-lint
 codecov==2.1.11
-    # via -r requirements/travis.txt
+    # via -r requirements/ci.txt
 colorama==0.4.3
     # via
     #   -r requirements/quality.txt
@@ -108,7 +108,7 @@ colorama==0.4.3
 coverage==5.5
     # via
     #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
+    #   -r requirements/ci.txt
     #   codecov
     #   pytest-cov
 cryptography==3.4.7
@@ -156,7 +156,7 @@ diff-cover==4.1.1
     #   -r requirements/dev.in
 distlib==0.3.2
     # via
-    #   -r requirements/travis.txt
+    #   -r requirements/ci.txt
     #   virtualenv
 django==3.2.5
     # via
@@ -166,7 +166,7 @@ edx-lint==5.0.0
     # via -r requirements/quality.txt
 filelock==3.0.12
     # via
-    #   -r requirements/travis.txt
+    #   -r requirements/ci.txt
     #   tox
     #   virtualenv
 google-api-core[grpc]==1.23.0
@@ -213,7 +213,7 @@ idna==2.8
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
+    #   -r requirements/ci.txt
     #   dbt-core
     #   requests
 importlib-metadata==1.7.0
@@ -221,7 +221,7 @@ importlib-metadata==1.7.0
     #   -c requirements/constraints.txt
     #   -r requirements/pip-tools.txt
     #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
+    #   -r requirements/ci.txt
     #   backports.entry-points-selectable
     #   click
     #   jsonschema
@@ -330,7 +330,7 @@ oscrypto==1.2.1
 packaging==21.0
     # via
     #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
+    #   -r requirements/ci.txt
     #   pytest
     #   tox
 parsedatetime==2.6
@@ -349,12 +349,12 @@ pip-tools==6.2.0
     # via -r requirements/pip-tools.txt
 platformdirs==2.0.2
     # via
-    #   -r requirements/travis.txt
+    #   -r requirements/ci.txt
     #   virtualenv
 pluggy==0.13.1
     # via
     #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
+    #   -r requirements/ci.txt
     #   diff-cover
     #   pytest
     #   tox
@@ -377,7 +377,7 @@ psycopg2-binary==2.9.1
 py==1.10.0
     # via
     #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
+    #   -r requirements/ci.txt
     #   pytest
     #   tox
 pyasn1==0.4.8
@@ -435,7 +435,7 @@ pyopenssl==19.1.0
 pyparsing==2.4.7
     # via
     #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
+    #   -r requirements/ci.txt
     #   packaging
 pyrsistent==0.18.0
     # via
@@ -478,7 +478,7 @@ requests==2.22.0
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
+    #   -r requirements/ci.txt
     #   azure-core
     #   codecov
     #   dbt-core
@@ -506,7 +506,7 @@ secretstorage==3.3.1
 six==1.16.0
     # via
     #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
+    #   -r requirements/ci.txt
     #   agate
     #   azure-core
     #   dbt-bigquery
@@ -551,7 +551,7 @@ toml==0.10.2
     # via
     #   -r requirements/pip-tools.txt
     #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
+    #   -r requirements/ci.txt
     #   pep517
     #   pylint
     #   pytest
@@ -559,7 +559,7 @@ toml==0.10.2
     #   tox
 tox==3.24.0
     # via
-    #   -r requirements/travis.txt
+    #   -r requirements/ci.txt
     #   tox-battery
 tox-battery==0.6.1
     # via -r requirements/dev.in
@@ -577,14 +577,14 @@ typing-extensions==3.7.4.3
 urllib3==1.25.11
     # via
     #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
+    #   -r requirements/ci.txt
     #   botocore
     #   dbt-snowflake
     #   requests
     #   snowflake-connector-python
 virtualenv==20.6.0
     # via
-    #   -r requirements/travis.txt
+    #   -r requirements/ci.txt
     #   tox
 werkzeug==1.0.1
     # via
@@ -602,7 +602,7 @@ zipp==3.5.0
     # via
     #   -r requirements/pip-tools.txt
     #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
+    #   -r requirements/ci.txt
     #   importlib-metadata
     #   pep517
 
