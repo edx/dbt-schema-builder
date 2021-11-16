@@ -25,3 +25,6 @@ diff-cover<4.2.0
 
 # dbt-core, snowflake-connector-python require 2020.12.5, requests requires 2021.5.30
 certifi==2020.12.5
+
+# dbt==0.19.1(pinned in base.in) requires typing-extensions<3.8 but pylint=2.11.1 requires typing-extensions>=3.10.0
+pylint<2.11

@@ -76,7 +76,7 @@ setup(
     ],
     include_package_data=True,
     install_requires=load_requirements('requirements/base.in'),
-    python_requires=">=3.6",
+    python_requires=">=3.8",
     license="AGPL 3.0",
     zip_safe=False,
     keywords='Python edx dbt schema builder',
@@ -91,7 +91,6 @@ setup(
         'License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)',
         'Natural Language :: English',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.8',
     ],
 )
