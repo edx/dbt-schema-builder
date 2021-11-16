@@ -14,11 +14,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os:
-          - ubuntu-20.04
-        python-version:
-          - 3.6
-          - 3.8
+        os: [ ubuntu-20.04 ]
+        python-version: [ 3.6,3.8 ]
         toxenv: [ py36,py38,quality,docs ]
         exclude:
           - python-version: 3.6
@@ -39,13 +36,13 @@ jobs:
     - name: Install dependencies
       run: pip install -r requirements/ci.txt
 
-    - name: Run py36 Tests
+    - name: Run Tests
       env:
         TOXENV: ${{ matrix.toxenv }}
       run: tox
 
     - name: Run Coverage
-      if: matrix.python-version == '3.6' && matrix.toxenv=='py36'
+      if: matrix.python-version == '3.8' && matrix.toxenv=='py38'
       uses: codecov/codecov-action@v2
       with:
         flags: unittests
