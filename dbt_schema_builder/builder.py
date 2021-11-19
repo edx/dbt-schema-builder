@@ -12,7 +12,8 @@ from dbt.exceptions import DatabaseException
 from dbt.logger import GLOBAL_LOGGER as logger
 from dbt.logger import log_manager
 from dbt.task.compile import CompileTask
-from dbt.task.generate import _coerce_decimal, get_adapter
+from dbt.task.generate import get_adapter
+import dbt.utils
 
 from .app import App
 from .queries import COLUMN_NAME_FILTER, GET_RELATIONS_BY_SCHEMA_AND_START_LETTER_SQL, GET_RELATIONS_BY_SCHEMA_SQL
@@ -85,7 +86,7 @@ class GetCatalogTask(CompileTask):
                 ) from e
 
         catalog_data = [
-            dict(zip(catalog_table.column_names, map(_coerce_decimal, row)))
+            dict(zip(catalog_table.column_names, map(dbt.utils._coerce_decimal, row)))
             for row in catalog_table
         ]
 
