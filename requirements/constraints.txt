@@ -8,20 +8,5 @@
 # pin when possible.  Writing an issue against the offending project and
 # linking to it here is good.
 
-# Current versions of dbt-core, requests, snowflake-connector-python require 2.8, travis requires 2.9
-idna==2.8
-
-# azure-storage-common, dbt-core, google-api-core, minimal-snowplow-tracker, snowflake-connector-python vs. travis
-requests==2.22.0
-
-# quality (jsonschema, pytest - 2.0.0) vs. travis (tox, virtualenv - 1.7.0)
-importlib-metadata==1.7.0
-
-#Starting with pyOpenSSL 20.0.0, they upgraded cryptography version that is incompatible with snowflake-connector-python.
-pyopenssl==19.1.0
-
-# 'pmap' package was not available
-diff-cover<4.2.0
-
-# dbt-core, snowflake-connector-python require 2020.12.5, requests requires 2021.5.30
-certifi==2020.12.5
+# quality (dbt-core, google-api-core, google-cloud-bigquery, pytest) require 20.9 vs travis (tox) require 21.3
+packaging==20.9
