@@ -27,7 +27,7 @@ azure-common==1.1.27
     # via
     #   -r requirements/quality.txt
     #   snowflake-connector-python
-azure-core==1.21.0
+azure-core==1.21.1
     # via
     #   -r requirements/quality.txt
     #   azure-storage-blob
@@ -41,14 +41,14 @@ babel==2.9.1
     #   agate
 backports.entry-points-selectable==1.1.1
     # via
-    #   -r requirements/travis.txt
+    #   -r requirements/ci.txt
     #   virtualenv
-boto3==1.20.20
+boto3==1.20.23
     # via
     #   -r requirements/quality.txt
     #   dbt-redshift
     #   snowflake-connector-python
-botocore==1.23.20
+botocore==1.23.23
     # via
     #   -r requirements/quality.txt
     #   boto3
@@ -59,8 +59,8 @@ cachetools==4.2.4
     #   google-auth
 certifi==2021.10.8
     # via
+    #   -r requirements/ci.txt
     #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
     #   msrest
     #   requests
     #   snowflake-connector-python
@@ -77,8 +77,8 @@ chardet==4.0.0
     #   snowflake-connector-python
 charset-normalizer==2.0.9
     # via
+    #   -r requirements/ci.txt
     #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
     #   requests
 click==8.0.3
     # via
@@ -97,15 +97,15 @@ code-annotations==1.2.0
     #   -r requirements/quality.txt
     #   edx-lint
 codecov==2.1.12
-    # via -r requirements/travis.txt
+    # via -r requirements/ci.txt
 colorama==0.4.4
     # via
     #   -r requirements/quality.txt
     #   dbt-core
 coverage[toml]==6.2
     # via
+    #   -r requirements/ci.txt
     #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
     #   codecov
     #   pytest-cov
 cryptography==3.4.8
@@ -149,15 +149,15 @@ dbt-snowflake==0.21.1
     #   dbt
 diff-cover==6.4.4
     # via -r requirements/dev.in
-distlib==0.3.3
+distlib==0.3.4
     # via
-    #   -r requirements/travis.txt
+    #   -r requirements/ci.txt
     #   virtualenv
 edx-lint==5.2.1
     # via -r requirements/quality.txt
 filelock==3.4.0
     # via
-    #   -r requirements/travis.txt
+    #   -r requirements/ci.txt
     #   tox
     #   virtualenv
 google-api-core[grpc]==1.31.2
@@ -188,7 +188,7 @@ google-resumable-media==2.1.0
     # via
     #   -r requirements/quality.txt
     #   google-cloud-bigquery
-googleapis-common-protos==1.53.0
+googleapis-common-protos==1.54.0
     # via
     #   -r requirements/quality.txt
     #   dbt-bigquery
@@ -204,8 +204,8 @@ hologram==0.0.14
     #   dbt-core
 idna==3.3
     # via
+    #   -r requirements/ci.txt
     #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
     #   dbt-core
     #   requests
     #   snowflake-connector-python
@@ -306,8 +306,8 @@ oscrypto==1.2.1
 packaging==20.9
     # via
     #   -c requirements/constraints.txt
+    #   -r requirements/ci.txt
     #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
     #   dbt-core
     #   google-api-core
     #   google-cloud-bigquery
@@ -329,14 +329,14 @@ pip-tools==6.4.0
     # via -r requirements/pip-tools.txt
 platformdirs==2.4.0
     # via
+    #   -r requirements/ci.txt
     #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
     #   pylint
     #   virtualenv
 pluggy==1.0.0
     # via
+    #   -r requirements/ci.txt
     #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
     #   diff-cover
     #   pytest
     #   tox
@@ -358,8 +358,8 @@ psycopg2-binary==2.9.2
     #   dbt-postgres
 py==1.11.0
     # via
+    #   -r requirements/ci.txt
     #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
     #   pytest
     #   tox
 pyasn1==0.4.8
@@ -415,8 +415,8 @@ pyopenssl==20.0.1
     #   snowflake-connector-python
 pyparsing==3.0.6
     # via
+    #   -r requirements/ci.txt
     #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
     #   packaging
 pyrsistent==0.18.0
     # via
@@ -457,8 +457,8 @@ pyyaml==6.0
     #   mashumaro
 requests==2.26.0
     # via
+    #   -r requirements/ci.txt
     #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
     #   azure-core
     #   codecov
     #   dbt-core
@@ -487,8 +487,8 @@ secretstorage==3.3.1
     #   keyring
 six==1.16.0
     # via
+    #   -r requirements/ci.txt
     #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
     #   agate
     #   azure-core
     #   dbt-bigquery
@@ -527,8 +527,8 @@ text-unidecode==1.3
     #   python-slugify
 toml==0.10.2
     # via
+    #   -r requirements/ci.txt
     #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
     #   pylint
     #   pytest
     #   tox
@@ -540,7 +540,7 @@ tomli==1.2.2
     #   pep517
 tox==3.24.4
     # via
-    #   -r requirements/travis.txt
+    #   -r requirements/ci.txt
     #   tox-battery
 tox-battery==0.6.1
     # via -r requirements/dev.in
@@ -553,13 +553,13 @@ typing-extensions==3.10.0.2
     #   pylint
 urllib3==1.26.7
     # via
+    #   -r requirements/ci.txt
     #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
     #   botocore
     #   requests
 virtualenv==20.10.0
     # via
-    #   -r requirements/travis.txt
+    #   -r requirements/ci.txt
     #   tox
 werkzeug==2.0.2
     # via
