@@ -13,11 +13,11 @@ asn1crypto==1.4.0
     #   -r requirements/test.txt
     #   oscrypto
     #   snowflake-connector-python
-astroid==2.9.0
+astroid==2.9.3
     # via
     #   pylint
     #   pylint-celery
-attrs==21.2.0
+attrs==21.4.0
     # via
     #   -r requirements/test.txt
     #   jsonschema
@@ -26,7 +26,7 @@ azure-common==1.1.27
     # via
     #   -r requirements/test.txt
     #   snowflake-connector-python
-azure-core==1.21.0
+azure-core==1.21.1
     # via
     #   -r requirements/test.txt
     #   azure-storage-blob
@@ -38,12 +38,12 @@ babel==2.9.1
     # via
     #   -r requirements/test.txt
     #   agate
-boto3==1.20.20
+boto3==1.20.32
     # via
     #   -r requirements/test.txt
     #   dbt-redshift
     #   snowflake-connector-python
-botocore==1.23.20
+botocore==1.23.32
     # via
     #   -r requirements/test.txt
     #   boto3
@@ -68,7 +68,7 @@ chardet==4.0.0
     # via
     #   -r requirements/test.txt
     #   snowflake-connector-python
-charset-normalizer==2.0.9
+charset-normalizer==2.0.10
     # via
     #   -r requirements/test.txt
     #   requests
@@ -95,7 +95,6 @@ cryptography==3.4.8
     #   azure-storage-blob
     #   dbt-snowflake
     #   pyopenssl
-    #   secretstorage
     #   snowflake-connector-python
 dbt==0.21.1
     # via -r requirements/test.txt
@@ -158,12 +157,12 @@ google-resumable-media==2.1.0
     # via
     #   -r requirements/test.txt
     #   google-cloud-bigquery
-googleapis-common-protos==1.53.0
+googleapis-common-protos==1.54.0
     # via
     #   -r requirements/test.txt
     #   dbt-bigquery
     #   google-api-core
-grpcio==1.42.0
+grpcio==1.43.0
     # via
     #   -r requirements/test.txt
     #   google-api-core
@@ -178,7 +177,7 @@ idna==3.3
     #   dbt-core
     #   requests
     #   snowflake-connector-python
-importlib-metadata==4.8.2
+importlib-metadata==4.10.0
     # via
     #   -r requirements/test.txt
     #   jsonschema
@@ -186,7 +185,7 @@ iniconfig==1.1.1
     # via
     #   -r requirements/test.txt
     #   pytest
-isodate==0.6.0
+isodate==0.6.1
     # via
     #   -r requirements/test.txt
     #   agate
@@ -196,11 +195,6 @@ isort==5.10.1
     # via
     #   -r requirements/quality.in
     #   pylint
-jeepney==0.7.1
-    # via
-    #   -r requirements/test.txt
-    #   keyring
-    #   secretstorage
 jinja2==2.11.3
     # via
     #   -r requirements/test.txt
@@ -223,7 +217,7 @@ keyring==21.8.0
     # via
     #   -r requirements/test.txt
     #   snowflake-connector-python
-lazy-object-proxy==1.6.0
+lazy-object-proxy==1.7.1
     # via astroid
 leather==0.3.4
     # via
@@ -281,7 +275,7 @@ parsedatetime==2.6
     #   agate
 pbr==5.8.0
     # via stevedore
-platformdirs==2.4.0
+platformdirs==2.4.1
     # via pylint
 pluggy==1.0.0
     # via
@@ -291,7 +285,7 @@ proto-plus==1.19.8
     # via
     #   -r requirements/test.txt
     #   google-cloud-bigquery
-protobuf==3.19.1
+protobuf==3.19.2
     # via
     #   -r requirements/test.txt
     #   dbt-bigquery
@@ -299,7 +293,7 @@ protobuf==3.19.1
     #   google-cloud-bigquery
     #   googleapis-common-protos
     #   proto-plus
-psycopg2-binary==2.9.2
+psycopg2-binary==2.9.3
     # via
     #   -r requirements/test.txt
     #   dbt-postgres
@@ -340,9 +334,9 @@ pylint==2.12.2
     #   pylint-plugin-utils
 pylint-celery==0.3
     # via edx-lint
-pylint-django==2.4.4
+pylint-django==2.5.0
     # via edx-lint
-pylint-plugin-utils==0.6
+pylint-plugin-utils==0.7
     # via
     #   pylint-celery
     #   pylint-django
@@ -391,7 +385,7 @@ pyyaml==6.0
     #   code-annotations
     #   dbt-core
     #   mashumaro
-requests==2.26.0
+requests==2.27.1
     # via
     #   -r requirements/test.txt
     #   azure-core
@@ -415,10 +409,6 @@ s3transfer==0.5.0
     # via
     #   -r requirements/test.txt
     #   boto3
-secretstorage==3.3.1
-    # via
-    #   -r requirements/test.txt
-    #   keyring
 six==1.16.0
     # via
     #   -r requirements/test.txt
@@ -457,7 +447,7 @@ toml==0.10.2
     #   -r requirements/test.txt
     #   pylint
     #   pytest
-tomli==1.2.2
+tomli==2.0.0
     # via
     #   -r requirements/test.txt
     #   coverage
@@ -468,7 +458,7 @@ typing-extensions==3.10.0.2
     #   dbt-core
     #   mashumaro
     #   pylint
-urllib3==1.26.7
+urllib3==1.26.8
     # via
     #   -r requirements/test.txt
     #   botocore
@@ -479,7 +469,7 @@ werkzeug==2.0.2
     #   dbt-core
 wrapt==1.13.3
     # via astroid
-zipp==3.6.0
+zipp==3.7.0
     # via
     #   -r requirements/test.txt
     #   importlib-metadata
