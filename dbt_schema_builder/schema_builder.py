@@ -4,8 +4,9 @@ Command line wrapper for the Schema Builder tool.
 
 import argparse
 import sys
+import os
 
-from dbt.config import PROFILES_DIR
+from dbt.config.profile import DEFAULT_PROFILES_DIR
 
 from .builder import SchemaBuilderTask
 
@@ -31,7 +32,9 @@ def parse_args(args):
             Default is the current working directory and its parents.
             '''
     )
-
+    PROFILES_DIR = os.path.expanduser(
+        os.getenv('DBT_PROFILES_DIR', DEFAULT_PROFILES_DIR)
+    )
     base_subparser.add_argument(
         "--profiles-dir",
         default=PROFILES_DIR,
