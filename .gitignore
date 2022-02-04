@@ -65,3 +65,7 @@ requirements/private.txt
 
 # Vim files
 *.swp
+
+# Virtual environments
+venv/
+.venv/

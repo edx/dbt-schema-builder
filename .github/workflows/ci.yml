@@ -16,7 +16,7 @@ jobs:
       matrix:
         python-version: [3.8, 3.9]
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - name: setup python
       uses: actions/setup-python@v2
       with:
@@ -37,7 +37,7 @@ jobs:
     name: dbt Schema Builder Code Quality
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - name: Setup Python
       uses: actions/setup-python@v2
       with:
@@ -54,7 +54,7 @@ jobs:
     name: dbt Schema Builder Documentation
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - name: Setup Python
       uses: actions/setup-python@v2
       with:
