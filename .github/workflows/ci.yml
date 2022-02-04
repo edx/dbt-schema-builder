@@ -1,4 +1,4 @@
-name: Python CI
+name: dbt Schema Builder CI
 
 on:
   push:
@@ -9,36 +9,61 @@ on:
       - '**'
 
 jobs:
-  run_tests:
-    name: Tests
-    runs-on: ${{ matrix.os }}
+  run_dbt_schema_builder_tests:
+    name: dbt Schema Builder Tests
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
-        os: [ ubuntu-20.04 ]
-        python-version: [ 3.8 ]
-        toxenv: [ py38,quality,docs ]
-
+        python-version: [3.8, 3.9]
     steps:
-    - name: Checkout Repo
-      uses: actions/checkout@v2
+    - uses: actions/checkout@v2
     - name: setup python
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
-
-    - name: Install pip
+    - name: Install pip, setuptools, and wheel
       run: pip install -r requirements/pip.txt
-
     - name: Install dependencies
       run: pip install -r requirements/ci.txt
-
+    - name: Install Tox
+      run: pip install tox tox-gh-actions
     - name: Run Tests
-      env:
-        TOXENV: ${{ matrix.toxenv }}
       run: tox
-
     - name: Run Coverage
-      if: matrix.toxenv=='py38'
       uses: codecov/codecov-action@v2
       with:
         fail_ci_if_error: true
+  run_dbt_schema_builder_code_quality:
+    name: dbt Schema Builder Code Quality
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+    - name: Install pip, setuptools, and wheel
+      run: pip install -r requirements/pip.txt
+    - name: Install dependencies
+      run: pip install -r requirements/ci.txt
+    - name: Install Tox
+      run: pip install tox tox-gh-actions
+    - name: Run Code Quality Checks
+      run: tox -e quality
+  run_dbt_schema_builder_docs:
+    name: dbt Schema Builder Documentation
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+    - name: Install pip, setuptools, and wheel
+      run: pip install -r requirements/pip.txt
+    - name: Install dependencies
+      run: pip install -r requirements/ci.txt
+    - name: Install Tox
+      run: pip install tox tox-gh-actions
+    - name: Run Documentation
+      run: tox -e docs
