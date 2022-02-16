@@ -3,13 +3,13 @@ name: Upgrade Requirements
 on:
   schedule:
     # will start the job at 13:15 UTC every Thursday
-    - cron: "15 13 * * 4"
+    - cron: "15 13 * * 3"
   workflow_dispatch:
     inputs:
       branch:
         description: "Target branch to create requirements PR against"
         required: true
-        default: 'hamza442/upgrade-python-version'
+        default: '$default-branch'
 
 jobs:
 
