@@ -18,7 +18,7 @@ jobs:
      with:
        branch: ${{ github.event.inputs.branch }}
        team_reviewers: 'edx-data-engineering'
-       email_address: 'analytics@edx.opsgenie.net'
+       email_address: 'data-engineering@edx.org'
        send_success_notification: true
      secrets:
        requirements_bot_github_token: ${{ secrets.REQUIREMENTS_BOT_GITHUB_TOKEN }}
