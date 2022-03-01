@@ -3,20 +3,20 @@ name: Upgrade Requirements
 on:
   schedule:
     # will start the job at 13:15 UTC on 1st of every month
-    - cron: "15 13 1 * *"
+    - cron: "05 15 1 * *"
   workflow_dispatch:
     inputs:
       branch:
         description: "Target branch to create requirements PR against"
         required: true
-        default: 'main'
+        default: '$default-branch'
 
 jobs:
 
   call-upgrade-python-requirements-workflow:
      uses: edx/.github/.github/workflows/upgrade-python-requirements.yml@master
      with:
-       branch: ${{ github.event.inputs.branch }}
+       branch: ${{ github.event.inputs.branch || '$default-branch' }}
        team_reviewers: 'edx-data-engineering'
        email_address: 'data-engineering@edx.org'
        send_success_notification: true
