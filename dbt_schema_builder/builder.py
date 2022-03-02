@@ -9,8 +9,8 @@ import string
 import dbt.utils
 import yaml
 from dbt.config import RuntimeConfig
+from dbt.events import AdapterLogger
 from dbt.exceptions import DatabaseException
-from dbt.logger import GLOBAL_LOGGER as logger
 from dbt.logger import log_manager
 from dbt.task.compile import CompileTask
 from dbt.task.generate import get_adapter
@@ -23,6 +23,8 @@ from .schema import InvalidConfigurationException, Schema
 # Set up the dbt logger
 log_manager.set_path(None)
 # log_manager.set_debug()  # Uncomment for dbt's debug level logging
+
+logger = AdapterLogger("Snowflake")
 
 DEFAULT_DESCRIPTION = "TODO: Replace me"
 SQL_ESCAPE_CHAR = "^"
@@ -580,7 +582,7 @@ class SchemaBuilderTask:
         self.config = RuntimeConfig.from_args(args)
         self.source_project_path, self.destination_project_path = self.get_project_dirs()
         self.builder = SchemaBuilder(
-            self.config.source_paths[0],
+            self.config.model_paths[0],
             self.source_project_path,
             self.destination_project_path,
             GetCatalogTask(self.args, self.config)
