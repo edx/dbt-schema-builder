@@ -580,7 +580,7 @@ class SchemaBuilderTask:
         self.config = RuntimeConfig.from_args(args)
         self.source_project_path, self.destination_project_path = self.get_project_dirs()
         self.builder = SchemaBuilder(
-            self.config.source_paths[0],
+            self.config.model_paths[0],
             self.source_project_path,
             self.destination_project_path,
             GetCatalogTask(self.args, self.config)
