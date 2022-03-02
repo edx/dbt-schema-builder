@@ -1,8 +1,9 @@
 # Core requirements for using this application
 -c constraints.txt
 
-dbt==0.21.1
+dbt-core==1.0.3
+dbt-snowflake==1.0.0
 
 # New release of MarkupSafe 2.1.0 is throwing an error "ImportError: cannot import name 'soft_unicode' from 'markupsafe'"
 # https://github.com/pallets/markupsafe/issues/282
-MarkupSafe==2.0.1
+# MarkupSafe==2.0.1

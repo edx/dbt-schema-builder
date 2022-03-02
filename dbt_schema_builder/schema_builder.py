@@ -5,7 +5,8 @@ Command line wrapper for the Schema Builder tool.
 import argparse
 import sys
 
-from dbt.config import PROFILES_DIR
+from dbt.flags import PROFILES_DIR
+from dbt import flags
 
 from .builder import SchemaBuilderTask
 
@@ -73,6 +74,7 @@ def parse_args(args):
         sys.exit(1)
 
     parsed = p.parse_args(args)
+    flags.set_from_args(parsed, {})
     return parsed
 
 
