@@ -9,14 +9,14 @@ on:
       branch:
         description: "Target branch to create requirements PR against"
         required: true
-        default: '$default-branch'
+        default: 'main'
 
 jobs:
 
   call-upgrade-python-requirements-workflow:
      uses: edx/.github/.github/workflows/upgrade-python-requirements.yml@master
      with:
-       branch: ${{ github.event.inputs.branch || '$default-branch' }}
+       branch: ${{ github.event.inputs.default_branch }}
        team_reviewers: 'edx-data-engineering'
        email_address: 'data-engineering@edx.org'
        send_success_notification: true
