@@ -16,7 +16,7 @@ jobs:
   call-upgrade-python-requirements-workflow:
      uses: edx/.github/.github/workflows/upgrade-python-requirements.yml@master
      with:
-       branch: ${{ github.event.inputs.branch }}
+       branch: ${{ github.event.repository.default_branch }}
        team_reviewers: 'edx-data-engineering'
        email_address: 'data-engineering@edx.org'
        send_success_notification: true
