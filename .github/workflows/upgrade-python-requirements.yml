@@ -9,7 +9,7 @@ on:
       branch:
         description: "Target branch to create requirements PR against"
         required: true
-        default: 'main'
+        default: '$default-branch'
 
 jobs:
 
