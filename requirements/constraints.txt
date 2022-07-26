@@ -10,4 +10,6 @@
 
 # quality (dbt-core, google-api-core, google-cloud-bigquery, pytest) require 20.9 vs travis (tox) require 21.3
 packaging==20.9
+# Pinning snowflake-connector-python due to following issue
+# https://github.com/snowflakedb/snowflake-connector-python/issues/1206
 snowflake-connector-python==2.7.9
