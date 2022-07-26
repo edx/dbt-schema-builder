@@ -10,3 +10,4 @@
 
 # quality (dbt-core, google-api-core, google-cloud-bigquery, pytest) require 20.9 vs travis (tox) require 21.3
 packaging==20.9
+snowflake-connector-python==2.7.9
