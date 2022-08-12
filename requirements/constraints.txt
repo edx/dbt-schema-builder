@@ -13,3 +13,18 @@ packaging==20.9
 # Pinning snowflake-connector-python due to following issue
 # https://github.com/snowflakedb/snowflake-connector-python/issues/1206
 snowflake-connector-python==2.7.9
+
+# Pinning below mentioned dependencies because when we do make upgrade there is conflict between dependencies
+# snowflake-connector-python 2.7.9 install werkzeug 2.2.2 in which MarkupSafe is pinned to MarkupSafe>=2.1.1
+# https://github.com/pallets/werkzeug/blob/2.2.2/setup.py
+# This cause error: Could not find a version that matches MarkupSafe==2.0.1,==2.1.1 (from -c requirements/constraints.txt (line 17))
+# Because in dbt-score 1.0.3 MarkupSafe is pinned to 2.0.1 and in dbt-score 1.2.0 MarkupSafe is pinned to MarkupSafe>=0.23,<2.1 
+# https://github.com/dbt-labs/dbt-core/blob/v1.2.0/core/setup.py#L52
+# https://github.com/dbt-labs/dbt-core/blob/v1.0.3/core/setup.py#L55
+# Due to this reason we are pinnig to werkzeug==2.1.2, becuase in this version MarkupSafe is not pinned
+# https://github.com/pallets/werkzeug/blob/2.1.2/setup.py
+# Also with this change dbt-core and dbt-snowflake version was dumped to 1.2.0 in base.in file
+# becuase dbt-snowflake==1.0.0 has hard limit cryptography<4,>=3.2 and snowflake-connector-python==2.7.9 has hard limit cryptography<37.0.0,>=3.1.0. 
+# This was causing conflict so needed to upgrade dbt-snowflake and dbt-core to 1.2.0
+werkzeug==2.1.2
+charset-normalizer==2.0.12
