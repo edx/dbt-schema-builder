@@ -35,15 +35,16 @@ cryptography==3.4.8
     # via
     #   dbt-snowflake
     #   pyopenssl
+    #   secretstorage
     #   snowflake-connector-python
 dbt-core==1.0.3
     # via
-    #   -r requirements/base.in
+    #   -r base.in
     #   dbt-snowflake
 dbt-extractor==0.4.0
     # via dbt-core
 dbt-snowflake==1.0.0
-    # via -r requirements/base.in
+    # via -r base.in
 future==0.18.2
     # via parsedatetime
 hologram==0.0.14
@@ -91,7 +92,7 @@ oscrypto==1.2.1
     # via snowflake-connector-python
 packaging==20.9
     # via
-    #   -c requirements/constraints.txt
+    #   -c constraints.txt
     #   dbt-core
 parsedatetime==2.4
     # via agate
@@ -99,7 +100,7 @@ pycparser==2.21
     # via cffi
 pycryptodomex==3.14.1
     # via snowflake-connector-python
-pyjwt==2.3.0
+pyjwt==2.4.0
     # via snowflake-connector-python
 pyopenssl==21.0.0
     # via snowflake-connector-python
