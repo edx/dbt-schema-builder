@@ -237,7 +237,7 @@ class Relation:
                 )
             )
         else:
-            for view_type in ("SAFE", "PII"):
+            for view_type in ["SAFE"]: # TODO: MAKE A FLAG
                 if view_type == "SAFE":
                     sql_path = os.path.join(self.app_path, self.app)
                 else:

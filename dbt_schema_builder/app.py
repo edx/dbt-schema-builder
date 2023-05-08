@@ -136,7 +136,7 @@ class App:
         constructed from the raw data.
         """
         for relation_name in [
-            relation.new_pii_relation_name,
+            #relation.new_pii_relation_name, # TODO: MAKE A FLAG
             relation.new_safe_relation_name,
         ]:
             self.add_model_to_new_schema(
