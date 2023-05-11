@@ -570,7 +570,7 @@ class SchemaBuilder:
             downstream_sources_file_path,
             yaml.safe_dump(app_object.new_downstream_sources, sort_keys=False),
         )
-        
+
     def build_app_no_pii(self, app_name, app_config):
         """
         Build the requested application schema from the raw schemas.
@@ -713,7 +713,7 @@ class SchemaBuilderTask:
                 logger.info('\n')
                 logger.info('------- {} -------'.format(app_name))
                 self.builder.build_app(app_name, app_config)
-                
+
     def run_no_pii(self):
         """
         Wraps the SchemaBuilder steps
@@ -725,4 +725,3 @@ class SchemaBuilderTask:
                 logger.info('\n')
                 logger.info('------- {} -------'.format(app_name))
                 self.builder.build_app_no_pii(app_name, app_config)
-
