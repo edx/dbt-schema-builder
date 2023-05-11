@@ -570,6 +570,102 @@ class SchemaBuilder:
             downstream_sources_file_path,
             yaml.safe_dump(app_object.new_downstream_sources, sort_keys=False),
         )
+        
+    def build_app_no_pii(self, app_name, app_config):
+        """
+        Build the requested application schema from the raw schemas.
+        """
+        # Create an App object to represent the current Application
+        # that we will be building schemas for
+        app_destination_database = app_name.split('.')[0]
+        app_destination_schema = app_name.split('.')[1]
+
+        app_path = self.build_app_path(app_destination_database, app_destination_schema)
+
+        design_file_name = "{}.yml".format(app_destination_schema)
+        design_file_path = os.path.join(app_path, design_file_name)
+        downstream_sources_dir_path = os.path.join(
+            self.destination_project_path,
+            "models",
+            "automatically_generated_sources",
+        )
+        downstream_sources_file_name = "{}.yml".format(app_destination_schema)
+        downstream_sources_file_path = os.path.join(
+            downstream_sources_dir_path, downstream_sources_file_name,
+        )
+
+        current_raw_sources = self.get_current_raw_schema_attrs(design_file_path)
+
+        current_downstream_sources = self.get_current_downstream_sources_attrs(
+            downstream_sources_dir_path, downstream_sources_file_path,
+        )
+
+        # Construct the raw schemas that act as sources for this application
+        # and gather their relations
+        app_raw_schemas = []
+        for raw_schema_name, raw_schema_config in app_config.items():
+            app_source_database = raw_schema_name.split('.')[0]
+            app_source_schema = raw_schema_name.split('.')[1]
+            raw_schema = Schema.from_config(
+                app_source_schema, raw_schema_config
+            )
+            raw_schema_relations = self.get_relations(app_source_database, app_source_schema)
+            for source_relation_name, meta_data in raw_schema_relations[app_source_schema].items():
+                relation = Relation(
+                    source_relation_name, meta_data, app_destination_schema,
+                    app_path, self.snowflake_keywords,
+                    self.unmanaged_tables, self.redactions,
+                    self.downstream_sources_allow_list
+                )
+                raw_schema.relations.append(relation)
+            app_raw_schemas.append(raw_schema)
+
+        app_object = App(
+            app_raw_schemas, app_destination_schema, app_path, design_file_path, current_raw_sources,
+            current_downstream_sources, app_destination_database
+        )
+
+        logger.info("Building schema for the {} app".format(app_object.app))
+
+        self.clean_sql_files(app_object.app, app_path)
+
+        # Go through each raw schema that backs this Application, building out
+        # the model files for each relation
+        for raw_schema in app_object.raw_schemas:
+            logger.info("Using raw schema {}".format(raw_schema.schema_name))
+            filtered_relations = raw_schema.filter_relations()
+            logger.info(
+                "Using {} out of {} relations in this schema".format(
+                    len(filtered_relations), len(raw_schema.relations)
+                )
+            )
+            for relation in filtered_relations:
+                (
+                    current_raw_source,
+                    current_safe_source,
+                    current_pii_source,
+                ) = relation.find_in_current_sources(
+                    current_raw_sources,
+                    current_downstream_sources,
+                )
+
+                app_object.add_source_to_new_schema(current_raw_source, relation, app_source_database, raw_schema)
+                app_object.add_table_to_downstream_sources(relation, current_safe_source, current_pii_source)
+                app_object.update_trifecta_models_no_pii(relation)
+
+                ##############################
+                # Write out dbt models which are responsible for generating the views
+                ##############################
+                relation.write_sql_no_pii(raw_schema)
+
+        app_object.write_app_schema(design_file_path)
+
+        # Create source definitions pertaining to app database views in the downstream dbt
+        # project, i.e. reporting.
+        self.write_sources_for_downstream_project(
+            downstream_sources_file_path,
+            yaml.safe_dump(app_object.new_downstream_sources, sort_keys=False),
+        )
 
 
 class SchemaBuilderTask:
@@ -617,3 +713,16 @@ class SchemaBuilderTask:
                 logger.info('\n')
                 logger.info('------- {} -------'.format(app_name))
                 self.builder.build_app(app_name, app_config)
+                
+    def run_no_pii(self):
+        """
+        Wraps the SchemaBuilder steps
+        """
+        with log_manager.applicationbound():
+            os.chdir(self.builder.source_project_path)
+
+            for app_name, app_config in self.builder.app_schema_configs.items():
+                logger.info('\n')
+                logger.info('------- {} -------'.format(app_name))
+                self.builder.build_app_no_pii(app_name, app_config)
+
