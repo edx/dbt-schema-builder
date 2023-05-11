@@ -53,6 +53,12 @@ def parse_args(args):
         type=str,
         help="Which target to load for the given profile",
     )
+    base_subparser.add_argument(
+    "--nopii",
+    required=False,
+  	action='store_true',
+    help="Whether or not to supress PII models and sources",
+    )
 
     subs = p.add_subparsers(title="Available sub-commands", dest="command")
 
@@ -85,8 +91,13 @@ def handle(args):
     parsed = parse_args(args)
 
     if parsed.command == "build":
-        task = SchemaBuilderTask(parsed)
-        task.run()
+    	if parsed.nopii == True:
+    		task = SchemaBuilderTask(parsed)
+    		task.run_no_pii()
+    	else:
+        	task = SchemaBuilderTask(parsed)
+        	task.run()
+        
 
 
 def main(args=None):
