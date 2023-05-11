@@ -142,7 +142,7 @@ class App:
             self.add_model_to_new_schema(
                 relation_name, relation.meta_data
             )
-            
+
     def update_trifecta_models_no_pii(self, relation):
         """
         Given a relation, add it to the 'trifecta'. These are the PII and safe views
