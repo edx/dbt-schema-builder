@@ -59,7 +59,6 @@ def parse_args(args):
   	action='store_true',
     help="Whether or not to supress PII models and sources",
     )
-
     subs = p.add_subparsers(title="Available sub-commands", dest="command")
 
     build_sub = subs.add_parser(
@@ -91,12 +90,12 @@ def handle(args):
     parsed = parse_args(args)
 
     if parsed.command == "build":
-    	if parsed.nopii == True:
-    		task = SchemaBuilderTask(parsed)
-    		task.run_no_pii()
-    	else:
-        	task = SchemaBuilderTask(parsed)
-        	task.run()
+        if parsed.nopii is True:
+            task = SchemaBuilderTask(parsed)
+            task.run(no_pii=True)
+        else:
+            task = SchemaBuilderTask(parsed)
+            task.run()
         
 
 
