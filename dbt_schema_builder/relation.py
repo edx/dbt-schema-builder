@@ -224,7 +224,7 @@ class Relation:
         with open(sql_file_path, "w") as f:
             f.write(sql)
 
-    def write_sql(self, raw_schema):
+    def write_sql(self, raw_schema, no_pii=False):
         """
         Renders the SQL for this relation and writes out.
         """
@@ -237,51 +237,39 @@ class Relation:
                 )
             )
         else:
-            for view_type in ("SAFE", "PII"):
-                if view_type == "SAFE":
-                    sql_path = os.path.join(self.app_path, self.app)
-                else:
-                    sql_path = os.path.join(
-                        self.app_path, "{}_{}".format(self.app, view_type)
+            if no_pii is True:
+                for view_type in ["SAFE"]:
+                    if view_type == "SAFE":
+                        sql_path = os.path.join(self.app_path, self.app)
+                    else:
+                        sql_path = os.path.join(
+                            self.app_path, "{}_{}".format(self.app, view_type)
+                        )
+
+                    if not os.path.isdir(sql_path):
+                        os.mkdir(sql_path)
+                    model_name = self.get_model_name(view_type)
+                    sql_file_name = "{}.sql".format(model_name)
+                    sql_file_path = os.path.join(sql_path, sql_file_name)
+                    sql = self.render_sql(
+                        self.app, view_type, relation_dict, raw_schema, self.redactions
                     )
+                    self.write_sql_file(sql_file_path, sql)
+            else:
+                for view_type in ("SAFE", "PII"):
+                    if view_type == "SAFE":
+                        sql_path = os.path.join(self.app_path, self.app)
+                    else:
+                        sql_path = os.path.join(
+                            self.app_path, "{}_{}".format(self.app, view_type)
+                        )
 
-                if not os.path.isdir(sql_path):
-                    os.mkdir(sql_path)
-                model_name = self.get_model_name(view_type)
-                sql_file_name = "{}.sql".format(model_name)
-                sql_file_path = os.path.join(sql_path, sql_file_name)
-                sql = self.render_sql(
-                    self.app, view_type, relation_dict, raw_schema, self.redactions
-                )
-                self.write_sql_file(sql_file_path, sql)
-
-    def write_sql_no_pii(self, raw_schema):
-        """
-        Renders the SQL for this relation and writes out.
-        """
-        relation_dict = self.prep_meta_data()
-
-        if self.is_unmanaged:
-            logger.info(
-                "{}.{} is an unmanaged table, skipping SQL generation.".format(
-                    self.app, self.relation
-                )
-            )
-        else:
-            for view_type in ("SAFE"):
-                if view_type == "SAFE":
-                    sql_path = os.path.join(self.app_path, self.app)
-                else:
-                    sql_path = os.path.join(
-                        self.app_path, "{}_{}".format(self.app, view_type)
+                    if not os.path.isdir(sql_path):
+                        os.mkdir(sql_path)
+                    model_name = self.get_model_name(view_type)
+                    sql_file_name = "{}.sql".format(model_name)
+                    sql_file_path = os.path.join(sql_path, sql_file_name)
+                    sql = self.render_sql(
+                        self.app, view_type, relation_dict, raw_schema, self.redactions
                     )
-
-                if not os.path.isdir(sql_path):
-                    os.mkdir(sql_path)
-                model_name = self.get_model_name(view_type)
-                sql_file_name = "{}.sql".format(model_name)
-                sql_file_path = os.path.join(sql_path, sql_file_name)
-                sql = self.render_sql(
-                    self.app, view_type, relation_dict, raw_schema, self.redactions
-                )
-                self.write_sql_file(sql_file_path, sql)
+                    self.write_sql_file(sql_file_path, sql)
