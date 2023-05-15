@@ -135,7 +135,7 @@ class App:
         Given a relation, add it to the 'trifecta'. These are the PII and safe views
         constructed from the raw data.
         """
-        if no_pii is True:
+        if no_pii:
             for relation_name in [
                 #relation.new_pii_relation_name,
                 relation.new_safe_relation_name,
