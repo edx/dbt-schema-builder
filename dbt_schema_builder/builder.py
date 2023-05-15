@@ -555,18 +555,12 @@ class SchemaBuilder:
 
                 app_object.add_source_to_new_schema(current_raw_source, relation, app_source_database, raw_schema)
                 app_object.add_table_to_downstream_sources(relation, current_safe_source, current_pii_source)
-                if no_pii is True:
-                    app_object.update_trifecta_models(relation, no_pii=True)
-                else:
-                    app_object.update_trifecta_models(relation)
+                app_object.update_trifecta_models(relation, no_pii=no_pii)
 
                 ##############################
                 # Write out dbt models which are responsible for generating the views
                 ##############################
-                if no_pii is True:
-                    relation.write_sql(raw_schema, no_pii=True)
-                else:
-                    relation.write_sql(raw_schema)
+                relation.write_sql(raw_schema, no_pii=no_pii)
         app_object.write_app_schema(design_file_path)
 
         # Create source definitions pertaining to app database views in the downstream dbt
@@ -621,7 +615,4 @@ class SchemaBuilderTask:
             for app_name, app_config in self.builder.app_schema_configs.items():
                 logger.info('\n')
                 logger.info('------- {} -------'.format(app_name))
-                if no_pii == True:
-                    self.builder.build_app(app_name, app_config, no_pii=True)
-                else:
-                    self.builder.build_app(app_name, app_config)
+                self.builder.build_app(app_name, app_config, no_pii=no_pii)
