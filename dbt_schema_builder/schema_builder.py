@@ -90,7 +90,7 @@ def handle(args):
     parsed = parse_args(args)
 
     if parsed.command == "build":
-        if parsed.nopii is True:
+        if parsed.nopii:
             task = SchemaBuilderTask(parsed)
             task.run(no_pii=True)
         else:
