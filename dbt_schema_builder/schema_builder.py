@@ -96,7 +96,6 @@ def handle(args):
         else:
             task = SchemaBuilderTask(parsed)
             task.run()
-        
 
 
 def main(args=None):
