@@ -54,10 +54,10 @@ def parse_args(args):
         help="Which target to load for the given profile",
     )
     base_subparser.add_argument(
-    "--nopii",
-    required=False,
-  	action='store_true',
-    help="Whether or not to supress PII models and sources",
+        "--nopii",
+        required=False,
+  	    action='store_true',
+        help="Whether or not to supress PII models and sources",
     )
     subs = p.add_subparsers(title="Available sub-commands", dest="command")
 
