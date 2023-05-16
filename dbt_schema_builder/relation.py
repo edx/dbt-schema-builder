@@ -224,7 +224,7 @@ class Relation:
         with open(sql_file_path, "w") as f:
             f.write(sql)
 
-    def write_sql(self, raw_schema):
+    def write_sql(self, raw_schema, no_pii=False):
         """
         Renders the SQL for this relation and writes out.
         """
@@ -237,7 +237,11 @@ class Relation:
                 )
             )
         else:
-            for view_type in ("SAFE", "PII"):
+            if no_pii:
+                view_types = ["SAFE"]
+            else:
+                view_types = ["SAFE", "PII"]
+            for view_type in view_types:
                 if view_type == "SAFE":
                     sql_path = os.path.join(self.app_path, self.app)
                 else:
