@@ -56,7 +56,7 @@ def parse_args(args):
     base_subparser.add_argument(
         "--nopii",
         required=False,
-  	    action='store_true',
+        action='store_true',
         help="Whether or not to supress PII models and sources",
     )
     subs = p.add_subparsers(title="Available sub-commands", dest="command")
