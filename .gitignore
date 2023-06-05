@@ -69,3 +69,4 @@ requirements/private.txt
 # Virtual environments
 venv/
 .venv/
+.python/
