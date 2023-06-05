@@ -10,7 +10,12 @@ import dbt.utils
 import yaml
 from dbt.config import RuntimeConfig
 from dbt.events import AdapterLogger
-from dbt.exceptions import DatabaseException
+try:
+    # In dbt core version 1.3 this was the exception for a database not being found.
+    from dbt.exceptions import DatabaseException
+except:
+    # In later versions of dbt they renamed the exception to DbtDatabaseError
+    from dbt.exceptions import DbtDatabaseError as DatabaseException
 from dbt.logger import log_manager
 from dbt.task.compile import CompileTask
 from dbt.task.generate import get_adapter
@@ -526,7 +531,7 @@ class SchemaBuilder:
 
         app_object = App(
             app_raw_schemas, app_destination_schema, app_path, design_file_path, current_raw_sources,
-            current_downstream_sources, app_destination_database
+            current_downstream_sources, app_destination_database, no_pii
         )
 
         logger.info("Building schema for the {} app".format(app_object.app))

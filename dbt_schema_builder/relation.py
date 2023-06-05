@@ -89,7 +89,7 @@ class Relation:
         if current_raw_sources and "sources" in current_raw_sources:
             for source in current_raw_sources["sources"]:
                 for table in source["tables"]:
-                    if table["name"] == self.source_relation_name:
+                    if table and table["name"] == self.source_relation_name:
                         current_raw_source = table
                         break
 
@@ -97,11 +97,11 @@ class Relation:
             for source in current_downstream_sources["sources"]:
                 if source["name"] == self.app:
                     for table in source["tables"]:
-                        if table["name"] == self.source_relation_name:
+                        if table and table["name"] == self.source_relation_name:
                             current_safe_downstream_source = table
                 elif source["name"] == "{}_PII".format(self.app):
                     for table in source["tables"]:
-                        if table["name"] == self.source_relation_name:
+                        if table and table["name"] == self.source_relation_name:
                             current_pii_downstream_source = table
 
                 if current_safe_downstream_source and current_pii_downstream_source:
