@@ -10,12 +10,7 @@ import dbt.utils
 import yaml
 from dbt.config import RuntimeConfig
 from dbt.events import AdapterLogger
-try:
-    # In dbt core version 1.3 this was the exception for a database not being found.
-    from dbt.exceptions import DatabaseException
-except:
-    # In later versions of dbt they renamed the exception to DbtDatabaseError
-    from dbt.exceptions import DbtDatabaseError as DatabaseException
+from dbt.exceptions import DbtDatabaseError as DatabaseException
 from dbt.logger import log_manager
 from dbt.task.compile import CompileTask
 from dbt.task.generate import get_adapter
@@ -589,7 +584,7 @@ class SchemaBuilderTask:
             self.config.model_paths[0],
             self.source_project_path,
             self.destination_project_path,
-            GetCatalogTask(self.args, self.config)
+            GetCatalogTask(self.args, self.config, None)
         )
 
     def get_project_dirs(self):

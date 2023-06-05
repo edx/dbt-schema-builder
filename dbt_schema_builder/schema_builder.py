@@ -6,9 +6,11 @@ import argparse
 import sys
 
 from dbt import flags
-from dbt.flags import PROFILES_DIR
+from dbt.flags import get_flag_dict
 
 from .builder import SchemaBuilderTask
+
+PROFILES_DIR = get_flag_dict().get('PROFILES_DIR')
 
 
 def parse_args(args):
