@@ -526,7 +526,7 @@ class SchemaBuilder:
 
         app_object = App(
             app_raw_schemas, app_destination_schema, app_path, design_file_path, current_raw_sources,
-            current_downstream_sources, app_destination_database
+            current_downstream_sources, app_destination_database, no_pii
         )
 
         logger.info("Building schema for the {} app".format(app_object.app))

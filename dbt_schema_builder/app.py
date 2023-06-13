@@ -16,7 +16,7 @@ class App:
 
     def __init__(
         self, raw_schemas, app, app_path, design_file_path, current_raw_sources,
-        current_downstream_sources, database
+        current_downstream_sources, database, no_pii=False
     ):
 
         self.raw_schemas = raw_schemas
@@ -42,22 +42,35 @@ class App:
         # Create a new, empty object to store a new version of our downstream
         # sources so we don't get any tables / models that may have been
         # deleted since the last run.
-        self.new_downstream_sources = {
+        self.new_downstream_sources = self._generate_downstream_sources(database, no_pii)
+
+    def _generate_downstream_sources(self, database, no_pii=False):
+        """
+        Generates the object to store the version of the downstream
+        sources so we don't get any tables / models that may have been
+        deleted since the last run. If no_pii flag is set we will exclude
+        the downstream source name for that.
+        """
+        ret_val = {
             "version": 2,
             "sources": [
                 {
                     "name": self.safe_downstream_source_name,
                     "database": database,
                     "tables": [],
-                },
+                }
+            ],
+            "models": [],
+        }
+        if not no_pii:
+            ret_val['sources'].append(
                 {
                     "name": self.pii_downstream_source_name,
                     "database": database,
                     "tables": [],
-                },
-            ],
-            "models": [],
-        }
+                }
+            )
+        return ret_val
 
     def __repr__(self):
         """
@@ -135,21 +148,14 @@ class App:
         Given a relation, add it to the 'trifecta'. These are the PII and safe views
         constructed from the raw data.
         """
-        if no_pii:
-            for relation_name in [
-                relation.new_safe_relation_name,
-            ]:
-                self.add_model_to_new_schema(
-                    relation_name, relation.meta_data
-                )
-        else:
-            for relation_name in [
+        relations = [relation.new_safe_relation_name] if no_pii else [
                 relation.new_pii_relation_name,
                 relation.new_safe_relation_name,
-            ]:
-                self.add_model_to_new_schema(
-                    relation_name, relation.meta_data
-                )
+            ]
+        for relation_name in relations:
+            self.add_model_to_new_schema(
+                relation_name, relation.meta_data
+            )
 
     def add_model_to_new_schema(self, new_relation_name, model_meta_data):
         """
