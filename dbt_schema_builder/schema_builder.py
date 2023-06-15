@@ -102,7 +102,7 @@ def handle(args):
 
     if parsed.command == "build":
         task = SchemaBuilderTask(parsed)
-        task.run(no_pii=parsed.nopii,pii_only=parsed.piionly)
+        task.run(no_pii=parsed.nopii, pii_only=parsed.piionly)
 
 
 def main(args=None):
