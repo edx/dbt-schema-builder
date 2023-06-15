@@ -68,7 +68,7 @@ class App:
                 "version": 2,
                 "sources": [],
                 "models": [],
-            }            
+            }
         if not no_pii:
             ret_val['sources'].append(
                 {
