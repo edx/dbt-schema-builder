@@ -334,3 +334,19 @@ def test_snowflake_keyword_collision():
     )
     test_dict = relation.prep_meta_data()
     assert test_dict["alias"] == "_START"
+
+
+def test_snowflake_keyword_quoting():
+    relation = Relation(
+        'START',
+        ['TABLE', 'SCHEMA'],
+        'LMS',
+        'models/PROD/LMS',
+        ['START', 'TABLE', 'SCHEMA'],
+        [],
+        [],
+        [],
+    )
+    test_dict = relation.prep_meta_data()
+    assert test_dict['columns'][0]["name"].startswith('"')
+    assert test_dict['columns'][1]["name"].startswith('"')

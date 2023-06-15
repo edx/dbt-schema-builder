@@ -475,7 +475,7 @@ class SchemaBuilder:
 
         return selected_relations
 
-    def build_app(self, app_name, app_config, no_pii=False):
+    def build_app(self, app_name, app_config, no_pii=False, pii_only=False):
         """
         Build the requested application schema from the raw schemas.
         """
@@ -526,7 +526,7 @@ class SchemaBuilder:
 
         app_object = App(
             app_raw_schemas, app_destination_schema, app_path, design_file_path, current_raw_sources,
-            current_downstream_sources, app_destination_database, no_pii
+            current_downstream_sources, app_destination_database, no_pii, pii_only
         )
 
         logger.info("Building schema for the {} app".format(app_object.app))
@@ -554,18 +554,24 @@ class SchemaBuilder:
                     prefix=raw_schema.prefix
                 )
                 app_object.add_source_to_new_schema(current_raw_source, relation, app_source_database, raw_schema)
-                app_object.add_table_to_downstream_sources(relation, current_safe_source, current_pii_source)
-                app_object.update_trifecta_models(relation, no_pii=no_pii)
+                app_object.add_table_to_downstream_sources(
+                    relation,
+                    current_safe_source,
+                    current_pii_source,
+                    app_object.add_pii,
+                    app_object.add_safe)
+                app_object.update_trifecta_models(relation, no_pii=no_pii, pii_only=pii_only)
 
                 ##############################
                 # Write out dbt models which are responsible for generating the views
                 ##############################
-                relation.write_sql(raw_schema, no_pii=no_pii)
+                relation.write_sql(raw_schema, no_pii=no_pii, pii_only=pii_only)
         app_object.write_app_schema(design_file_path)
         # Check downstream source tables for duplicate table names and log if so
         dupes = app_object.check_downstream_sources_for_dupes()
         if dupes:
             logger.error("Duplicate table names found: {}".format(dupes))
+
         # Create source definitions pertaining to app database views in the downstream dbt
         # project, i.e. reporting.
         self.write_sources_for_downstream_project(
@@ -608,7 +614,7 @@ class SchemaBuilderTask:
 
         return source_project_path, destination_project_path
 
-    def run(self, no_pii=False):
+    def run(self, no_pii=False, pii_only=False):
         """
         Wraps the SchemaBuilder steps
         """
@@ -618,4 +624,4 @@ class SchemaBuilderTask:
             for app_name, app_config in self.builder.app_schema_configs.items():
                 logger.info('\n')
                 logger.info('------- {} -------'.format(app_name))
-                self.builder.build_app(app_name, app_config, no_pii=no_pii)
+                self.builder.build_app(app_name, app_config, no_pii=no_pii, pii_only=pii_only)
