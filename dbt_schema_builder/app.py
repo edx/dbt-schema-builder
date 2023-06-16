@@ -51,24 +51,19 @@ class App:
         deleted since the last run. If no_pii flag is set we will exclude
         the downstream source name for that.
         """
-        if not pii_only:
-            ret_val = {
-                "version": 2,
-                "sources": [
-                    {
-                        "name": self.safe_downstream_source_name,
-                        "database": database,
-                        "tables": [],
-                    }
-                ],
-                "models": [],
-            }
-        else:
-            ret_val = {
-                "version": 2,
-                "sources": [],
-                "models": [],
-            }
+        ret_val = {
+            "version": 2,
+            "sources": [
+                {
+                    "name": self.safe_downstream_source_name,
+                    "database": database,
+                    "tables": [],
+                }
+            ],
+            "models": [],
+        }
+        if pii_only:
+            ret_val['sources'].clear()
         if not no_pii:
             ret_val['sources'].append(
                 {
