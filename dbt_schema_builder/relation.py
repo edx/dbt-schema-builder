@@ -237,7 +237,9 @@ class Relation:
                 )
             )
         else:
-            if no_pii:
+            if no_pii and pii_only:
+                raise Exception("piionly and nopii are mutually exlusive and both have been specified")
+            elif no_pii:
                 view_types = ["SAFE"]
             elif pii_only:
                 view_types = ["PII"]
