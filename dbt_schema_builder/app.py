@@ -53,17 +53,17 @@ class App:
         """
         ret_val = {
             "version": 2,
-            "sources": [
+            "sources": [],
+            "models": [],
+        }
+        if not pii_only:
+            ret_val['sources'].append(
                 {
                     "name": self.safe_downstream_source_name,
                     "database": database,
                     "tables": [],
                 }
-            ],
-            "models": [],
-        }
-        if pii_only:
-            ret_val['sources'].clear()
+            )
         if not no_pii:
             ret_val['sources'].append(
                 {
