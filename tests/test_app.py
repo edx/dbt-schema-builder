@@ -231,7 +231,6 @@ def test_add_table_to_downstream_sources(tmpdir):
 
     assert app.new_downstream_sources == expected_downstream_sources
 
-
 def test_add_table_to_downstream_sources_no_pii(tmpdir):
     app_path_base = tmpdir.mkdir('models')
     db_path = app_path_base.mkdir('PROD')
@@ -327,4 +326,89 @@ def test_add_table_to_downstream_sources_no_pii(tmpdir):
         "models": [],
     }
 
+    assert app.new_downstream_sources == expected_downstream_sources
+
+def test_add_table_to_downstream_sources_pii_only(tmpdir):
+    app_path_base = tmpdir.mkdir('models')
+    db_path = app_path_base.mkdir('PROD')
+    app_path = db_path.mkdir('LMS')
+    manual_model_path = app_path.mkdir('LMS_MANUAL')
+    manual_model_file = manual_model_path.join("LMS_TABLE.sql")
+    manual_model_file.write('data')
+
+    raw_schemas = [
+        Schema('LMS_RAW', [], [], None, None)
+    ]
+    app = App(
+        raw_schemas,
+        'LMS',
+        'models/PROD/LMS',
+        'models/PROD/LMS/LMS.yml',
+        {},
+        {},
+        'PROD',
+        False,
+        pii_only=True
+    )
+
+    relation = Relation(
+        'THIS_TABLE',
+        ['COLUMN_1', 'COLUMN_2'],
+        'LMS',
+        'models/PROD/LMS',
+        ['START', 'END'],
+        [],
+        [],
+        []
+    )
+
+    app.add_table_to_downstream_sources(relation, None, None)
+
+    relation = Relation(
+        'THIS_TABLE',
+        ['COLUMN_1', 'COLUMN_2'],
+        'LMS',
+        'models/PROD/LMS',
+        ['START', 'END'],
+        [],
+        [],
+        []
+    )
+    current_safe_downstream_source = {
+        'name': 'THAT_TABLE',
+        'description': 'Make sure all of the aspects of this are preserved',
+        "freshness": {
+            "warn_after": {
+                "count": "24",
+                "period": "hour"
+            },
+            "error_after": {
+                "count": "36",
+                "period": "hour"
+            }
+        },
+        "loaded_at_field": "last_login"
+    }
+    current_pii_downstream_source = {'name': 'THAT_TABLE', 'description': 'Expect this'}
+
+    app.add_table_to_downstream_sources(
+        relation, current_safe_downstream_source, current_pii_downstream_source
+    )
+
+    expected_downstream_sources = {
+        "version": 2,
+        "sources": [
+            {
+                "name": 'LMS_PII',
+                "database": 'PROD',
+                "tables": [
+                    {'name': 'THIS_TABLE', 'description': 'TODO: Replace me'},
+                    {'name': 'THAT_TABLE', 'description': 'Expect this'}
+                ]
+            }
+        ],
+        "models": [],
+    }
+    print('\n\n\n\n')
+    print(app.new_downstream_sources)
     assert app.new_downstream_sources == expected_downstream_sources
