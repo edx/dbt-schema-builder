@@ -231,6 +231,7 @@ def test_add_table_to_downstream_sources(tmpdir):
 
     assert app.new_downstream_sources == expected_downstream_sources
 
+
 def test_add_table_to_downstream_sources_no_pii(tmpdir):
     app_path_base = tmpdir.mkdir('models')
     db_path = app_path_base.mkdir('PROD')
@@ -327,6 +328,7 @@ def test_add_table_to_downstream_sources_no_pii(tmpdir):
     }
 
     assert app.new_downstream_sources == expected_downstream_sources
+
 
 def test_add_table_to_downstream_sources_pii_only(tmpdir):
     app_path_base = tmpdir.mkdir('models')
