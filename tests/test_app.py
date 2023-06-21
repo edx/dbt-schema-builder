@@ -411,6 +411,4 @@ def test_add_table_to_downstream_sources_pii_only(tmpdir):
         ],
         "models": [],
     }
-    print('\n\n\n\n')
-    print(app.new_downstream_sources)
     assert app.new_downstream_sources == expected_downstream_sources
