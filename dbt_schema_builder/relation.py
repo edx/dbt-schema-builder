@@ -71,7 +71,7 @@ class Relation:
         return model
 
     def find_in_current_sources(
-        self, current_raw_sources, current_downstream_sources
+        self, current_raw_sources, current_downstream_sources, prefix=None
     ):
         """
         Find source data in an existing loaded schema yml file.
@@ -98,11 +98,25 @@ class Relation:
                 if source["name"] == self.app:
                     for table in source["tables"]:
                         if table and table["name"] == self.source_relation_name:
+                            if prefix:
+                                # Handle prefix when no prefix has been applied already from prior runs
+                                table["name"] = prefix + '_' + table["name"]
                             current_safe_downstream_source = table
+                        elif prefix:
+                            # Handle prefix when already applied from prior runs
+                            if table and table["name"] == prefix + '_' + self.source_relation_name:
+                                current_safe_downstream_source = table
                 elif source["name"] == "{}_PII".format(self.app):
                     for table in source["tables"]:
                         if table and table["name"] == self.source_relation_name:
+                            if prefix:
+                                # Handle prefix for PII schema when no prefix has been applied already from prior runs
+                                table["name"] = prefix + '_' + table["name"]
                             current_pii_downstream_source = table
+                        elif prefix:
+                            # Handle prefix for PII schema when already applied from prior runs
+                            if table and table["name"] == prefix + '_' + self.source_relation_name:
+                                current_pii_downstream_source = table
 
                 if current_safe_downstream_source and current_pii_downstream_source:
                     break
