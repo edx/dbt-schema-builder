@@ -214,7 +214,7 @@ class SchemaBuilder:
         expectations before proceeding. If not, raise an exception to prevent
         invalid schemas from being built
         """
-        valid_keys = ['EXCLUDE', 'INCLUDE', 'SOFT_DELETE']
+        valid_keys = ['EXCLUDE', 'INCLUDE', 'SOFT_DELETE', 'PREFIX']
         database_schema_pattern = re.compile(r'^[A-Za-z0-9_$]+\.[A-Za-z0-9_$]+$')
         for destination_schema, destination_schema_config in config.items():
             if not re.search(database_schema_pattern, destination_schema):
@@ -551,8 +551,8 @@ class SchemaBuilder:
                 ) = relation.find_in_current_sources(
                     current_raw_sources,
                     current_downstream_sources,
+                    prefix = raw_schema.prefix
                 )
-
                 app_object.add_source_to_new_schema(current_raw_source, relation, app_source_database, raw_schema)
                 app_object.add_table_to_downstream_sources(relation, current_safe_source, current_pii_source)
                 app_object.update_trifecta_models(relation, no_pii=no_pii)
