@@ -423,3 +423,80 @@ def test_prefix(tmpdir):
     }
 
     assert app.new_downstream_sources == expected_downstream_sources
+
+
+def test_prefix(tmpdir):
+    app_path_base = tmpdir.mkdir('models')
+    db_path = app_path_base.mkdir('PROD')
+    app_path = db_path.mkdir('LMS')
+    manual_model_path = app_path.mkdir('LMS_MANUAL')
+    manual_model_file = manual_model_path.join("LMS_TABLE.sql")
+    manual_model_file.write('data')
+
+    raw_schemas = [
+        Schema('LMS_RAW', [], [], None, None)
+    ]
+    app = App(
+        raw_schemas,
+        'LMS',
+        'models/PROD/LMS',
+        'models/PROD/LMS/LMS.yml',
+        {},
+        {},
+        'PROD'
+    )
+
+    relation = Relation(
+        'THIS_TABLE',
+        ['COLUMN_1', 'COLUMN_2'],
+        'LMS',
+        'models/PROD/LMS',
+        ['START', 'END'],
+        [],
+        [],
+        []
+    )
+
+    sources = {
+        "version": 2,
+        "sources": [
+            {
+                'name': "LMS",
+                'tables': [
+                    {
+                        'name': 'THIS_TABLE',
+                        'description': 'Make sure all of the aspects of this are preserved'
+                    },
+                    {
+                        'name': 'THIS_TABLE',
+                        'description': 'Make sure all of the aspects of this are preserved'
+                    }
+                        ]
+            },
+            {
+                "name": 'LMS_PII',
+                "database": 'PROD',
+                "tables": [
+                    {'name': 'THIS_TABLE', 'description': 'TODO: Replace me'}
+                ],
+            },
+        ],
+        "models": [],
+    }
+
+    (
+        _,
+        current_safe_source,
+        current_pii_source,
+    ) = relation.find_in_current_sources(
+        {},
+        sources
+    )
+    app.add_table_to_downstream_sources(
+    relation, None, None
+    )
+    app.add_table_to_downstream_sources(
+        relation, current_safe_source, current_pii_source
+    )
+    print(app.new_downstream_sources)
+    assert not app.check_downstream_sources_for_dupes()
