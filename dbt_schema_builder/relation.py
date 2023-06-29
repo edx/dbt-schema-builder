@@ -46,8 +46,10 @@ class Relation:
         return self.source_relation_name
 
     def _get_model_name_alias(self):
-        if self.source_relation_name in self.snowflake_keywords:
+        if not self.prefix and self.source_relation_name in self.snowflake_keywords:
             return "_{}".format(self.source_relation_name)
+        elif self.prefix:
+            return self.prefix + '_' + self.source_relation_name
         else:
             return self.source_relation_name
 
@@ -67,8 +69,6 @@ class Relation:
             "description": DEFAULT_DESCRIPTION,
             "columns": columns,
         }
-        if self.prefix:
-            model["alias"] = self.prefix + '_' + model["alias"]
 
         return model
 
