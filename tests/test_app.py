@@ -425,7 +425,7 @@ def test_prefix(tmpdir):
     assert app.new_downstream_sources == expected_downstream_sources
 
 
-def test_prefix(tmpdir):
+def test_dupe_detection(tmpdir):
     app_path_base = tmpdir.mkdir('models')
     db_path = app_path_base.mkdir('PROD')
     app_path = db_path.mkdir('LMS')
@@ -498,5 +498,5 @@ def test_prefix(tmpdir):
     app.add_table_to_downstream_sources(
         relation, current_safe_source, current_pii_source
     )
-    print(app.new_downstream_sources)
-    assert not app.check_downstream_sources_for_dupes()
+
+    assert app.check_downstream_sources_for_dupes()
