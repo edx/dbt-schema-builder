@@ -97,26 +97,26 @@ class Relation:
             for source in current_downstream_sources["sources"]:
                 if source["name"] == self.app:
                     for table in source["tables"]:
-                        if table and table["name"] == self.source_relation_name:
-                            if prefix:
-                                # Handle prefix when no prefix has been applied already from prior runs
-                                table["name"] = prefix + '_' + table["name"]
+                        if table and prefix and table["name"] == self.source_relation_name:
+                            # Handle prefix when no prefix has been applied already from prior runs
+                            table["name"] = prefix + '_' + table["name"]
+                        elif table and table["name"] == self.source_relation_name:
+                            # No prefix already applied, no prefix to be applied
                             current_safe_downstream_source = table
-                        elif prefix:
+                        elif prefix and table and table["name"] == prefix + '_' + self.source_relation_name:
                             # Handle prefix when already applied from prior runs
-                            if table and table["name"] == prefix + '_' + self.source_relation_name:
-                                current_safe_downstream_source = table
+                            current_safe_downstream_source = table
                 elif source["name"] == "{}_PII".format(self.app):
                     for table in source["tables"]:
-                        if table and table["name"] == self.source_relation_name:
-                            if prefix:
-                                # Handle prefix for PII schema when no prefix has been applied already from prior runs
-                                table["name"] = prefix + '_' + table["name"]
+                        if table and prefix and table["name"] == self.source_relation_name:
+                            # Handle prefix for PII schema when no prefix has been applied already from prior runs
+                            table["name"] = prefix + '_' + table["name"]
+                        elif table and table["name"] == self.source_relation_name:
+                            # No prefix already applied, no prefix to be applied for PII schema
                             current_pii_downstream_source = table
-                        elif prefix:
+                        elif prefix and table and table["name"] == prefix + '_' + self.source_relation_name:
                             # Handle prefix for PII schema when already applied from prior runs
-                            if table and table["name"] == prefix + '_' + self.source_relation_name:
-                                current_pii_downstream_source = table
+                            current_pii_downstream_source = table
 
                 if current_safe_downstream_source and current_pii_downstream_source:
                     break
