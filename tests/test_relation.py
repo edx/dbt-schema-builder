@@ -287,3 +287,18 @@ def test_sql_soft_delete_no_pii_no_redactions():
     assert 'PII' not in sql
     assert 'SCHEMA_NAME' in sql
     assert 'WHERE SOFT_DELETE_COLUMN IS NULL' in sql
+
+def test_add_prefix_to_model_alias():
+    relation = Relation(
+        'START',
+        ['COLUMN_1', 'COLUMN_2'],
+        'LMS',
+        'models/PROD/LMS',
+        [],
+        [],
+        [],
+        [],
+        prefix="TESTPREFIX"
+    )
+    test_dict = relation.prep_meta_data()
+    assert test_dict["alias"] == "TESTPREFIX_START"
