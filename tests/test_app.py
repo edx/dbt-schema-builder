@@ -374,7 +374,7 @@ def test_prefix(tmpdir):
                     }
                         ]
             },
-    {
+            {
                 "name": 'LMS_PII',
                 "database": 'PROD',
                 "tables": [
@@ -392,7 +392,7 @@ def test_prefix(tmpdir):
     ) = relation.find_in_current_sources(
         {},
         sources,
-        prefix = raw_schemas[0].prefix
+        prefix=raw_schemas[0].prefix
     )
     app.add_table_to_downstream_sources(
         relation, current_safe_source, current_pii_source
