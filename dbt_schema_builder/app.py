@@ -79,16 +79,18 @@ class App:
         return self.app
 
     def check_downstream_sources_for_dupes(self):
-        
+        """
+        Checks downstream sources for duplicate tables within the same schema.
+        """
         table_dict = {}
         for source in self.new_downstream_sources["sources"]:
             table_dict[source["name"]] = []
             for table in source["tables"]:
                 table_dict[source["name"]].append(table["name"])
-        
+
         seen = set()
         dupes = []
-        for schema in table_dict:
+        for schema, _ in table_dict.items():
             for table_ in table_dict[schema]:
                 qualified_table_name = schema + '.' + table_
                 if qualified_table_name in seen:
