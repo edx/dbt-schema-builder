@@ -385,7 +385,7 @@ def test_prefix(tmpdir):
     }
 
     (
-        current_raw_source,
+        _,
         current_safe_source,
         current_pii_source,
     ) = relation.find_in_current_sources(
