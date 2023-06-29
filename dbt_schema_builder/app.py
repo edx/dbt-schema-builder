@@ -144,9 +144,9 @@ class App:
             )
         elif current_safe_source:
             for source in self.new_downstream_sources["sources"]:
-                if source["name"] == self.safe_downstream_source_name:
+                if current_safe_source and source["name"] == self.safe_downstream_source_name:
                     source["tables"].append(current_safe_source)
-                elif source["name"] == self.pii_downstream_source_name:
+                elif current_pii_source and source["name"] == self.pii_downstream_source_name:
                     source["tables"].append(current_pii_source)
         else:
             for source in self.new_downstream_sources["sources"]:
