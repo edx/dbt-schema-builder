@@ -18,7 +18,6 @@ class Schema:
         self.relations = relations
         self.prefix = prefix
 
-
         self.validate()
 
     def __repr__(self):
@@ -75,7 +74,7 @@ class Schema:
             soft_delete_column_name,
             soft_delete_sql_predicate,
             relations=[],
-            prefix = prefix
+            prefix=prefix
         )
         return schema
 
