@@ -46,6 +46,9 @@ class Relation:
         return self.source_relation_name
 
     def _get_model_name_alias(self):
+        """
+        Get alias after parsing source relation name.
+        """
         if not self.prefix and self.source_relation_name in self.snowflake_keywords:
             return "_{}".format(self.source_relation_name)
         elif self.prefix:
