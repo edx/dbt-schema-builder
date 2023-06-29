@@ -90,8 +90,8 @@ class App:
 
         seen = set()
         dupes = []
-        for schema, _ in table_dict.items():
-            for table_ in table_dict[schema]:
+        for schema, table_list in table_dict.items():
+            for table_ in table_list:
                 qualified_table_name = schema + '.' + table_
                 if qualified_table_name in seen:
                     dupes.append(qualified_table_name)
