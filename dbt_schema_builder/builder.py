@@ -551,7 +551,7 @@ class SchemaBuilder:
                 ) = relation.find_in_current_sources(
                     current_raw_sources,
                     current_downstream_sources,
-                    prefix = raw_schema.prefix
+                    prefix=raw_schema.prefix
                 )
                 app_object.add_source_to_new_schema(current_raw_source, relation, app_source_database, raw_schema)
                 app_object.add_table_to_downstream_sources(relation, current_safe_source, current_pii_source)
