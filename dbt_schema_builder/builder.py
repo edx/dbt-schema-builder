@@ -562,7 +562,10 @@ class SchemaBuilder:
                 ##############################
                 relation.write_sql(raw_schema, no_pii=no_pii)
         app_object.write_app_schema(design_file_path)
-
+        # Check downstream source tables for duplicate table names and log if so
+        dupes = app_object.check_downstream_sources_for_dupes()
+        if dupes:
+            logger.error("Duplicate table names found: {}".format(dupes))    
         # Create source definitions pertaining to app database views in the downstream dbt
         # project, i.e. reporting.
         self.write_sources_for_downstream_project(
