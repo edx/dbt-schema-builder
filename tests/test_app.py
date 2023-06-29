@@ -493,7 +493,7 @@ def test_dupe_detection(tmpdir):
         sources
     )
     app.add_table_to_downstream_sources(
-    relation, None, None
+        relation, None, None
     )
     app.add_table_to_downstream_sources(
         relation, current_safe_source, current_pii_source
