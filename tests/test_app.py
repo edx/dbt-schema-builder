@@ -329,6 +329,7 @@ def test_add_table_to_downstream_sources_no_pii(tmpdir):
 
     assert app.new_downstream_sources == expected_downstream_sources
 
+
 def test_prefix(tmpdir):
     app_path_base = tmpdir.mkdir('models')
     db_path = app_path_base.mkdir('PROD')
@@ -365,14 +366,14 @@ def test_prefix(tmpdir):
         "version": 2,
         "sources": [
             {
-        'name': "LMS",
-        'tables': [
-            {
-        'name': 'THIS_TABLE',
-        'description': 'Make sure all of the aspects of this are preserved'
-    }
-        ]
-    },
+                'name': "LMS",
+                'tables': [
+                    {
+                        'name': 'THIS_TABLE',
+                        'description': 'Make sure all of the aspects of this are preserved'
+                    }
+                        ]
+            },
     {
                 "name": 'LMS_PII',
                 "database": 'PROD',
