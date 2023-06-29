@@ -294,7 +294,7 @@ def test_add_prefix_to_model_alias():
         ['COLUMN_1', 'COLUMN_2'],
         'LMS',
         'models/PROD/LMS',
-        [],
+        ['START'],
         [],
         [],
         [],
