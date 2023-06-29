@@ -24,11 +24,11 @@ class Relation:
 
     def __init__(
         self, source_relation_name, meta_data, app, app_path,
-        snowflake_keywords, unmanaged_tables, redactions, downstream_sources_allow_list
+        snowflake_keywords, unmanaged_tables, redactions, downstream_sources_allow_list, prefix=None
     ):
         self.snowflake_keywords = snowflake_keywords
         self.redactions = redactions
-
+        self.prefix = prefix
         self.source_relation_name = source_relation_name
         self.relation = self._get_model_name_alias()
         self.new_safe_relation_name = "{}_{}".format(app, self.relation)
@@ -67,6 +67,8 @@ class Relation:
             "description": DEFAULT_DESCRIPTION,
             "columns": columns,
         }
+        if self.prefix:
+            model["alias"] = self.prefix + '_' + model["alias"]
 
         return model
 

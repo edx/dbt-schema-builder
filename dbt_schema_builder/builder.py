@@ -519,7 +519,7 @@ class SchemaBuilder:
                     source_relation_name, meta_data, app_destination_schema,
                     app_path, self.snowflake_keywords,
                     self.unmanaged_tables, self.redactions,
-                    self.downstream_sources_allow_list
+                    self.downstream_sources_allow_list, prefix=raw_schema.prefix
                 )
                 raw_schema.relations.append(relation)
             app_raw_schemas.append(raw_schema)
