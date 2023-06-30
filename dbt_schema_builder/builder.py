@@ -214,7 +214,7 @@ class SchemaBuilder:
         expectations before proceeding. If not, raise an exception to prevent
         invalid schemas from being built
         """
-        valid_keys = ['EXCLUDE', 'INCLUDE', 'SOFT_DELETE']
+        valid_keys = ['EXCLUDE', 'INCLUDE', 'SOFT_DELETE', 'PREFIX']
         database_schema_pattern = re.compile(r'^[A-Za-z0-9_$]+\.[A-Za-z0-9_$]+$')
         for destination_schema, destination_schema_config in config.items():
             if not re.search(database_schema_pattern, destination_schema):
@@ -519,7 +519,7 @@ class SchemaBuilder:
                     source_relation_name, meta_data, app_destination_schema,
                     app_path, self.snowflake_keywords,
                     self.unmanaged_tables, self.redactions,
-                    self.downstream_sources_allow_list
+                    self.downstream_sources_allow_list, prefix=raw_schema.prefix
                 )
                 raw_schema.relations.append(relation)
             app_raw_schemas.append(raw_schema)
@@ -551,8 +551,8 @@ class SchemaBuilder:
                 ) = relation.find_in_current_sources(
                     current_raw_sources,
                     current_downstream_sources,
+                    prefix=raw_schema.prefix
                 )
-
                 app_object.add_source_to_new_schema(current_raw_source, relation, app_source_database, raw_schema)
                 app_object.add_table_to_downstream_sources(relation, current_safe_source, current_pii_source)
                 app_object.update_trifecta_models(relation, no_pii=no_pii)
@@ -562,7 +562,10 @@ class SchemaBuilder:
                 ##############################
                 relation.write_sql(raw_schema, no_pii=no_pii)
         app_object.write_app_schema(design_file_path)
-
+        # Check downstream source tables for duplicate table names and log if so
+        dupes = app_object.check_downstream_sources_for_dupes()
+        if dupes:
+            logger.error("Duplicate table names found: {}".format(dupes))
         # Create source definitions pertaining to app database views in the downstream dbt
         # project, i.e. reporting.
         self.write_sources_for_downstream_project(

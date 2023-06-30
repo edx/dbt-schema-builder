@@ -78,6 +78,28 @@ class App:
         """
         return self.app
 
+    def check_downstream_sources_for_dupes(self):
+        """
+        Checks downstream sources for duplicate tables within the same schema.
+        """
+        table_dict = {}
+        for source in self.new_downstream_sources["sources"]:
+            table_dict[source["name"]] = []
+            for table in source["tables"]:
+                table_dict[source["name"]].append(table["name"])
+
+        seen = set()
+        dupes = []
+        for schema, table_list in table_dict.items():
+            for table_ in table_list:
+                qualified_table_name = schema + '.' + table_
+                if qualified_table_name in seen:
+                    dupes.append(qualified_table_name)
+                else:
+                    seen.add(qualified_table_name)
+
+        return dupes
+
     def add_source_to_new_schema(self, current_raw_source, relation, source_database, raw_schema):
         """
         Add our table to the appropriate raw schema entry in our "sources" list
@@ -122,9 +144,9 @@ class App:
             )
         elif current_safe_source:
             for source in self.new_downstream_sources["sources"]:
-                if source["name"] == self.safe_downstream_source_name:
+                if current_safe_source and source["name"] == self.safe_downstream_source_name:
                     source["tables"].append(current_safe_source)
-                elif source["name"] == self.pii_downstream_source_name:
+                elif current_pii_source and source["name"] == self.pii_downstream_source_name:
                     source["tables"].append(current_pii_source)
         else:
             for source in self.new_downstream_sources["sources"]:

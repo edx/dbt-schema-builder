@@ -24,11 +24,11 @@ class Relation:
 
     def __init__(
         self, source_relation_name, meta_data, app, app_path,
-        snowflake_keywords, unmanaged_tables, redactions, downstream_sources_allow_list
+        snowflake_keywords, unmanaged_tables, redactions, downstream_sources_allow_list, prefix=None
     ):
         self.snowflake_keywords = snowflake_keywords
         self.redactions = redactions
-
+        self.prefix = prefix
         self.source_relation_name = source_relation_name
         self.relation = self._get_model_name_alias()
         self.new_safe_relation_name = "{}_{}".format(app, self.relation)
@@ -46,8 +46,13 @@ class Relation:
         return self.source_relation_name
 
     def _get_model_name_alias(self):
-        if self.source_relation_name in self.snowflake_keywords:
+        """
+        Get alias after parsing source relation name.
+        """
+        if not self.prefix and self.source_relation_name in self.snowflake_keywords:
             return "_{}".format(self.source_relation_name)
+        elif self.prefix:
+            return self.prefix + '_' + self.source_relation_name
         else:
             return self.source_relation_name
 
@@ -71,7 +76,7 @@ class Relation:
         return model
 
     def find_in_current_sources(
-        self, current_raw_sources, current_downstream_sources
+        self, current_raw_sources, current_downstream_sources, prefix=None
     ):
         """
         Find source data in an existing loaded schema yml file.
@@ -97,11 +102,27 @@ class Relation:
             for source in current_downstream_sources["sources"]:
                 if source["name"] == self.app:
                     for table in source["tables"]:
-                        if table and table["name"] == self.source_relation_name:
+                        if table and prefix and table["name"] == self.source_relation_name:
+                            # Handle prefix when no prefix has been applied already from prior runs
+                            table["name"] = prefix + '_' + table["name"]
+                            current_safe_downstream_source = table
+                        elif table and table["name"] == self.source_relation_name:
+                            # No prefix already applied, no prefix to be applied
+                            current_safe_downstream_source = table
+                        elif prefix and table and table["name"] == prefix + '_' + self.source_relation_name:
+                            # Handle prefix when already applied from prior runs
                             current_safe_downstream_source = table
                 elif source["name"] == "{}_PII".format(self.app):
                     for table in source["tables"]:
-                        if table and table["name"] == self.source_relation_name:
+                        if table and prefix and table["name"] == self.source_relation_name:
+                            # Handle prefix for PII schema when no prefix has been applied already from prior runs
+                            table["name"] = prefix + '_' + table["name"]
+                            current_pii_downstream_source = table
+                        elif table and table["name"] == self.source_relation_name:
+                            # No prefix already applied, no prefix to be applied for PII schema
+                            current_pii_downstream_source = table
+                        elif prefix and table and table["name"] == prefix + '_' + self.source_relation_name:
+                            # Handle prefix for PII schema when already applied from prior runs
                             current_pii_downstream_source = table
 
                 if current_safe_downstream_source and current_pii_downstream_source:
