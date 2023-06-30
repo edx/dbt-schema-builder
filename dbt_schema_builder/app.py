@@ -179,3 +179,30 @@ class App:
 
         with open(design_file_path, "w") as f:
             f.write(yaml.safe_dump(self.new_schema, sort_keys=False))
+
+
+    def merge_downstream_sources(self) -> dict:
+        ret_val = {}
+
+        new_sources_dict = { x["name"]: x for x in self.new_downstream_sources.get("sources", [])}
+        current_sources_dict = { x["name"]: x for x in self.current_downstream_sources.get("sources", [])}
+
+        for k in new_sources_dict.keys() - current_sources_dict.keys():
+            ret_val[k] = new_sources_dict[k]
+
+        for k in current_sources_dict.keys() - new_sources_dict.keys():
+            ret_val[k] = current_sources_dict[k]
+
+        intersecting_keys = set(new_sources_dict.keys()).intersection(set(current_sources_dict.keys()))
+        for k in intersecting_keys:
+            if current_sources_dict[k]["database"] != new_sources_dict[k]["database"]:
+                ret_val[k] = new_sources_dict[k]
+            else:
+                new_source_tables = {x["name"]: x for x in new_sources_dict[k]["tables"]}
+                current_source_tables = {x["name"]: x for x in current_sources_dict[k]["tables"]}
+                current_source_tables.update(new_source_tables)
+                new_sources_dict[k]["tables"] = current_source_tables.values()
+                ret_val[k] = new_sources_dict[k]
+
+        current_sources_dict.update(new_sources_dict)
+        self.new_downstream_sources["sources"] = list(ret_val.values())

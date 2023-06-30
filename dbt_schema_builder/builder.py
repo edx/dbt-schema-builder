@@ -562,6 +562,7 @@ class SchemaBuilder:
                 ##############################
                 relation.write_sql(raw_schema, no_pii=no_pii, pii_only=pii_only)
         app_object.write_app_schema(design_file_path)
+        app_object.merge_downstream_sources()
 
         # Create source definitions pertaining to app database views in the downstream dbt
         # project, i.e. reporting.
