@@ -115,29 +115,30 @@ class App:
                     "skipping inclusion as a source in downstream project."
                 ).format(relation.app, relation.relation)
             )
-        elif relation.excluded_from_downstream_sources:
+            return
+        if relation.excluded_from_downstream_sources:
             logger.info(
                 (
                     "{}.{} is absent from the downstream sources allow_list, "
                     "skipping inclusion as a source in downstream project."
                 ).format(relation.app, relation.relation)
             )
-        elif current_safe_source:
+            return
+        if current_safe_source:
             for source in self.new_downstream_sources["sources"]:
                 if source["name"] == self.safe_downstream_source_name:
                     source["tables"].append(current_safe_source)
-                elif source["name"] == self.pii_downstream_source_name:
-                    source["tables"].append(current_pii_source)
-        else:
-            for source in self.new_downstream_sources["sources"]:
-                if source["name"] == self.safe_downstream_source_name:
+                else:
                     source["tables"].append(
                         {
                             "name": relation.relation,
                             "description": DEFAULT_DESCRIPTION,
                         }
                     )
-                elif source["name"] == self.pii_downstream_source_name:
+        if current_pii_source:
+                if source["name"] == self.pii_downstream_source_name:
+                    source["tables"].append(current_pii_source)
+                else:
                     source["tables"].append(
                         {
                             "name": relation.relation,
