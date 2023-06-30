@@ -597,3 +597,4 @@ def test_dupe_detection(tmpdir):
     )
 
     assert app.check_downstream_sources_for_dupes()
+    
