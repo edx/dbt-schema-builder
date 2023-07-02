@@ -191,7 +191,6 @@ def test_add_table_to_downstream_sources(tmpdir):
     app.add_table_to_downstream_sources(
         relation, current_safe_downstream_source, current_pii_downstream_source
     )
-    app.merge_downstream_sources()
 
     expected_downstream_sources = {
         "version": 2,

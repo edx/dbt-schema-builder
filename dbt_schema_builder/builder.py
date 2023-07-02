@@ -554,7 +554,7 @@ class SchemaBuilder:
                 )
 
                 app_object.add_source_to_new_schema(current_raw_source, relation, app_source_database, raw_schema)
-                app_object.add_table_to_downstream_sources(relation, current_safe_source, current_pii_source)
+                app_object.add_table_to_downstream_sources(relation, current_safe_source, current_pii_source, app_object.add_pii, app_object.add_safe)
                 app_object.update_trifecta_models(relation, no_pii=no_pii, pii_only=pii_only)
 
                 ##############################
@@ -562,7 +562,7 @@ class SchemaBuilder:
                 ##############################
                 relation.write_sql(raw_schema, no_pii=no_pii, pii_only=pii_only)
         app_object.write_app_schema(design_file_path)
-        app_object.merge_downstream_sources()
+        #app_object.merge_downstream_sources()
 
         # Create source definitions pertaining to app database views in the downstream dbt
         # project, i.e. reporting.

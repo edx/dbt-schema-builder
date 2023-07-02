@@ -3,6 +3,7 @@ Class and helpers for dealing with Application schemas
 """
 import yaml
 from dbt.logger import GLOBAL_LOGGER as logger
+from copy import deepcopy
 
 from .relation import DEFAULT_DESCRIPTION
 
@@ -27,6 +28,17 @@ class App:
         self.current_downstream_sources = current_downstream_sources
         self.safe_downstream_source_name = app
         self.pii_downstream_source_name = "{}_PII".format(app)
+        if no_pii and pii_only:
+            raise ValueError('Cannot specify both no_pii and pii_only flags as true')
+        if no_pii:
+            self.add_pii = False
+            self.add_safe = True
+        elif pii_only:
+            self.add_pii = True
+            self.add_safe = False
+        else:
+            self.add_pii = True
+            self.add_safe = True
 
         # Create a new, empty object to store a new version of our schema so we
         # don't get any tables/models that may have been deleted since the last run.
@@ -101,7 +113,7 @@ class App:
                 {"name": relation.source_relation_name}
             )
 
-    def add_table_to_downstream_sources(self, relation, current_safe_source, current_pii_source):
+    def add_table_to_downstream_sources(self, relation, current_safe_source, current_pii_source, add_pii = True, add_safe = True):
         """
         Whenever there is no view generated for a relation, we should not add it to sources in the
         downstream project.  If we did, the source would be non-functional since it would not be
@@ -124,9 +136,9 @@ class App:
                 ).format(relation.app, relation.relation)
             )
             return
-        if current_safe_source:
-            for source in self.new_downstream_sources["sources"]:
-                if source["name"] == self.safe_downstream_source_name:
+        for source in self.new_downstream_sources["sources"]:
+            if add_safe and source["name"] == self.safe_downstream_source_name:
+                if current_safe_source:
                     source["tables"].append(current_safe_source)
                 else:
                     source["tables"].append(
@@ -135,8 +147,8 @@ class App:
                             "description": DEFAULT_DESCRIPTION,
                         }
                     )
-        if current_pii_source:
-                if source["name"] == self.pii_downstream_source_name:
+            elif add_pii and source["name"] == self.pii_downstream_source_name:
+                if current_pii_source:
                     source["tables"].append(current_pii_source)
                 else:
                     source["tables"].append(
@@ -180,30 +192,4 @@ class App:
 
         with open(design_file_path, "w") as f:
             f.write(yaml.safe_dump(self.new_schema, sort_keys=False))
-
-
-    def merge_downstream_sources(self) -> dict:
-        ret_val = {}
-
-        new_sources_dict = { x["name"]: x for x in self.new_downstream_sources.get("sources", [])}
-        current_sources_dict = { x["name"]: x for x in self.current_downstream_sources.get("sources", [])}
-
-        for k in new_sources_dict.keys() - current_sources_dict.keys():
-            ret_val[k] = new_sources_dict[k]
-
-        for k in current_sources_dict.keys() - new_sources_dict.keys():
-            ret_val[k] = current_sources_dict[k]
-
-        intersecting_keys = set(new_sources_dict.keys()).intersection(set(current_sources_dict.keys()))
-        for k in intersecting_keys:
-            if current_sources_dict[k]["database"] != new_sources_dict[k]["database"]:
-                ret_val[k] = new_sources_dict[k]
-            else:
-                new_source_tables = {x["name"]: x for x in new_sources_dict[k]["tables"]}
-                current_source_tables = {x["name"]: x for x in current_sources_dict[k]["tables"]}
-                current_source_tables.update(new_source_tables)
-                new_sources_dict[k]["tables"] = current_source_tables.values()
-                ret_val[k] = new_sources_dict[k]
-
-        current_sources_dict.update(new_sources_dict)
-        self.new_downstream_sources["sources"] = list(ret_val.values())
+            
