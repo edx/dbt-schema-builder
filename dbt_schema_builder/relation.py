@@ -63,7 +63,10 @@ class Relation:
         columns = []
 
         for colname in self.meta_data:
-            column = {"name": colname.upper()}
+            if colname.upper() in self.snowflake_keywords:
+                column = {"name": f'"{colname.upper()}"'}
+            else:
+                column = {"name": colname.upper()}
             columns.append(column)
 
         model = {
@@ -245,7 +248,7 @@ class Relation:
         with open(sql_file_path, "w") as f:
             f.write(sql)
 
-    def write_sql(self, raw_schema, no_pii=False):
+    def write_sql(self, raw_schema, no_pii=False, pii_only=False):
         """
         Renders the SQL for this relation and writes out.
         """
@@ -258,8 +261,12 @@ class Relation:
                 )
             )
         else:
+            if no_pii and pii_only:
+                raise ValueError("piionly and nopii are mutually exlusive and both have been specified")
             if no_pii:
                 view_types = ["SAFE"]
+            elif pii_only:
+                view_types = ["PII"]
             else:
                 view_types = ["SAFE", "PII"]
             for view_type in view_types:
