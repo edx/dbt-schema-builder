@@ -4,7 +4,7 @@
 {% set soft_del_ns = {'found':false} %}
 SELECT
 {% for col in relation.columns -%}
-  {% set app_table = app|upper ~ '.' ~ relation.name|upper %}
+  {% set app_table = app|upper ~ '.' ~ relation.alias|upper %}
   {% if app_table in redactions and col.name in redactions[app_table] -%}
     {{ redactions[app_table][col.name]|safe }} as {{ col.name|upper|indent -}}
   {% else -%}
