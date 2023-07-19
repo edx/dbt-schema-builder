@@ -8,6 +8,7 @@ import string
 
 import dbt.utils
 import yaml
+from dbt.adapters.factory import register_adapter
 from dbt.config import RuntimeConfig
 from dbt.events import AdapterLogger
 from dbt.exceptions import DbtDatabaseError as DatabaseException
@@ -579,6 +580,7 @@ class SchemaBuilderTask:
     def __init__(self, args):
         self.args = args
         self.config = RuntimeConfig.from_args(args)
+        register_adapter(self.config)
         self.source_project_path, self.destination_project_path = self.get_project_dirs()
         self.builder = SchemaBuilder(
             self.config.model_paths[0],

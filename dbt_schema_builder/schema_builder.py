@@ -56,6 +56,12 @@ def parse_args(args):
         help="Which target to load for the given profile",
     )
     base_subparser.add_argument(
+        "--threads",
+        default=None,
+        type=int,
+        help="Which target to load for the given profile",
+    )
+    base_subparser.add_argument(
         "--nopii",
         required=False,
         action='store_true',
