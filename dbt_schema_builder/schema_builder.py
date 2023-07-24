@@ -59,7 +59,7 @@ def parse_args(args):
         "--threads",
         default=None,
         type=int,
-        help="Which target to load for the given profile",
+        help="Number of threads for dbt to run.",
     )
     base_subparser.add_argument(
         "--nopii",
