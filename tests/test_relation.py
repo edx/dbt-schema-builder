@@ -287,3 +287,66 @@ def test_sql_soft_delete_no_pii_no_redactions():
     assert 'PII' not in sql
     assert 'SCHEMA_NAME' in sql
     assert 'WHERE SOFT_DELETE_COLUMN IS NULL' in sql
+
+
+def test_add_prefix_to_model_alias_with_snowflake_keyword_collision():
+    relation = Relation(
+        'START',
+        ['COLUMN_1', 'COLUMN_2'],
+        'LMS',
+        'models/PROD/LMS',
+        ['START'],
+        [],
+        [],
+        [],
+        prefix="TESTPREFIX"
+    )
+    test_dict = relation.prep_meta_data()
+    assert test_dict["alias"] == "TESTPREFIX_START"
+
+
+def test_add_prefix_to_model_alias_with_no_snowflake_keyword_collision():
+    relation = Relation(
+        'START',
+        ['COLUMN_1', 'COLUMN_2'],
+        'LMS',
+        'models/PROD/LMS',
+        [],
+        [],
+        [],
+        [],
+        prefix="TESTPREFIX"
+    )
+    test_dict = relation.prep_meta_data()
+    assert test_dict["alias"] == "TESTPREFIX_START"
+
+
+def test_snowflake_keyword_collision():
+    relation = Relation(
+        'START',
+        ['COLUMN_1', 'COLUMN_2'],
+        'LMS',
+        'models/PROD/LMS',
+        ['START'],
+        [],
+        [],
+        [],
+    )
+    test_dict = relation.prep_meta_data()
+    assert test_dict["alias"] == "_START"
+
+
+def test_snowflake_keyword_quoting():
+    relation = Relation(
+        'START',
+        ['TABLE', 'SCHEMA'],
+        'LMS',
+        'models/PROD/LMS',
+        ['START', 'TABLE', 'SCHEMA'],
+        [],
+        [],
+        [],
+    )
+    test_dict = relation.prep_meta_data()
+    assert test_dict['columns'][0]["name"].startswith('"')
+    assert test_dict['columns'][1]["name"].startswith('"')

@@ -16,7 +16,7 @@ class App:
 
     def __init__(
         self, raw_schemas, app, app_path, design_file_path, current_raw_sources,
-        current_downstream_sources, database, no_pii=False
+        current_downstream_sources, database, no_pii=False, pii_only=False
     ):
 
         self.raw_schemas = raw_schemas
@@ -27,6 +27,17 @@ class App:
         self.current_downstream_sources = current_downstream_sources
         self.safe_downstream_source_name = app
         self.pii_downstream_source_name = "{}_PII".format(app)
+        if no_pii and pii_only:
+            raise ValueError('Cannot specify both no_pii and pii_only flags as true')
+        if no_pii:
+            self.add_pii = False
+            self.add_safe = True
+        elif pii_only:
+            self.add_pii = True
+            self.add_safe = False
+        else:
+            self.add_pii = True
+            self.add_safe = True
 
         # Create a new, empty object to store a new version of our schema so we
         # don't get any tables/models that may have been deleted since the last run.
@@ -42,9 +53,9 @@ class App:
         # Create a new, empty object to store a new version of our downstream
         # sources so we don't get any tables / models that may have been
         # deleted since the last run.
-        self.new_downstream_sources = self._generate_downstream_sources(database, no_pii)
+        self.new_downstream_sources = self._generate_downstream_sources(database, no_pii, pii_only)
 
-    def _generate_downstream_sources(self, database, no_pii=False):
+    def _generate_downstream_sources(self, database, no_pii=False, pii_only=False):
         """
         Generates the object to store the version of the downstream
         sources so we don't get any tables / models that may have been
@@ -53,15 +64,17 @@ class App:
         """
         ret_val = {
             "version": 2,
-            "sources": [
+            "sources": [],
+            "models": [],
+        }
+        if not pii_only:
+            ret_val['sources'].append(
                 {
                     "name": self.safe_downstream_source_name,
                     "database": database,
                     "tables": [],
                 }
-            ],
-            "models": [],
-        }
+            )
         if not no_pii:
             ret_val['sources'].append(
                 {
@@ -77,6 +90,28 @@ class App:
         Makes debugging less of a pain
         """
         return self.app
+
+    def check_downstream_sources_for_dupes(self):
+        """
+        Checks downstream sources for duplicate tables within the same schema.
+        """
+        table_dict = {}
+        for source in self.new_downstream_sources["sources"]:
+            table_dict[source["name"]] = []
+            for table in source["tables"]:
+                table_dict[source["name"]].append(table["name"])
+
+        seen = set()
+        dupes = []
+        for schema, table_list in table_dict.items():
+            for table_ in table_list:
+                qualified_table_name = schema + '.' + table_
+                if qualified_table_name in seen:
+                    dupes.append(qualified_table_name)
+                else:
+                    seen.add(qualified_table_name)
+
+        return dupes
 
     def add_source_to_new_schema(self, current_raw_source, relation, source_database, raw_schema):
         """
@@ -99,7 +134,13 @@ class App:
                 {"name": relation.source_relation_name}
             )
 
-    def add_table_to_downstream_sources(self, relation, current_safe_source, current_pii_source):
+    def add_table_to_downstream_sources(
+            self,
+            relation,
+            current_safe_source,
+            current_pii_source,
+            add_pii=True,
+            add_safe=True):
         """
         Whenever there is no view generated for a relation, we should not add it to sources in the
         downstream project.  If we did, the source would be non-functional since it would not be
@@ -113,29 +154,30 @@ class App:
                     "skipping inclusion as a source in downstream project."
                 ).format(relation.app, relation.relation)
             )
-        elif relation.excluded_from_downstream_sources:
+            return
+        if relation.excluded_from_downstream_sources:
             logger.info(
                 (
                     "{}.{} is absent from the downstream sources allow_list, "
                     "skipping inclusion as a source in downstream project."
                 ).format(relation.app, relation.relation)
             )
-        elif current_safe_source:
-            for source in self.new_downstream_sources["sources"]:
-                if source["name"] == self.safe_downstream_source_name:
+            return
+        for source in self.new_downstream_sources["sources"]:
+            if add_safe and source["name"] == self.safe_downstream_source_name:
+                if current_safe_source:
                     source["tables"].append(current_safe_source)
-                elif source["name"] == self.pii_downstream_source_name:
-                    source["tables"].append(current_pii_source)
-        else:
-            for source in self.new_downstream_sources["sources"]:
-                if source["name"] == self.safe_downstream_source_name:
+                else:
                     source["tables"].append(
                         {
                             "name": relation.relation,
                             "description": DEFAULT_DESCRIPTION,
                         }
                     )
-                elif source["name"] == self.pii_downstream_source_name:
+            elif add_pii and source["name"] == self.pii_downstream_source_name:
+                if current_pii_source:
+                    source["tables"].append(current_pii_source)
+                else:
                     source["tables"].append(
                         {
                             "name": relation.relation,
@@ -143,12 +185,12 @@ class App:
                         }
                     )
 
-    def update_trifecta_models(self, relation, no_pii=False):
+    def update_trifecta_models(self, relation, no_pii=False, pii_only=False):
         """
         Given a relation, add it to the 'trifecta'. These are the PII and safe views
         constructed from the raw data.
         """
-        relations = [relation.new_safe_relation_name] if no_pii else [
+        relations = [relation.new_safe_relation_name] if no_pii else [relation.new_pii_relation_name] if pii_only else [
                 relation.new_pii_relation_name,
                 relation.new_safe_relation_name,
             ]

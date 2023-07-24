@@ -215,7 +215,7 @@ class SchemaBuilder:
         expectations before proceeding. If not, raise an exception to prevent
         invalid schemas from being built
         """
-        valid_keys = ['EXCLUDE', 'INCLUDE', 'SOFT_DELETE']
+        valid_keys = ['EXCLUDE', 'INCLUDE', 'SOFT_DELETE', 'PREFIX']
         database_schema_pattern = re.compile(r'^[A-Za-z0-9_$]+\.[A-Za-z0-9_$]+$')
         for destination_schema, destination_schema_config in config.items():
             if not re.search(database_schema_pattern, destination_schema):
@@ -476,7 +476,7 @@ class SchemaBuilder:
 
         return selected_relations
 
-    def build_app(self, app_name, app_config, no_pii=False):
+    def build_app(self, app_name, app_config, no_pii=False, pii_only=False):
         """
         Build the requested application schema from the raw schemas.
         """
@@ -520,14 +520,14 @@ class SchemaBuilder:
                     source_relation_name, meta_data, app_destination_schema,
                     app_path, self.snowflake_keywords,
                     self.unmanaged_tables, self.redactions,
-                    self.downstream_sources_allow_list
+                    self.downstream_sources_allow_list, prefix=raw_schema.prefix
                 )
                 raw_schema.relations.append(relation)
             app_raw_schemas.append(raw_schema)
 
         app_object = App(
             app_raw_schemas, app_destination_schema, app_path, design_file_path, current_raw_sources,
-            current_downstream_sources, app_destination_database, no_pii
+            current_downstream_sources, app_destination_database, no_pii, pii_only
         )
 
         logger.info("Building schema for the {} app".format(app_object.app))
@@ -552,17 +552,26 @@ class SchemaBuilder:
                 ) = relation.find_in_current_sources(
                     current_raw_sources,
                     current_downstream_sources,
+                    prefix=raw_schema.prefix
                 )
-
                 app_object.add_source_to_new_schema(current_raw_source, relation, app_source_database, raw_schema)
-                app_object.add_table_to_downstream_sources(relation, current_safe_source, current_pii_source)
-                app_object.update_trifecta_models(relation, no_pii=no_pii)
+                app_object.add_table_to_downstream_sources(
+                    relation,
+                    current_safe_source,
+                    current_pii_source,
+                    app_object.add_pii,
+                    app_object.add_safe)
+                app_object.update_trifecta_models(relation, no_pii=no_pii, pii_only=pii_only)
 
                 ##############################
                 # Write out dbt models which are responsible for generating the views
                 ##############################
-                relation.write_sql(raw_schema, no_pii=no_pii)
+                relation.write_sql(raw_schema, no_pii=no_pii, pii_only=pii_only)
         app_object.write_app_schema(design_file_path)
+        # Check downstream source tables for duplicate table names and log if so
+        dupes = app_object.check_downstream_sources_for_dupes()
+        if dupes:
+            logger.error("Duplicate table names found: {}".format(dupes))
 
         # Create source definitions pertaining to app database views in the downstream dbt
         # project, i.e. reporting.
@@ -607,7 +616,7 @@ class SchemaBuilderTask:
 
         return source_project_path, destination_project_path
 
-    def run(self, no_pii=False):
+    def run(self, no_pii=False, pii_only=False):
         """
         Wraps the SchemaBuilder steps
         """
@@ -617,4 +626,4 @@ class SchemaBuilderTask:
             for app_name, app_config in self.builder.app_schema_configs.items():
                 logger.info('\n')
                 logger.info('------- {} -------'.format(app_name))
-                self.builder.build_app(app_name, app_config, no_pii=no_pii)
+                self.builder.build_app(app_name, app_config, no_pii=no_pii, pii_only=pii_only)

@@ -9,13 +9,14 @@ class Schema:
     """
 
     def __init__(self, schema_name, exclusion_list, inclusion_list, soft_delete_column_name,
-                 soft_delete_sql_predicate, relations=None):
+                 soft_delete_sql_predicate, relations=None, prefix=None):
         self.schema_name = schema_name
         self.exclusion_list = exclusion_list
         self.inclusion_list = inclusion_list
         self.soft_delete_column_name = soft_delete_column_name
         self.soft_delete_sql_predicate = soft_delete_sql_predicate
         self.relations = relations
+        self.prefix = prefix
 
         self.validate()
 
@@ -52,6 +53,7 @@ class Schema:
         inclusion_list = []
         soft_delete_column_name = None
         soft_delete_sql_predicate = None
+        prefix = None
 
         if config:
             exclusion_list = config.get('EXCLUDE', [])
@@ -62,13 +64,17 @@ class Schema:
                     soft_delete_column_name = k
                     soft_delete_sql_predicate = v
 
+            if 'PREFIX' in config:
+                prefix = config['PREFIX']
+
         schema = Schema(
             schema_name,
             exclusion_list,
             inclusion_list,
             soft_delete_column_name,
             soft_delete_sql_predicate,
-            relations=[]
+            relations=[],
+            prefix=prefix
         )
         return schema
 
