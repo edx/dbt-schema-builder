@@ -151,7 +151,7 @@ class GetCatalogTask(CompileTask):
         """
         # Check for any non-word characters that might indicate a SQL injection attack
         if re.search("[^a-zA-Z0-9_]", schema):
-            raise Exception(
+            raise Exception(  # pylint: disable=broad-exception-raised
                 "Non-word character in schema name '{}'! Possible SQL injection?".format(
                     schema
                 )
@@ -609,7 +609,7 @@ class SchemaBuilderTask:
 
         for project_path in [source_project_path, destination_project_path]:
             if not os.path.exists(os.path.join(project_path, "dbt_project.yml")):
-                raise Exception(
+                raise Exception(  # pylint: disable=broad-exception-raised
                     "fatal: {} is not a dbt project. Does not exist or is missing a "
                     "dbt_project.yml file.".format(project_path)
                 )

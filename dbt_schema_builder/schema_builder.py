@@ -61,7 +61,7 @@ def parse_args(args):
         type=int,
         help="Number of threads for dbt to run.",
     )
-    
+
     group = base_subparser.add_mutually_exclusive_group()
 
     group.add_argument(
