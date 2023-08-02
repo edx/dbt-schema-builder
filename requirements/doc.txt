@@ -27,7 +27,7 @@ babel==2.12.1
     #   sphinx
 bleach==6.0.0
     # via readme-renderer
-certifi==2023.5.7
+certifi==2023.7.22
     # via
     #   -r requirements/test.txt
     #   requests
@@ -55,7 +55,7 @@ coverage[toml]==7.2.7
     # via
     #   -r requirements/test.txt
     #   pytest-cov
-cryptography==40.0.2
+cryptography==41.0.3
     # via
     #   -r requirements/test.txt
     #   pyopenssl
@@ -141,7 +141,7 @@ jsonschema-specifications==2023.7.1
     # via
     #   -r requirements/test.txt
     #   jsonschema
-keyring==23.13.1
+keyring==24.2.0
     # via
     #   -r requirements/test.txt
     #   snowflake-connector-python
@@ -166,7 +166,7 @@ minimal-snowplow-tracker==0.0.2
     # via
     #   -r requirements/test.txt
     #   dbt-core
-more-itertools==9.1.0
+more-itertools==10.0.0
     # via
     #   -r requirements/test.txt
     #   jaraco-classes
@@ -194,7 +194,7 @@ parsedatetime==2.4
     # via
     #   -r requirements/test.txt
     #   agate
-pathspec==0.11.1
+pathspec==0.11.2
     # via
     #   -r requirements/test.txt
     #   dbt-core
@@ -204,6 +204,10 @@ pkgutil-resolve-name==1.3.10
     # via
     #   -r requirements/test.txt
     #   jsonschema
+platformdirs==3.8.1
+    # via
+    #   -r requirements/test.txt
+    #   snowflake-connector-python
 pluggy==1.2.0
     # via
     #   -r requirements/test.txt
@@ -293,7 +297,7 @@ six==1.16.0
     #   python-dateutil
 snowballstemmer==2.2.0
     # via sphinx
-snowflake-connector-python[secure-local-storage]==3.0.4
+snowflake-connector-python[secure-local-storage]==3.1.0
     # via
     #   -r requirements/test.txt
     #   dbt-snowflake
@@ -333,6 +337,10 @@ tomli==2.0.1
     #   coverage
     #   doc8
     #   pytest
+tomlkit==0.12.1
+    # via
+    #   -r requirements/test.txt
+    #   snowflake-connector-python
 typing-extensions==4.7.1
     # via
     #   -r requirements/test.txt

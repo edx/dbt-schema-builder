@@ -32,10 +32,8 @@ build==0.10.0
     #   -r requirements/pip-tools.txt
     #   pip-tools
 cachetools==5.3.1
-    # via
-    #   -r requirements/ci.txt
-    #   tox
-certifi==2023.5.7
+    # via tox
+certifi==2023.7.22
     # via
     #   -r requirements/quality.txt
     #   requests
@@ -46,9 +44,8 @@ cffi==1.15.1
     #   cryptography
     #   dbt-core
     #   snowflake-connector-python
-chardet==5.1.0
+chardet==5.2.0
     # via
-    #   -r requirements/ci.txt
     #   diff-cover
     #   tox
 charset-normalizer==3.2.0
@@ -69,13 +66,12 @@ click-log==0.4.0
     # via
     #   -r requirements/quality.txt
     #   edx-lint
-code-annotations==1.3.0
+code-annotations==1.5.0
     # via
     #   -r requirements/quality.txt
     #   edx-lint
 colorama==0.4.6
     # via
-    #   -r requirements/ci.txt
     #   -r requirements/quality.txt
     #   dbt-core
     #   tox
@@ -83,7 +79,7 @@ coverage[toml]==7.2.7
     # via
     #   -r requirements/quality.txt
     #   pytest-cov
-cryptography==40.0.2
+cryptography==41.0.3
     # via
     #   -r requirements/quality.txt
     #   pyopenssl
@@ -100,14 +96,12 @@ dbt-snowflake==1.5.2
     # via -r requirements/quality.txt
 diff-cover==7.7.0
     # via -r requirements/dev.in
-dill==0.3.6
+dill==0.3.7
     # via
     #   -r requirements/quality.txt
     #   pylint
 distlib==0.3.7
-    # via
-    #   -r requirements/ci.txt
-    #   virtualenv
+    # via virtualenv
 edx-lint==5.3.4
     # via -r requirements/quality.txt
 exceptiongroup==1.1.2
@@ -116,7 +110,6 @@ exceptiongroup==1.1.2
     #   pytest
 filelock==3.12.2
     # via
-    #   -r requirements/ci.txt
     #   -r requirements/quality.txt
     #   snowflake-connector-python
     #   tox
@@ -176,7 +169,7 @@ jsonschema-specifications==2023.7.1
     # via
     #   -r requirements/quality.txt
     #   jsonschema
-keyring==23.13.1
+keyring==24.2.0
     # via
     #   -r requirements/quality.txt
     #   snowflake-connector-python
@@ -209,7 +202,7 @@ minimal-snowplow-tracker==0.0.2
     # via
     #   -r requirements/quality.txt
     #   dbt-core
-more-itertools==9.1.0
+more-itertools==10.0.0
     # via
     #   -r requirements/quality.txt
     #   jaraco-classes
@@ -228,7 +221,6 @@ oscrypto==1.3.0
 packaging==23.1
     # via
     #   -c requirements/constraints.txt
-    #   -r requirements/ci.txt
     #   -r requirements/pip-tools.txt
     #   -r requirements/quality.txt
     #   build
@@ -241,7 +233,7 @@ parsedatetime==2.4
     # via
     #   -r requirements/quality.txt
     #   agate
-pathspec==0.11.1
+pathspec==0.11.2
     # via
     #   -r requirements/quality.txt
     #   dbt-core
@@ -255,16 +247,15 @@ pkgutil-resolve-name==1.3.10
     # via
     #   -r requirements/quality.txt
     #   jsonschema
-platformdirs==3.9.1
+platformdirs==3.8.1
     # via
-    #   -r requirements/ci.txt
     #   -r requirements/quality.txt
     #   pylint
+    #   snowflake-connector-python
     #   tox
     #   virtualenv
 pluggy==1.2.0
     # via
-    #   -r requirements/ci.txt
     #   -r requirements/quality.txt
     #   diff-cover
     #   pytest
@@ -273,7 +264,7 @@ protobuf==4.23.4
     # via
     #   -r requirements/quality.txt
     #   dbt-core
-pycodestyle==2.10.0
+pycodestyle==2.11.0
     # via -r requirements/quality.txt
 pycparser==2.21
     # via
@@ -291,7 +282,7 @@ pyjwt==2.8.0
     # via
     #   -r requirements/quality.txt
     #   snowflake-connector-python
-pylint==2.17.4
+pylint==2.17.5
     # via
     #   -r requirements/quality.txt
     #   edx-lint
@@ -316,9 +307,7 @@ pyopenssl==23.2.0
     #   -r requirements/quality.txt
     #   snowflake-connector-python
 pyproject-api==1.5.3
-    # via
-    #   -r requirements/ci.txt
-    #   tox
+    # via tox
 pyproject-hooks==1.0.0
     # via
     #   -r requirements/pip-tools.txt
@@ -381,7 +370,7 @@ snowballstemmer==2.2.0
     # via
     #   -r requirements/quality.txt
     #   pydocstyle
-snowflake-connector-python[secure-local-storage]==3.0.4
+snowflake-connector-python[secure-local-storage]==3.1.0
     # via
     #   -r requirements/quality.txt
     #   dbt-snowflake
@@ -403,7 +392,6 @@ text-unidecode==1.3
     #   python-slugify
 tomli==2.0.1
     # via
-    #   -r requirements/ci.txt
     #   -r requirements/pip-tools.txt
     #   -r requirements/quality.txt
     #   build
@@ -414,13 +402,14 @@ tomli==2.0.1
     #   pyproject-hooks
     #   pytest
     #   tox
-tomlkit==0.11.8
+tomlkit==0.12.1
     # via
     #   -r requirements/quality.txt
     #   pylint
+    #   snowflake-connector-python
 tox==4.6.4
     # via
-    #   -r requirements/ci.txt
+    #   -r requirements/dev.in
     #   tox-battery
 tox-battery==0.6.1
     # via -r requirements/dev.in
@@ -437,15 +426,13 @@ urllib3==1.26.16
     #   -r requirements/quality.txt
     #   requests
     #   snowflake-connector-python
-virtualenv==20.24.0
-    # via
-    #   -r requirements/ci.txt
-    #   tox
+virtualenv==20.24.1
+    # via tox
 werkzeug==2.3.6
     # via
     #   -r requirements/quality.txt
     #   dbt-core
-wheel==0.40.0
+wheel==0.41.0
     # via
     #   -r requirements/pip-tools.txt
     #   pip-tools

@@ -6,7 +6,7 @@
 #
 cachetools==5.3.1
     # via tox
-chardet==5.1.0
+chardet==5.2.0
     # via tox
 colorama==0.4.6
     # via tox
@@ -21,7 +21,7 @@ packaging==23.1
     #   -c requirements/constraints.txt
     #   pyproject-api
     #   tox
-platformdirs==3.9.1
+platformdirs==3.10.0
     # via
     #   tox
     #   virtualenv
@@ -35,5 +35,5 @@ tomli==2.0.1
     #   tox
 tox==4.6.4
     # via -r requirements/ci.in
-virtualenv==20.24.0
+virtualenv==20.24.2
     # via tox

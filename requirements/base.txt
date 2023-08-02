@@ -16,7 +16,7 @@ attrs==23.1.0
     #   referencing
 babel==2.12.1
     # via agate
-certifi==2023.5.7
+certifi==2023.7.22
     # via
     #   requests
     #   snowflake-connector-python
@@ -33,7 +33,7 @@ click==8.1.6
     # via dbt-core
 colorama==0.4.6
     # via dbt-core
-cryptography==40.0.2
+cryptography==41.0.3
     # via
     #   pyopenssl
     #   snowflake-connector-python
@@ -75,7 +75,7 @@ jsonschema==4.18.4
     # via hologram
 jsonschema-specifications==2023.7.1
     # via jsonschema
-keyring==23.13.1
+keyring==24.2.0
     # via snowflake-connector-python
 leather==0.3.4
     # via agate
@@ -89,7 +89,7 @@ mashumaro[msgpack]==3.6
     # via dbt-core
 minimal-snowplow-tracker==0.0.2
     # via dbt-core
-more-itertools==9.1.0
+more-itertools==10.0.0
     # via jaraco-classes
 msgpack==1.0.5
     # via mashumaro
@@ -104,10 +104,12 @@ packaging==23.1
     #   snowflake-connector-python
 parsedatetime==2.4
     # via agate
-pathspec==0.11.1
+pathspec==0.11.2
     # via dbt-core
 pkgutil-resolve-name==1.3.10
     # via jsonschema
+platformdirs==3.8.1
+    # via snowflake-connector-python
 protobuf==4.23.4
     # via dbt-core
 pycparser==2.21
@@ -150,7 +152,7 @@ six==1.16.0
     #   leather
     #   minimal-snowplow-tracker
     #   python-dateutil
-snowflake-connector-python[secure-local-storage]==3.0.4
+snowflake-connector-python[secure-local-storage]==3.1.0
     # via dbt-snowflake
 sortedcontainers==2.4.0
     # via snowflake-connector-python
@@ -158,6 +160,8 @@ sqlparse==0.4.3
     # via dbt-core
 text-unidecode==1.3
     # via python-slugify
+tomlkit==0.12.1
+    # via snowflake-connector-python
 typing-extensions==4.7.1
     # via
     #   dbt-core
