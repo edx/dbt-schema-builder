@@ -47,7 +47,7 @@ How To Contribute
 -----------------
 
 Contributions are very welcome.
-Please read `How To Contribute <https://github.com/edx/edx-platform/blob/master/CONTRIBUTING.rst>`_ for details.
+Please read `The Contribution Guide <https://github.com/edx/edx-platform/blob/master/CONTRIBUTING.rst>`_ for details.
 Even though they were written with ``edx-platform`` in mind, the guidelines
 should be followed for all Open edX projects.
 
@@ -73,11 +73,11 @@ https://discuss.openedx.org where you can connect with others in the community.
 Our real-time conversations are on Slack. You can request a `Slack
 invitation`_, then join our `community Slack team`_.
 
-For more information about these options, see the `Getting Help`_ page.
+For more information about these options, see the `getting assistance`_ page.
 
 .. _Slack invitation: https://openedx-slack-invite.herokuapp.com/
 .. _community Slack team: https://openedx.slack.com/
-.. _Getting Help: https://openedx.org/getting-help
+.. _getting assistance: https://openedx.org/getting-help
 
 .. |pypi-badge| image:: https://img.shields.io/pypi/v/dbt-schema-builder.svg
     :target: https://pypi.python.org/pypi/dbt-schema-builder/
