@@ -558,8 +558,7 @@ class SchemaBuilder:
                     relation,
                     current_safe_source,
                     current_pii_source,
-                    app_object.add_pii,
-                    app_object.add_safe)
+                )
                 app_object.update_trifecta_models(relation, no_pii=no_pii, pii_only=pii_only)
 
                 ##############################

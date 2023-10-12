@@ -1,6 +1,8 @@
 """
 Class and helpers for dealing with Application schemas
 """
+from copy import deepcopy
+
 import yaml
 from dbt.logger import GLOBAL_LOGGER as logger
 
@@ -64,25 +66,32 @@ class App:
         """
         ret_val = {
             "version": 2,
-            "sources": [],
+            "sources": deepcopy(self.current_downstream_sources.get('sources', [])),
             "models": [],
         }
+        current_sources = {s['name']: i for i, s in enumerate(ret_val['sources'])}
         if not pii_only:
-            ret_val['sources'].append(
-                {
-                    "name": self.safe_downstream_source_name,
-                    "database": database,
-                    "tables": [],
-                }
-            )
+            if self.safe_downstream_source_name in current_sources:
+                ret_val['sources'][current_sources[self.safe_downstream_source_name]]['tables'] = []
+            else:
+                ret_val['sources'].append(
+                    {
+                        "name": self.safe_downstream_source_name,
+                        "database": database,
+                        "tables": [],
+                    }
+                )
         if not no_pii:
-            ret_val['sources'].append(
-                {
-                    "name": self.pii_downstream_source_name,
-                    "database": database,
-                    "tables": [],
-                }
-            )
+            if self.pii_downstream_source_name in current_sources:
+                ret_val['sources'][current_sources[self.pii_downstream_source_name]]['tables'] = []
+            else:
+                ret_val['sources'].append(
+                    {
+                        "name": self.pii_downstream_source_name,
+                        "database": database,
+                        "tables": [],
+                    }
+                )
         return ret_val
 
     def __repr__(self):
@@ -139,8 +148,7 @@ class App:
             relation,
             current_safe_source,
             current_pii_source,
-            add_pii=True,
-            add_safe=True):
+            ):
         """
         Whenever there is no view generated for a relation, we should not add it to sources in the
         downstream project.  If we did, the source would be non-functional since it would not be
@@ -164,7 +172,7 @@ class App:
             )
             return
         for source in self.new_downstream_sources["sources"]:
-            if add_safe and source["name"] == self.safe_downstream_source_name:
+            if self.add_safe and source["name"] == self.safe_downstream_source_name:
                 if current_safe_source:
                     source["tables"].append(current_safe_source)
                 else:
@@ -174,7 +182,7 @@ class App:
                             "description": DEFAULT_DESCRIPTION,
                         }
                     )
-            elif add_pii and source["name"] == self.pii_downstream_source_name:
+            elif self.add_pii and source["name"] == self.pii_downstream_source_name:
                 if current_pii_source:
                     source["tables"].append(current_pii_source)
                 else:
