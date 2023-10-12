@@ -373,7 +373,7 @@ def test_prefix(tmpdir):
                         'name': 'THIS_TABLE',
                         'description': 'Make sure all of the aspects of this are preserved'
                     }
-                        ]
+                ]
             },
             {
                 "name": 'LMS_PII',
@@ -469,7 +469,7 @@ def test_prefix_when_already_applied(tmpdir):
                         'name': 'TEST_PREFIX_THIS_TABLE',
                         'description': 'Make sure all of the aspects of this are preserved'
                     }
-                        ]
+                ]
             },
             {
                 "name": 'LMS_PII',
@@ -568,7 +568,7 @@ def test_dupe_detection(tmpdir):
                         'name': 'THIS_TABLE',
                         'description': 'Make sure all of the aspects of this are preserved'
                     }
-                        ]
+                ]
             },
             {
                 "name": 'LMS_PII',
@@ -676,6 +676,75 @@ def test_add_table_to_downstream_sources_pii_only(tmpdir):
                     {'name': 'THIS_TABLE', 'description': 'TODO: Replace me'},
                     {'name': 'THAT_TABLE', 'description': 'Expect this'}
                 ]
+            }
+        ],
+        "models": [],
+    }
+    assert app.new_downstream_sources == expected_downstream_sources
+
+
+def test_add_table_to_downstream_sources_pii_merge(tmpdir):
+    app_path_base = tmpdir.mkdir('models')
+    db_path = app_path_base.mkdir('PROD')
+    app_path = db_path.mkdir('LMS')
+    manual_model_path = app_path.mkdir('LMS_MANUAL')
+    manual_model_file = manual_model_path.join("LMS_TABLE.sql")
+    manual_model_file.write('data')
+
+    raw_schemas = [
+        Schema('LMS_RAW', [], [], None, None)
+    ]
+    app = App(
+        raw_schemas,
+        'LMS',
+        'models/PROD/LMS',
+        'models/PROD/LMS/LMS.yml',
+        {},
+        {
+            "version": 2,
+            "sources": [
+                {
+                    "name": 'LMS_PII',
+                    "database": 'PROD',
+                    "tables": [
+                        {'name': 'THIS_TABLE', 'description': 'Unique'}
+                    ],
+                },
+            ],
+            "models": [],
+        },
+        'PROD',
+        True,
+        False
+    )
+
+    relation = Relation(
+        'THIS_TABLE',
+        ['COLUMN_1', 'COLUMN_2'],
+        'LMS',
+        'models/PROD/LMS',
+        ['START', 'END'],
+        [],
+        [],
+        []
+    )
+
+    app.add_table_to_downstream_sources(relation, None, None)
+
+    expected_downstream_sources = {
+        "version": 2,
+        "sources": [
+            {
+                "name": 'LMS_PII',
+                "database": 'PROD',
+                "tables": [
+                    {'name': 'THIS_TABLE', 'description': 'Unique'}
+                ],
+            },
+            {
+                "name": 'LMS',
+                "database": 'PROD',
+                "tables": [{'name': 'THIS_TABLE', 'description': 'TODO: Replace me'}]
             }
         ],
         "models": [],
