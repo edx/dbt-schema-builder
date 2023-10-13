@@ -2,9 +2,14 @@
 Tests for various things in builder.py
 """
 
-import pytest
+import os
+from tempfile import mkdtemp
+from unittest.mock import MagicMock, patch
 
-from dbt_schema_builder.builder import SchemaBuilder
+import pytest
+import yaml
+
+from dbt_schema_builder.builder import GetCatalogTask, SchemaBuilder
 from dbt_schema_builder.schema import InvalidConfigurationException
 
 
@@ -168,3 +173,39 @@ def test_bad_regex_unmanaged_tables_file():
         'an invalid regular expression'
     )
     assert err_msg in str(excinfo.value)
+
+
+@patch.object(SchemaBuilder, 'get_redactions', lambda x: {})
+@patch.object(SchemaBuilder, 'get_snowflake_keywords', lambda x: {})
+@patch.object(SchemaBuilder, 'get_banned_columns', lambda x: {})
+@patch.object(SchemaBuilder, 'get_unmanaged_tables', lambda x: {})
+@patch.object(SchemaBuilder, 'get_downstream_sources_allow_list', lambda x: {})
+def test_build_app():
+    app_name = 'DB_1.APP'
+    app_config = {
+        app_name: {
+            'DB_2.RAW_SCHEMA_1': {},
+            'DB_3.RAW_SCHEMA_2': {},
+        }
+    }
+
+    temp_dir = mkdtemp()
+    mock_get_catalog_task = MagicMock(GetCatalogTask)
+    mock_get_catalog_task.run.return_value = [
+        {"TABLE_NAME": "TABLE_A", "COLUMN_NAME": "COLUMN_A"},
+        {"TABLE_NAME": "TABLE_B", "COLUMN_NAME": "COLUMN_D"},
+    ]
+    with patch.object(SchemaBuilder, 'build_app_path', lambda x, y, z: temp_dir):
+        with patch.object(SchemaBuilder, 'get_app_schema_configs', lambda x: app_config):
+            builder = SchemaBuilder(temp_dir, temp_dir, temp_dir, mock_get_catalog_task)
+            builder.build_app(app_name, app_config[app_name])
+    with open(os.path.join(temp_dir, 'models/automatically_generated_sources/APP.yml')) as fp:
+        downstream_sources = yaml.safe_load(fp)
+    assert downstream_sources['sources'][0]['name'] == 'APP'
+    assert downstream_sources['sources'][1]['name'] == 'APP_PII'
+    with open(os.path.join(temp_dir, 'APP.yml')) as fp:
+        raw_source = yaml.safe_load(fp)
+    assert raw_source['sources'][0]['database'] == 'DB_2'
+    assert raw_source['sources'][0]['name'] == 'RAW_SCHEMA_1'
+    assert raw_source['sources'][1]['database'] == 'DB_3'
+    assert raw_source['sources'][1]['name'] == 'RAW_SCHEMA_2'
