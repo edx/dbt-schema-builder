@@ -8,9 +8,9 @@ from dbt_schema_builder.schema import Schema
 
 
 def test_add_source_to_new_schema():
-    schema_1 = Schema('LMS_TEST_RAW', [], [], None, None)
-    schema_2 = Schema('LMS_RAW', [], [], None, None)
-    schema_3 = Schema('LMS_STITCH_RAW', [], [], None, None)
+    schema_1 = Schema('PROD', 'LMS_TEST_RAW', [], [], None, None)
+    schema_2 = Schema('PROD', 'LMS_RAW', [], [], None, None)
+    schema_3 = Schema('PROD', 'LMS_STITCH_RAW', [], [], None, None)
     raw_schemas = [schema_1, schema_2, schema_3]
     app = App(
         raw_schemas,
@@ -33,7 +33,7 @@ def test_add_source_to_new_schema():
         [],
         []
     )
-    app.add_source_to_new_schema(current_raw_source, relation, 'PROD', schema_2)
+    app.add_source_to_new_schema(current_raw_source, relation, schema_2)
 
     current_raw_source = {"name": "THAT_TABLE", "description": "some special description"}
     relation = Relation(
@@ -46,7 +46,7 @@ def test_add_source_to_new_schema():
         [],
         []
     )
-    app.add_source_to_new_schema(current_raw_source, relation, 'PROD', schema_2)
+    app.add_source_to_new_schema(current_raw_source, relation, schema_2)
 
     expected_schema = {
         "version": 2,
@@ -73,7 +73,7 @@ def test_add_source_to_new_schema():
 
 def test_update_trifecta_models():
     raw_schemas = [
-        Schema('LMS_RAW', [], [], None, None)
+        Schema('PROD', 'LMS_RAW', [], [], None, None)
     ]
     app = App(
         raw_schemas,
@@ -136,7 +136,7 @@ def test_add_table_to_downstream_sources(tmpdir):
     manual_model_file.write('data')
 
     raw_schemas = [
-        Schema('LMS_RAW', [], [], None, None)
+        Schema('PROD', 'LMS_RAW', [], [], None, None)
     ]
     app = App(
         raw_schemas,
@@ -241,7 +241,7 @@ def test_add_table_to_downstream_sources_no_pii(tmpdir):
     manual_model_file.write('data')
 
     raw_schemas = [
-        Schema('LMS_RAW', [], [], None, None)
+        Schema('PROD', 'LMS_RAW', [], [], None, None)
     ]
     app = App(
         raw_schemas,
@@ -339,7 +339,7 @@ def test_prefix(tmpdir):
     manual_model_file.write('data')
 
     raw_schemas = [
-        Schema('LMS_RAW', [], [], None, None, prefix="TEST_PREFIX")
+        Schema('PROD', 'LMS_RAW', [], [], None, None, prefix="TEST_PREFIX")
     ]
     app = App(
         raw_schemas,
@@ -435,7 +435,7 @@ def test_prefix_when_already_applied(tmpdir):
     manual_model_file.write('data')
 
     raw_schemas = [
-        Schema('LMS_RAW', [], [], None, None, prefix="TEST_PREFIX")
+        Schema('PROD', 'LMS_RAW', [], [], None, None, prefix="TEST_PREFIX")
     ]
     app = App(
         raw_schemas,
@@ -531,7 +531,7 @@ def test_dupe_detection(tmpdir):
     manual_model_file.write('data')
 
     raw_schemas = [
-        Schema('LMS_RAW', [], [], None, None)
+        Schema('PROD', 'LMS_RAW', [], [], None, None)
     ]
     app = App(
         raw_schemas,
@@ -608,7 +608,7 @@ def test_add_table_to_downstream_sources_pii_only(tmpdir):
     manual_model_file.write('data')
 
     raw_schemas = [
-        Schema('LMS_RAW', [], [], None, None)
+        Schema('PROD', 'LMS_RAW', [], [], None, None)
     ]
     app = App(
         raw_schemas,
@@ -692,7 +692,7 @@ def test_add_table_to_downstream_sources_pii_merge(tmpdir):
     manual_model_file.write('data')
 
     raw_schemas = [
-        Schema('LMS_RAW', [], [], None, None)
+        Schema('PROD', 'LMS_RAW', [], [], None, None)
     ]
     app = App(
         raw_schemas,

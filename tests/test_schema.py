@@ -45,6 +45,7 @@ def test_raw_schema_filter_with_exclusion_list():
     exclusion_list = ['NOT_THIS_TABLE']
 
     raw_schema = Schema(
+        'PROD',
         'LMS_RAW',
         exclusion_list,
         [],
@@ -93,6 +94,7 @@ def test_raw_schema_filter_with_inclusion_list():
     ]
     inclusion_list = ['ONLY_THIS_TABLE']
     raw_schema = Schema(
+        'PROD',
         'LMS_RAW',
         [],
         inclusion_list,
@@ -107,6 +109,7 @@ def test_raw_schema_filter_with_inclusion_list():
 
 def test_raw_schema_sql_clause_success():
     raw_schema = Schema(
+        'PROD',
         'LMS_RAW',
         [],
         [],
@@ -121,6 +124,7 @@ def test_raw_schema_sql_clause_success():
 def test_raw_schema_sql_predicate_null():
     with pytest.raises(InvalidConfigurationException) as excinfo:
         Schema(
+            'PROD',
             'LMS_RAW',
             [],
             [],
@@ -135,6 +139,7 @@ def test_raw_schema_sql_predicate_null():
 def test_raw_schema_sql_predicate_empty():
     with pytest.raises(InvalidConfigurationException) as excinfo:
         Schema(
+            'PROD',
             'LMS_RAW',
             [],
             [],
@@ -149,6 +154,7 @@ def test_raw_schema_sql_predicate_empty():
 def test_raw_schema_sql_clause_non_string():
     with pytest.raises(InvalidConfigurationException) as excinfo:
         Schema(
+            'PROD',
             'LMS_RAW',
             [],
             [],

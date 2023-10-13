@@ -26,7 +26,7 @@ class App:
         self.app_path = app_path
         self.design_file_path = design_file_path
         self.current_raw_sources = current_raw_sources
-        self.current_downstream_sources = current_downstream_sources
+        self.current_downstream_sources = current_downstream_sources or {}
         self.safe_downstream_source_name = app
         self.pii_downstream_source_name = "{}_PII".format(app)
         if no_pii and pii_only:
@@ -122,7 +122,7 @@ class App:
 
         return dupes
 
-    def add_source_to_new_schema(self, current_raw_source, relation, source_database, raw_schema):
+    def add_source_to_new_schema(self, current_raw_source, relation, raw_schema):
         """
         Add our table to the appropriate raw schema entry in our "sources" list
         in the new schema.
@@ -132,7 +132,7 @@ class App:
                 source_index = index
                 break
 
-        self.new_schema["sources"][source_index]["database"] = source_database
+        self.new_schema["sources"][source_index]["database"] = raw_schema.database
 
         if current_raw_source:
             self.new_schema["sources"][source_index]["tables"].append(
