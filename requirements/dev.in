@@ -6,4 +6,3 @@
 -r ci.txt             # tox and related dependencies
 
 diff-cover                # Changeset diff test coverage
-tox-battery               # Makes tox aware of requirements file changes
