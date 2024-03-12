@@ -8,8 +8,9 @@ class Schema:
     Class to represent a raw Schema used to back an application schema
     """
 
-    def __init__(self, schema_name, exclusion_list, inclusion_list, soft_delete_column_name,
+    def __init__(self, database, schema_name, exclusion_list, inclusion_list, soft_delete_column_name,
                  soft_delete_sql_predicate, relations=None, prefix=None):
+        self.database = database
         self.schema_name = schema_name
         self.exclusion_list = exclusion_list
         self.inclusion_list = inclusion_list
@@ -42,7 +43,7 @@ class Schema:
             )
 
     @classmethod
-    def from_config(cls, schema_name, config):
+    def from_config(cls, source_database, schema_name, config):
         """
         Construct a Schema object from a config dictionary. This is encapuslated
         into it's own function to help declutter the `run` function in
@@ -68,6 +69,7 @@ class Schema:
                 prefix = config['PREFIX']
 
         schema = Schema(
+            source_database,
             schema_name,
             exclusion_list,
             inclusion_list,

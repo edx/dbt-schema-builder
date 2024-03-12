@@ -5,6 +5,7 @@ import glob
 import os
 import re
 import string
+from pathlib import Path
 
 import dbt.utils
 import yaml
@@ -394,17 +395,13 @@ class SchemaBuilder:
         """
         Create a path to the directory into which schema files will be built
         """
-        db_path = os.path.join(self.source_path, app_destination_database)
+        db_path = Path(os.path.join(self.source_path, app_destination_database))
+        db_path.mkdir(parents=True, exist_ok=True)
 
-        if not os.path.isdir(db_path):
-            os.mkdir(db_path)
+        app_path = Path(os.path.join(db_path, app_destination_schema))
+        app_path.mkdir(parents=True, exist_ok=True)
 
-        app_path = os.path.join(db_path, app_destination_schema)
-
-        if not os.path.isdir(app_path):
-            os.mkdir(app_path)
-
-        return app_path
+        return str(app_path)
 
     @staticmethod
     def get_current_raw_schema_attrs(design_file_path):
@@ -427,8 +424,8 @@ class SchemaBuilder:
         Make sure the path exists for holding downstream sources files, and check if there's an existing file that we
         need to preserve.
         """
-        if not os.path.isdir(downstream_sources_dir_path):
-            os.mkdir(downstream_sources_dir_path)
+        downstream_sources_dir = Path(downstream_sources_dir_path)
+        downstream_sources_dir.mkdir(parents=True, exist_ok=True)
 
         if os.path.exists(downstream_sources_file_path):
             with open(downstream_sources_file_path, "r") as f:
@@ -512,7 +509,7 @@ class SchemaBuilder:
             app_source_database = raw_schema_name.split('.')[0]
             app_source_schema = raw_schema_name.split('.')[1]
             raw_schema = Schema.from_config(
-                app_source_schema, raw_schema_config
+                app_source_database, app_source_schema, raw_schema_config
             )
             raw_schema_relations = self.get_relations(app_source_database, app_source_schema)
             for source_relation_name, meta_data in raw_schema_relations[app_source_schema].items():
@@ -554,13 +551,12 @@ class SchemaBuilder:
                     current_downstream_sources,
                     prefix=raw_schema.prefix
                 )
-                app_object.add_source_to_new_schema(current_raw_source, relation, app_source_database, raw_schema)
+                app_object.add_source_to_new_schema(current_raw_source, relation, raw_schema)
                 app_object.add_table_to_downstream_sources(
                     relation,
                     current_safe_source,
                     current_pii_source,
-                    app_object.add_pii,
-                    app_object.add_safe)
+                )
                 app_object.update_trifecta_models(relation, no_pii=no_pii, pii_only=pii_only)
 
                 ##############################
