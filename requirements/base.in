@@ -1,6 +1,5 @@
 # Core requirements for using this application
 -c constraints.txt
 
-dbt-core==1.5.2
-dbt-snowflake==1.5.2
-
+dbt-core==1.7.4
+dbt-snowflake==1.7.1
