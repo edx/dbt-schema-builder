@@ -6,9 +6,11 @@ import argparse
 import sys
 
 from dbt import flags
-from dbt.flags import PROFILES_DIR
+from dbt.flags import get_flag_dict
 
 from .builder import SchemaBuilderTask
+
+PROFILES_DIR = get_flag_dict().get('PROFILES_DIR')
 
 
 def parse_args(args):
@@ -53,6 +55,12 @@ def parse_args(args):
         type=str,
         help="Which target to load for the given profile",
     )
+    base_subparser.add_argument(
+        "--threads",
+        default=None,
+        type=int,
+        help="Number of threads for dbt to run.",
+    )
 
     group = base_subparser.add_mutually_exclusive_group()
 
@@ -77,7 +85,7 @@ def parse_args(args):
         parents=[base_subparser],
         help="Creates or updates schema.yml files from database catalog",
     )
-    build_sub.set_defaults(cls=SchemaBuilderTask, which="build", defer=None, state=None)
+    build_sub.set_defaults(cls=SchemaBuilderTask, which="build", defer=None, state=None, defer_state=None)
 
     build_sub.add_argument(
         "--destination-project",

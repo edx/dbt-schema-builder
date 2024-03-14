@@ -9,9 +9,10 @@ from pathlib import Path
 
 import dbt.utils
 import yaml
+from dbt.adapters.factory import register_adapter
 from dbt.config import RuntimeConfig
 from dbt.events import AdapterLogger
-from dbt.exceptions import DatabaseException
+from dbt.exceptions import DbtDatabaseError as DatabaseException
 from dbt.logger import log_manager
 from dbt.task.compile import CompileTask
 from dbt.task.generate import get_adapter
@@ -151,7 +152,7 @@ class GetCatalogTask(CompileTask):
         """
         # Check for any non-word characters that might indicate a SQL injection attack
         if re.search("[^a-zA-Z0-9_]", schema):
-            raise Exception(
+            raise Exception(  # pylint: disable=broad-exception-raised
                 "Non-word character in schema name '{}'! Possible SQL injection?".format(
                     schema
                 )
@@ -584,12 +585,13 @@ class SchemaBuilderTask:
     def __init__(self, args):
         self.args = args
         self.config = RuntimeConfig.from_args(args)
+        register_adapter(self.config)
         self.source_project_path, self.destination_project_path = self.get_project_dirs()
         self.builder = SchemaBuilder(
             self.config.model_paths[0],
             self.source_project_path,
             self.destination_project_path,
-            GetCatalogTask(self.args, self.config)
+            GetCatalogTask(self.args, self.config, None)
         )
 
     def get_project_dirs(self):
@@ -603,7 +605,7 @@ class SchemaBuilderTask:
 
         for project_path in [source_project_path, destination_project_path]:
             if not os.path.exists(os.path.join(project_path, "dbt_project.yml")):
-                raise Exception(
+                raise Exception(  # pylint: disable=broad-exception-raised
                     "fatal: {} is not a dbt project. Does not exist or is missing a "
                     "dbt_project.yml file.".format(project_path)
                 )
