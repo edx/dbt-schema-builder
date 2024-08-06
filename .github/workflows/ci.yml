@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        python-version: [3.8, 3.9]
+        python-version: [3.11]
     steps:
     - uses: actions/checkout@v2
     - name: setup python
@@ -29,10 +29,6 @@ jobs:
       run: pip install tox tox-gh-actions
     - name: Run Tests
       run: tox
-    - name: Run Coverage
-      uses: codecov/codecov-action@v3
-      with:
-        fail_ci_if_error: true
   run_dbt_schema_builder_code_quality:
     name: dbt Schema Builder Code Quality
     runs-on: ubuntu-20.04
@@ -41,7 +37,7 @@ jobs:
     - name: Setup Python
       uses: actions/setup-python@v2
       with:
-        python-version: 3.8
+        python-version: 3.11
     - name: Install pip, setuptools, and wheel
       run: pip install -r requirements/pip.txt
     - name: Install dependencies
@@ -58,7 +54,7 @@ jobs:
     - name: Setup Python
       uses: actions/setup-python@v2
       with:
-        python-version: 3.8
+        python-version: 3.11
     - name: Install pip, setuptools, and wheel
       run: pip install -r requirements/pip.txt
     - name: Install dependencies
