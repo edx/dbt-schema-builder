@@ -32,7 +32,7 @@ jobs:
     - name: Run Coverage
       uses: codecov/codecov-action@v3
       with:
-        fail_ci_if_error: true
+        fail_ci_if_error: false
   run_dbt_schema_builder_code_quality:
     name: dbt Schema Builder Code Quality
     runs-on: ubuntu-20.04
