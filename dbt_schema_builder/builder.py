@@ -38,6 +38,7 @@ class InvalidDatabaseException(Exception):
 
 
 class GetCatalogTask(CompileTask):
+
     """
     A dbt task to load the information schema to dict in the form of:
     {
@@ -55,6 +56,7 @@ class GetCatalogTask(CompileTask):
         }
     }
     """
+
     def _get_column_name_filter(self, source_database, banned_column_names):
         """
         Create the SQL string to omit banned_column_names from the Snowflake metadata queries.

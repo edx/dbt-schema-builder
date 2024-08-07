@@ -63,6 +63,7 @@ VERSION = get_version('../dbt_schema_builder', '__init__.py')
 # ones.
 extensions = [
     'sphinx_book_theme',
+    'pydata_sphinx_theme',
     'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
     'sphinx.ext.intersphinx',
