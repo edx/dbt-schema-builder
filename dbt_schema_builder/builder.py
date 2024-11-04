@@ -152,7 +152,7 @@ class GetCatalogTask(CompileTask):
         """
         # Check for any non-word characters that might indicate a SQL injection attack
         if re.search("[^a-zA-Z0-9_]", schema):
-            raise Exception(  # pylint: disable=broad-exception-raised
+            raise Exception(
                 "Non-word character in schema name '{}'! Possible SQL injection?".format(
                     schema
                 )
@@ -162,7 +162,7 @@ class GetCatalogTask(CompileTask):
 
         try:
             catalog = self.fetch_full_catalog(adapter, source_database, schema, banned_column_names)
-        except Exception as e:  # pylint: disable=broad-except
+        except Exception as e:
             # TODO: Catch a less-broad exception than Exception.
             if "Information schema query returned too much data" not in str(e):
                 raise
@@ -605,7 +605,7 @@ class SchemaBuilderTask:
 
         for project_path in [source_project_path, destination_project_path]:
             if not os.path.exists(os.path.join(project_path, "dbt_project.yml")):
-                raise Exception(  # pylint: disable=broad-exception-raised
+                raise Exception(
                     "fatal: {} is not a dbt project. Does not exist or is missing a "
                     "dbt_project.yml file.".format(project_path)
                 )
