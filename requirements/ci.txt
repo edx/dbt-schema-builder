@@ -18,7 +18,7 @@ filelock==3.16.1
     #   virtualenv
 packaging==23.1
     # via
-    #   -c /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/constraints.txt
+    #   -c /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/constraints.txt
     #   pyproject-api
     #   tox
 platformdirs==4.3.6

@@ -8,84 +8,85 @@ accessible-pygments==0.0.5
     # via pydata-sphinx-theme
 agate==1.7.1
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   dbt-core
     #   dbt-snowflake
 alabaster==1.0.0
     # via sphinx
 annotated-types==0.7.0
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   pydantic
 asn1crypto==1.5.1
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   snowflake-connector-python
-attrs==24.2.0
+attrs==24.3.0
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   jsonschema
     #   referencing
 babel==2.16.0
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   agate
     #   pydata-sphinx-theme
     #   sphinx
 backports-tarfile==1.2.0
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   jaraco-context
 beautifulsoup4==4.12.3
     # via pydata-sphinx-theme
-certifi==2024.8.30
+certifi==2024.12.14
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   requests
     #   snowflake-connector-python
 cffi==1.17.1
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   cryptography
     #   dbt-core
     #   snowflake-connector-python
-charset-normalizer==3.4.0
+charset-normalizer==3.4.1
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   requests
     #   snowflake-connector-python
-click==8.1.7
+click==8.1.8
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   dbt-core
     #   dbt-semantic-interfaces
 colorama==0.4.6
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   dbt-core
-coverage[toml]==7.6.8
+coverage[toml]==7.6.10
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   pytest-cov
 cryptography==44.0.0
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   pyopenssl
+    #   secretstorage
     #   snowflake-connector-python
 dbt-core==1.7.10
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   dbt-snowflake
 dbt-extractor==0.5.1
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   dbt-core
 dbt-semantic-interfaces==0.4.4
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   dbt-core
 dbt-snowflake==1.7.2
-    # via -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    # via -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
 doc8==1.1.2
     # via -r requirements/doc.in
 docutils==0.21.2
@@ -97,11 +98,11 @@ docutils==0.21.2
     #   sphinx
 filelock==3.16.1
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   snowflake-connector-python
 idna==3.10
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   dbt-core
     #   requests
     #   snowflake-connector-python
@@ -109,128 +110,133 @@ imagesize==1.4.1
     # via sphinx
 importlib-metadata==6.11.0
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   dbt-semantic-interfaces
     #   keyring
 iniconfig==2.0.0
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   pytest
 isodate==0.6.1
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   agate
     #   dbt-core
 jaraco-classes==3.4.0
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   keyring
 jaraco-context==6.0.1
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   keyring
 jaraco-functools==4.1.0
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   keyring
-jinja2==3.1.4
+jeepney==0.8.0
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
+    #   keyring
+    #   secretstorage
+jinja2==3.1.5
+    # via
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   dbt-core
     #   dbt-semantic-interfaces
     #   sphinx
 jsonschema==4.23.0
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   dbt-core
     #   dbt-semantic-interfaces
 jsonschema-specifications==2024.10.1
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   jsonschema
-keyring==25.5.0
+keyring==25.6.0
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   snowflake-connector-python
 leather==0.4.0
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   agate
 logbook==1.5.3
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   dbt-core
 markupsafe==3.0.2
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   jinja2
 mashumaro[msgpack]==3.15
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   dbt-core
 minimal-snowplow-tracker==0.0.2
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   dbt-core
 more-itertools==10.5.0
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   dbt-semantic-interfaces
     #   jaraco-classes
     #   jaraco-functools
 msgpack==1.1.0
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   mashumaro
 networkx==3.4.2
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   dbt-core
-nh3==0.2.18
+nh3==0.2.20
     # via readme-renderer
 packaging==23.1
     # via
-    #   -c /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/constraints.txt
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -c /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/constraints.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   dbt-core
     #   pytest
     #   snowflake-connector-python
     #   sphinx
 parsedatetime==2.6
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   agate
 pathspec==0.11.2
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   dbt-core
 pbr==6.1.0
     # via stevedore
 platformdirs==4.3.6
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   snowflake-connector-python
 pluggy==1.5.0
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   pytest
 protobuf==4.25.5
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   dbt-core
 pycparser==2.22
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   cffi
-pydantic==2.10.2
+pydantic==2.10.4
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   dbt-semantic-interfaces
-pydantic-core==2.27.1
+pydantic-core==2.27.2
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   pydantic
-pydata-sphinx-theme==0.16.0
+pydata-sphinx-theme==0.16.1
     # via sphinx-book-theme
 pygments==2.18.0
     # via
@@ -241,76 +247,80 @@ pygments==2.18.0
     #   sphinx
 pyjwt==2.10.1
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   snowflake-connector-python
 pyopenssl==24.3.0
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   snowflake-connector-python
-pytest==8.3.3
+pytest==8.3.4
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   pytest-cov
 pytest-cov==6.0.0
-    # via -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    # via -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
 python-dateutil==2.9.0.post0
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   dbt-semantic-interfaces
 python-slugify==8.0.4
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   agate
 pytimeparse==1.1.8
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   agate
 pytz==2024.2
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   dbt-core
     #   snowflake-connector-python
 pyyaml==6.0.2
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   dbt-core
     #   dbt-semantic-interfaces
 readme-renderer==44.0
     # via -r requirements/doc.in
 referencing==0.35.1
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   jsonschema
     #   jsonschema-specifications
 requests==2.32.3
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   dbt-core
     #   minimal-snowplow-tracker
     #   snowflake-connector-python
     #   sphinx
 restructuredtext-lint==1.4.0
     # via doc8
-rpds-py==0.21.0
+rpds-py==0.22.3
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   jsonschema
     #   referencing
-six==1.16.0
+secretstorage==3.3.3
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
+    #   keyring
+six==1.17.0
+    # via
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   isodate
     #   minimal-snowplow-tracker
     #   python-dateutil
 snowballstemmer==2.2.0
     # via sphinx
-snowflake-connector-python[secure-local-storage]==3.12.3
+snowflake-connector-python[secure-local-storage]==3.12.4
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   dbt-snowflake
 sortedcontainers==2.4.0
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   snowflake-connector-python
 soupsieve==2.6
     # via beautifulsoup4
@@ -335,21 +345,21 @@ sphinxcontrib-serializinghtml==2.0.0
     # via sphinx
 sqlparse==0.4.4
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   dbt-core
 stevedore==5.4.0
     # via doc8
 text-unidecode==1.3
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   python-slugify
 tomlkit==0.13.2
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   snowflake-connector-python
 typing-extensions==4.12.2
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   dbt-core
     #   dbt-semantic-interfaces
     #   mashumaro
@@ -359,10 +369,10 @@ typing-extensions==4.12.2
     #   snowflake-connector-python
 urllib3==1.26.20
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   dbt-core
     #   requests
 zipp==3.21.0
     # via
-    #   -r /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/test.txt
+    #   -r /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/test.txt
     #   importlib-metadata

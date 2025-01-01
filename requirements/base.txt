@@ -12,7 +12,7 @@ annotated-types==0.7.0
     # via pydantic
 asn1crypto==1.5.1
     # via snowflake-connector-python
-attrs==24.2.0
+attrs==24.3.0
     # via
     #   jsonschema
     #   referencing
@@ -20,7 +20,7 @@ babel==2.16.0
     # via agate
 backports-tarfile==1.2.0
     # via jaraco-context
-certifi==2024.8.30
+certifi==2024.12.14
     # via
     #   requests
     #   snowflake-connector-python
@@ -29,11 +29,11 @@ cffi==1.17.1
     #   cryptography
     #   dbt-core
     #   snowflake-connector-python
-charset-normalizer==3.4.0
+charset-normalizer==3.4.1
     # via
     #   requests
     #   snowflake-connector-python
-click==8.1.7
+click==8.1.8
     # via
     #   dbt-core
     #   dbt-semantic-interfaces
@@ -42,6 +42,7 @@ colorama==0.4.6
 cryptography==44.0.0
     # via
     #   pyopenssl
+    #   secretstorage
     #   snowflake-connector-python
 dbt-core==1.7.10
     # via
@@ -74,7 +75,11 @@ jaraco-context==6.0.1
     # via keyring
 jaraco-functools==4.1.0
     # via keyring
-jinja2==3.1.4
+jeepney==0.8.0
+    # via
+    #   keyring
+    #   secretstorage
+jinja2==3.1.5
     # via
     #   dbt-core
     #   dbt-semantic-interfaces
@@ -84,7 +89,7 @@ jsonschema==4.23.0
     #   dbt-semantic-interfaces
 jsonschema-specifications==2024.10.1
     # via jsonschema
-keyring==25.5.0
+keyring==25.6.0
     # via snowflake-connector-python
 leather==0.4.0
     # via agate
@@ -107,7 +112,7 @@ networkx==3.4.2
     # via dbt-core
 packaging==23.1
     # via
-    #   -c /Users/hunia.fatima/Desktop/edX/dbt-schema-builder/requirements/constraints.txt
+    #   -c /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/constraints.txt
     #   dbt-core
     #   snowflake-connector-python
 parsedatetime==2.6
@@ -120,9 +125,9 @@ protobuf==4.25.5
     # via dbt-core
 pycparser==2.22
     # via cffi
-pydantic==2.10.2
+pydantic==2.10.4
     # via dbt-semantic-interfaces
-pydantic-core==2.27.1
+pydantic-core==2.27.2
     # via pydantic
 pyjwt==2.10.1
     # via snowflake-connector-python
@@ -151,16 +156,18 @@ requests==2.32.3
     #   dbt-core
     #   minimal-snowplow-tracker
     #   snowflake-connector-python
-rpds-py==0.21.0
+rpds-py==0.22.3
     # via
     #   jsonschema
     #   referencing
-six==1.16.0
+secretstorage==3.3.3
+    # via keyring
+six==1.17.0
     # via
     #   isodate
     #   minimal-snowplow-tracker
     #   python-dateutil
-snowflake-connector-python[secure-local-storage]==3.12.3
+snowflake-connector-python[secure-local-storage]==3.12.4
     # via dbt-snowflake
 sortedcontainers==2.4.0
     # via snowflake-connector-python
