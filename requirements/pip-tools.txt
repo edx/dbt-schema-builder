@@ -6,13 +6,13 @@
 #
 build==1.2.2.post1
     # via pip-tools
-click==8.1.7
+click==8.1.8
     # via pip-tools
 importlib-metadata==6.11.0
     # via -r requirements/pip-tools.in
 packaging==23.1
     # via
-    #   -c requirements/constraints.txt
+    #   -c /home/runner/work/dbt-schema-builder/dbt-schema-builder/requirements/constraints.txt
     #   build
 pip-tools==7.4.1
     # via -r requirements/pip-tools.in
