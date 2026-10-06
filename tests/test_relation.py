@@ -5,6 +5,7 @@ Tests for the Relation class
 import pytest
 
 from dbt_schema_builder.relation import Relation
+from dbt_schema_builder.schema import InvalidConfigurationException
 
 
 def test_prep_meta_data():
@@ -350,3 +351,84 @@ def test_snowflake_keyword_quoting():
     test_dict = relation.prep_meta_data()
     assert test_dict['columns'][0]["name"].startswith('"')
     assert test_dict['columns'][1]["name"].startswith('"')
+
+
+COLUMN_RENAMES = {
+    '_SNOWFLAKE_DELETED': {'name': '_FIVETRAN_DELETED', 'expression': 'COALESCE(_SNOWFLAKE_DELETED, FALSE)'},
+    '_SNOWFLAKE_UPDATED_AT': {'name': '_FIVETRAN_SYNCED', 'expression': '_SNOWFLAKE_UPDATED_AT::TIMESTAMP_TZ'},
+    'RENAMED_AS_IS': {'name': 'NEW_NAME', 'expression': None},
+}
+
+
+def _get_relation_with_renames(columns, column_renames=None):
+    return Relation(
+        'USER_API_USERRETIREMENTSTATUS',
+        columns,
+        'LMS',
+        'models/PROD/LMS',
+        [],
+        [],
+        {'LMS.USER_API_USERRETIREMENTSTATUS': {'ORIGINAL_EMAIL': "'redacted@edx.invalid'"}},
+        [],
+        column_renames=COLUMN_RENAMES if column_renames is None else column_renames,
+    )
+
+
+@pytest.mark.parametrize("view_type", ["SAFE", "PII"])
+def test_sql_column_renames(view_type):
+    relation = _get_relation_with_renames(
+        ['ID', 'ORIGINAL_EMAIL', '_SNOWFLAKE_INSERTED_AT', '_SNOWFLAKE_UPDATED_AT', '_SNOWFLAKE_DELETED']
+    )
+    raw_schema = _get_fake_raw_schema(
+        soft_delete_column_name='_SNOWFLAKE_DELETED',
+        soft_delete_sql_clause='= FALSE'
+    )
+    sql = Relation.render_sql('LMS', view_type, relation.prep_meta_data(), raw_schema, relation.redactions)
+
+    assert '_SNOWFLAKE_UPDATED_AT::TIMESTAMP_TZ as _FIVETRAN_SYNCED,' in sql
+    assert 'COALESCE(_SNOWFLAKE_DELETED, FALSE) as _FIVETRAN_DELETED\n' in sql
+    # Columns that aren't in the map are unchanged
+    assert '_SNOWFLAKE_INSERTED_AT,' in sql
+    # SOFT_DELETE uses the raw column name, since the filter runs against the raw table
+    assert 'WHERE _SNOWFLAKE_DELETED = FALSE' in sql
+    if view_type == 'SAFE':
+        assert "'redacted@edx.invalid' as ORIGINAL_EMAIL," in sql
+    else:
+        assert "ORIGINAL_EMAIL," in sql
+        assert "redacted" not in sql
+
+
+def test_sql_column_rename_without_expression():
+    relation = _get_relation_with_renames(['ID', 'RENAMED_AS_IS'])
+    sql = Relation.render_sql('LMS', 'SAFE', relation.prep_meta_data(), _get_fake_raw_schema(), {})
+    assert 'RENAMED_AS_IS as NEW_NAME' in sql
+
+
+def test_renamed_column_is_not_redacted():
+    relation = _get_relation_with_renames(['ID', '_SNOWFLAKE_DELETED'])
+    redactions = {'LMS.USER_API_USERRETIREMENTSTATUS': {'_SNOWFLAKE_DELETED': "'<redacted>'"}}
+    sql = Relation.render_sql('LMS', 'SAFE', relation.prep_meta_data(), _get_fake_raw_schema(), redactions)
+    assert 'COALESCE(_SNOWFLAKE_DELETED, FALSE) as _FIVETRAN_DELETED' in sql
+    assert 'redacted' not in sql
+
+
+@pytest.mark.parametrize("column_renames", [None, {}])
+def test_sql_unchanged_without_matching_renames(column_renames):
+    # Fivetran tables have no _SNOWFLAKE_* columns, and projects may have no column_renames.yml at all
+    columns = ['ID', '_FIVETRAN_DELETED', '_FIVETRAN_SYNCED']
+    with_renames = _get_relation_with_renames(columns, column_renames)
+    without_renames = _get_relation_with_renames(columns, {})
+    assert with_renames.prep_meta_data() == without_renames.prep_meta_data()
+    assert with_renames.get_view_column_names() == columns
+
+
+def test_get_view_column_names():
+    relation = _get_relation_with_renames(['ID', '_SNOWFLAKE_INSERTED_AT', '_SNOWFLAKE_DELETED'])
+    assert relation.get_view_column_names() == ['ID', '_SNOWFLAKE_INSERTED_AT', '_FIVETRAN_DELETED']
+
+
+def test_column_rename_clash():
+    relation = _get_relation_with_renames(['ID', '_SNOWFLAKE_DELETED', '_FIVETRAN_DELETED'])
+    with pytest.raises(InvalidConfigurationException) as excinfo:
+        relation.prep_meta_data()
+    assert 'has both _SNOWFLAKE_DELETED and _FIVETRAN_DELETED' in str(excinfo.value)

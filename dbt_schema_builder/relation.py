@@ -8,6 +8,8 @@ import re
 import jinja2
 from dbt.logger import GLOBAL_LOGGER as logger
 
+from .schema import InvalidConfigurationException
+
 DEFAULT_DESCRIPTION = "TODO: Replace me"
 
 # Set up our SQL templates
@@ -24,10 +26,12 @@ class Relation:
 
     def __init__(
         self, source_relation_name, meta_data, app, app_path,
-        snowflake_keywords, unmanaged_tables, redactions, downstream_sources_allow_list, prefix=None
+        snowflake_keywords, unmanaged_tables, redactions, downstream_sources_allow_list, prefix=None,
+        column_renames=None
     ):
         self.snowflake_keywords = snowflake_keywords
         self.redactions = redactions
+        self.column_renames = column_renames or {}
         self.prefix = prefix
         self.source_relation_name = source_relation_name
         self.relation = self._get_model_name_alias()
@@ -56,14 +60,55 @@ class Relation:
         else:
             return self.source_relation_name
 
+    def get_column_renames(self):
+        """
+        Return the entries of column_renames.yml that apply to this relation, i.e. those whose raw
+        column exists in it, as {raw column name: {"name": new name, "expression": SQL or None}}.
+
+        Raises:
+            InvalidConfigurationException: When the relation already has a column with the new name,
+            which would give the generated view two columns with the same name.
+        """
+        column_names = {colname.upper() for colname in self.meta_data}
+        renames = {}
+        for raw_name, rename in self.column_renames.items():
+            if raw_name not in column_names:
+                continue
+            if rename["name"] in column_names:
+                raise InvalidConfigurationException(
+                    "{table} has both {raw} and {new}, so {raw} can't be renamed to {new} "
+                    "(see column_renames.yml)".format(table=self.source_relation_name, raw=raw_name, new=rename["name"])
+                )
+            renames[raw_name] = rename
+        return renames
+
+    def get_view_column_names(self):
+        """
+        Return the column names of the generated views, i.e. the raw column names with
+        column_renames.yml applied.
+        """
+        renames = self.get_column_renames()
+        return [
+            renames[colname.upper()]["name"] if colname.upper() in renames else colname
+            for colname in self.meta_data
+        ]
+
     def prep_meta_data(self):
         """
         Transforms the data we receive back from Snowflake / dbt to a more usable form.
         """
         columns = []
+        renames = self.get_column_renames()
 
         for colname in self.meta_data:
-            if colname.upper() in self.snowflake_keywords:
+            if colname.upper() in renames:
+                rename = renames[colname.upper()]
+                column = {
+                    "name": colname.upper(),
+                    "alias": rename["name"],
+                    "expression": rename["expression"] or colname.upper(),
+                }
+            elif colname.upper() in self.snowflake_keywords:
                 column = {"name": f'"{colname.upper()}"'}
             else:
                 column = {"name": colname.upper()}

@@ -30,6 +30,9 @@ logger = AdapterLogger("Snowflake")
 
 DEFAULT_DESCRIPTION = "TODO: Replace me"
 SQL_ESCAPE_CHAR = "^"
+# Openflow keeps columns dropped at the source and renames them with this suffix. They are no
+# longer part of the source table, and keeping them would bypass redactions for the original name.
+OPENFLOW_DROPPED_COLUMN_SUFFIX = "__SNOWFLAKE_DELETED"
 LOCAL_PATH = os.path.abspath(os.path.dirname(__file__))
 
 
@@ -191,6 +194,7 @@ class SchemaBuilder:
         self.destination_project_path = destination_project_path
         self.get_catalog_task = get_catalog_task
         self.redactions = self.get_redactions()
+        self.column_renames = self.get_column_renames()
         self.snowflake_keywords = self.get_snowflake_keywords()
         self.banned_column_names = self.get_banned_columns()
         self.unmanaged_tables = self.get_unmanaged_tables()
@@ -295,6 +299,64 @@ class SchemaBuilder:
             redactions = yaml.safe_load(f)
 
         return redactions if redactions else {}
+
+    def get_column_renames(self):
+        """
+        Loads the optional column_renames.yml file into a local dict.
+
+        This file maps raw column names to the names the generated views expose, optionally with
+        an SQL expression for the value, e.g. to give Openflow metadata columns their Fivetran names:
+
+            _SNOWFLAKE_DELETED:
+              name: _FIVETRAN_DELETED
+              expression: COALESCE(_SNOWFLAKE_DELETED, FALSE)
+
+        Returns:
+          Dict of {RAW_COLUMN_NAME: {"name": NEW_COLUMN_NAME, "expression": SQL or None}}, empty if
+          the file does not exist.
+        """
+        column_renames_file_path = os.path.join(self.source_project_path, "column_renames.yml")
+        column_renames = {}
+        if os.path.exists(column_renames_file_path):
+            with open(column_renames_file_path, "r") as f:
+                column_renames = yaml.safe_load(f)
+
+        return self.validate_column_renames(column_renames)
+
+    @staticmethod
+    def validate_column_renames(column_renames):
+        """
+        Make sure each entry in column_renames.yml has a new column name, and that no two entries
+        rename to the same column. Returns the entries with upper-cased column names.
+        """
+        if not column_renames:
+            return {}
+        if not isinstance(column_renames, dict):
+            raise InvalidConfigurationException(
+                "column_renames.yml must map raw column names to a dict with a 'name' key."
+            )
+
+        validated = {}
+        for raw_name, rename in column_renames.items():
+            if not isinstance(rename, dict) or not rename.get("name") or not isinstance(rename["name"], str):
+                raise InvalidConfigurationException(
+                    "Entry {} in column_renames.yml must have a 'name' key with the new column name.".format(raw_name)
+                )
+            invalid_keys = set(rename) - {"name", "expression"}
+            if invalid_keys:
+                raise InvalidConfigurationException(
+                    "Entry {} in column_renames.yml has invalid keys: {}".format(
+                        raw_name, ", ".join(sorted(invalid_keys))
+                    )
+                )
+            new_name = rename["name"].upper()
+            if new_name in [v["name"] for v in validated.values()]:
+                raise InvalidConfigurationException(
+                    "More than one entry in column_renames.yml renames to {}.".format(new_name)
+                )
+            validated[str(raw_name).upper()] = {"name": new_name, "expression": rename.get("expression")}
+
+        return validated
 
     def get_downstream_sources_allow_list(self):
         """
@@ -463,6 +525,8 @@ class SchemaBuilder:
         curr_table_cols = None
 
         for r in all_relations:
+            if r["COLUMN_NAME"].upper().endswith(OPENFLOW_DROPPED_COLUMN_SUFFIX):
+                continue
             if r["TABLE_NAME"] != curr_table_name:
                 if curr_table_name:
                     selected_relations[schema][curr_table_name] = curr_table_cols
@@ -519,7 +583,8 @@ class SchemaBuilder:
                     source_relation_name, meta_data, app_destination_schema,
                     app_path, self.snowflake_keywords,
                     self.unmanaged_tables, self.redactions,
-                    self.downstream_sources_allow_list, prefix=raw_schema.prefix
+                    self.downstream_sources_allow_list, prefix=raw_schema.prefix,
+                    column_renames=self.column_renames
                 )
                 raw_schema.relations.append(relation)
             app_raw_schemas.append(raw_schema)

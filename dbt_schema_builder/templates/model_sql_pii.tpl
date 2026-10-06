@@ -4,7 +4,11 @@
 {% set soft_del_ns = {'found':false} %}
 SELECT
 {% for col in relation.columns %}
+    {% if col.alias -%}
+    {{ col.expression }} as {{ col.alias }}
+    {%- else -%}
     {{ col.name|upper|indent }}
+    {%- endif -%}
     {{- ", " if not loop.last }}
     {%- if col.name|upper == raw_schema.soft_delete_column_name|upper -%}
         {%- if soft_del_ns.update({'found':true}) -%}{% endif %}

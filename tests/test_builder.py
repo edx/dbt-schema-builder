@@ -209,3 +209,74 @@ def test_build_app():
     assert raw_source['sources'][0]['name'] == 'RAW_SCHEMA_1'
     assert raw_source['sources'][1]['database'] == 'DB_3'
     assert raw_source['sources'][1]['name'] == 'RAW_SCHEMA_2'
+
+
+def test_validate_column_renames():
+    column_renames = {
+        '_snowflake_deleted': {'name': '_fivetran_deleted', 'expression': 'COALESCE(_SNOWFLAKE_DELETED, FALSE)'},
+        '_SNOWFLAKE_UPDATED_AT': {'name': '_FIVETRAN_SYNCED'},
+    }
+    assert SchemaBuilder.validate_column_renames(column_renames) == {
+        '_SNOWFLAKE_DELETED': {'name': '_FIVETRAN_DELETED', 'expression': 'COALESCE(_SNOWFLAKE_DELETED, FALSE)'},
+        '_SNOWFLAKE_UPDATED_AT': {'name': '_FIVETRAN_SYNCED', 'expression': None},
+    }
+
+
+@pytest.mark.parametrize("column_renames", [None, {}])
+def test_validate_column_renames_empty(column_renames):
+    assert not SchemaBuilder.validate_column_renames(column_renames)
+
+
+@pytest.mark.parametrize("column_renames,err_msg", [
+    (['_SNOWFLAKE_DELETED'], "must map raw column names"),
+    ({'_SNOWFLAKE_DELETED': '_FIVETRAN_DELETED'}, "must have a 'name' key"),
+    ({'_SNOWFLAKE_DELETED': {'expression': 'X'}}, "must have a 'name' key"),
+    ({'_SNOWFLAKE_DELETED': {'name': '_FIVETRAN_DELETED', 'sql': 'X'}}, "has invalid keys: sql"),
+    (
+        {'_SNOWFLAKE_DELETED': {'name': '_FIVETRAN_DELETED'}, 'IS_DELETED': {'name': '_fivetran_deleted'}},
+        "More than one entry in column_renames.yml renames to _FIVETRAN_DELETED",
+    ),
+])
+def test_invalid_column_renames(column_renames, err_msg):
+    with pytest.raises(InvalidConfigurationException) as excinfo:
+        SchemaBuilder.validate_column_renames(column_renames)
+    assert err_msg in str(excinfo.value)
+
+
+@patch.object(SchemaBuilder, 'get_redactions', lambda x: {})
+@patch.object(SchemaBuilder, 'get_snowflake_keywords', lambda x: {})
+@patch.object(SchemaBuilder, 'get_banned_columns', lambda x: {})
+@patch.object(SchemaBuilder, 'get_unmanaged_tables', lambda x: {})
+@patch.object(SchemaBuilder, 'get_downstream_sources_allow_list', lambda x: {})
+def test_build_app_with_column_renames():
+    app_name = 'DB_1.APP'
+    app_config = {app_name: {'DB_2.RAW_SCHEMA_1': {'SOFT_DELETE': {'_SNOWFLAKE_DELETED': '= FALSE'}}}}
+
+    temp_dir = mkdtemp()
+    with open(os.path.join(temp_dir, 'column_renames.yml'), 'w') as fp:
+        yaml.safe_dump({
+            '_SNOWFLAKE_DELETED': {'name': '_FIVETRAN_DELETED', 'expression': 'COALESCE(_SNOWFLAKE_DELETED, FALSE)'}
+        }, fp)
+    mock_get_catalog_task = MagicMock(GetCatalogTask)
+    mock_get_catalog_task.run.return_value = [
+        {"TABLE_NAME": "TABLE_A", "COLUMN_NAME": "COLUMN_A"},
+        {"TABLE_NAME": "TABLE_A", "COLUMN_NAME": "EMAIL__SNOWFLAKE_DELETED"},
+        {"TABLE_NAME": "TABLE_A", "COLUMN_NAME": "_SNOWFLAKE_DELETED"},
+    ]
+    with patch.object(SchemaBuilder, 'build_app_path', lambda x, y, z: temp_dir):
+        with patch.object(SchemaBuilder, 'get_app_schema_configs', lambda x: app_config):
+            builder = SchemaBuilder(temp_dir, temp_dir, temp_dir, mock_get_catalog_task)
+            builder.build_app(app_name, app_config[app_name])
+
+    for sql_path in ('APP/APP_TABLE_A.sql', 'APP_PII/APP_PII_TABLE_A.sql'):
+        with open(os.path.join(temp_dir, sql_path)) as fp:
+            sql = fp.read()
+        assert 'COALESCE(_SNOWFLAKE_DELETED, FALSE) as _FIVETRAN_DELETED' in sql
+        assert 'WHERE _SNOWFLAKE_DELETED = FALSE' in sql
+        # Columns Openflow keeps after they are dropped at the source are skipped
+        assert 'EMAIL__SNOWFLAKE_DELETED' not in sql
+
+    with open(os.path.join(temp_dir, 'APP.yml')) as fp:
+        schema = yaml.safe_load(fp)
+    for model in schema['models']:
+        assert model['columns'] == [{'name': 'COLUMN_A'}, {'name': '_FIVETRAN_DELETED'}]
