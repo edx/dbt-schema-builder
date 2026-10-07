@@ -82,6 +82,32 @@ This configuration will add the following SQL to the downstream views:
 
 ``WHERE DELETED_AT IS NOT NULL``
 
+Renaming columns
+----------------
+
+An optional ``column_renames.yml`` file, next to ``redactions.yml``, maps raw
+column names to the names the generated views expose. It can also give an SQL
+expression for the value. For example, to give Openflow's metadata columns the
+names Fivetran used::
+
+    _SNOWFLAKE_DELETED:
+      name: _FIVETRAN_DELETED
+      expression: COALESCE(_SNOWFLAKE_DELETED, FALSE)
+
+    _SNOWFLAKE_UPDATED_AT:
+      name: _FIVETRAN_SYNCED
+      expression: _SNOWFLAKE_UPDATED_AT::TIMESTAMP_TZ
+
+``expression`` is optional and defaults to the raw column. The map applies to
+every table that has the raw column, in both the safe and the PII views, and
+tables without it are unchanged. Renamed columns are never redacted.
+``SOFT_DELETE`` must use the raw column name, because the filter runs against
+the raw table. If a table has both the raw column and the new column, Schema
+Builder stops with an error.
+
+Columns whose names end in ``__SNOWFLAKE_DELETED`` are always skipped. Openflow
+keeps columns that were dropped at the source under that suffix.
+
 Required Parameters
 -------------------
 

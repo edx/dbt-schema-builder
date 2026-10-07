@@ -5,7 +5,9 @@
 SELECT
 {% for col in relation.columns -%}
   {% set app_table = app|upper ~ '.' ~ relation.alias|upper %}
-  {% if app_table in redactions and col.name in redactions[app_table] -%}
+  {% if col.alias -%}
+    {{ col.expression }} as {{ col.alias }}
+  {%- elif app_table in redactions and col.name in redactions[app_table] -%}
     {{ redactions[app_table][col.name]|safe }} as {{ col.name|upper|indent -}}
   {% else -%}
     {{ col.name|upper|indent }}

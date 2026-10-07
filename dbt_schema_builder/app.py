@@ -204,7 +204,7 @@ class App:
             ]
         for relation_name in relations:
             self.add_model_to_new_schema(
-                relation_name, relation.meta_data
+                relation_name, relation.get_view_column_names()
             )
 
     def add_model_to_new_schema(self, new_relation_name, model_meta_data):
