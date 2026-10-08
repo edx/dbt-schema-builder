@@ -11,14 +11,14 @@ on:
 jobs:
   run_dbt_schema_builder_tests:
     name: dbt Schema Builder Tests
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: [3.11]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v7
     - name: setup python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v7
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install pip, setuptools, and wheel
@@ -31,11 +31,11 @@ jobs:
       run: tox
   run_dbt_schema_builder_code_quality:
     name: dbt Schema Builder Code Quality
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v7
     - name: Setup Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v7
       with:
         python-version: 3.11
     - name: Install pip, setuptools, and wheel
@@ -48,11 +48,11 @@ jobs:
       run: tox -e quality
   run_dbt_schema_builder_docs:
     name: dbt Schema Builder Documentation
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v7
     - name: Setup Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v7
       with:
         python-version: 3.11
     - name: Install pip, setuptools, and wheel
