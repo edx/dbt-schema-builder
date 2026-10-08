@@ -4,16 +4,25 @@ on:
   push:
     tags:
       - '*'
+  # Build on PRs that touch packaging so changes are tested before a release.
+  # The publish step below only runs for tags.
+  pull_request:
+    paths:
+      - '.github/workflows/pypi-publish.yml'
+      - 'setup.py'
+      - 'setup.cfg'
+      - 'MANIFEST.in'
+      - 'requirements/pip.txt'
 
 jobs:
   push:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v7
       - name: setup python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v7
         with:
           python-version: 3.11
 
@@ -24,6 +33,7 @@ jobs:
         run: python setup.py sdist bdist_wheel
 
       - name: Publish to PyPI
+        if: startsWith(github.ref, 'refs/tags/')
         uses: pypa/gh-action-pypi-publish@master
         with:
           user: __token__
