@@ -195,6 +195,7 @@ class SchemaBuilder:
         self.get_catalog_task = get_catalog_task
         self.redactions = self.get_redactions()
         self.column_renames = self.get_column_renames()
+        self.column_casts = self.get_column_casts()
         self.snowflake_keywords = self.get_snowflake_keywords()
         self.banned_column_names = self.get_banned_columns()
         self.unmanaged_tables = self.get_unmanaged_tables()
@@ -355,6 +356,69 @@ class SchemaBuilder:
                     "More than one entry in column_renames.yml renames to {}.".format(new_name)
                 )
             validated[str(raw_name).upper()] = {"name": new_name, "expression": rename.get("expression")}
+
+        return validated
+
+    def get_column_casts(self):
+        """
+        Loads the optional column_casts.yml file into a local dict.
+
+        This file casts columns of specific raw tables to a type in the generated views, e.g. to give
+        Openflow sources back the BOOLEAN columns that Openflow lands as NUMBER:
+
+            RAW_DB.OPENFLOW_LMS.AUTH_USER:
+              IS_ACTIVE: BOOLEAN
+              IS_STAFF: BOOLEAN
+
+        Returns:
+          Dict of {DATABASE.SCHEMA.TABLE: {COLUMN_NAME: TYPE}}, empty if the file does not exist.
+        """
+        column_casts_file_path = os.path.join(self.source_project_path, "column_casts.yml")
+        column_casts = {}
+        if os.path.exists(column_casts_file_path):
+            with open(column_casts_file_path, "r") as f:
+                column_casts = yaml.safe_load(f)
+
+        return self.validate_column_casts(column_casts)
+
+    @staticmethod
+    def validate_column_casts(column_casts):
+        """
+        Make sure each key in column_casts.yml is a DATABASE.SCHEMA.TABLE identifier and each value
+        maps column names to a plain type name. Returns the entries with upper-cased names.
+        """
+        if not column_casts:
+            return {}
+        if not isinstance(column_casts, dict):
+            raise InvalidConfigurationException(
+                "column_casts.yml must map DATABASE.SCHEMA.TABLE identifiers to a dict of column types."
+            )
+
+        validated = {}
+        for table_identifier, casts in column_casts.items():
+            table_identifier = str(table_identifier).upper()
+            if not re.search(r"^[A-Z0-9_]+\.[A-Z0-9_]+\.[A-Z0-9_]+$", table_identifier):
+                raise InvalidConfigurationException(
+                    "Key {} in column_casts.yml must be a DATABASE.SCHEMA.TABLE identifier.".format(
+                        table_identifier
+                    )
+                )
+            if not casts or not isinstance(casts, dict):
+                raise InvalidConfigurationException(
+                    "Entry {} in column_casts.yml must map column names to types.".format(table_identifier)
+                )
+            validated[table_identifier] = {}
+            for column_name, cast_type in casts.items():
+                cast_type = str(cast_type).upper()
+                # Only plain type names like BOOLEAN or NUMBER(38, 2), since the type is written into
+                # the view SQL as-is.
+                if not re.search(r"^[A-Z][A-Z0-9_]*(\(\d+(\s*,\s*\d+)?\))?$", cast_type):
+                    raise InvalidConfigurationException(
+                        "Column {}.{} in column_casts.yml has an invalid type: {}".format(
+                            table_identifier, column_name, cast_type
+                        )
+                    )
+                validated[table_identifier][str(column_name).upper()] = cast_type
 
         return validated
 
@@ -584,9 +648,24 @@ class SchemaBuilder:
                     app_path, self.snowflake_keywords,
                     self.unmanaged_tables, self.redactions,
                     self.downstream_sources_allow_list, prefix=raw_schema.prefix,
-                    column_renames=self.column_renames
+                    column_renames=self.column_renames,
+                    column_casts=self.column_casts.get(
+                        "{}.{}".format(raw_schema_name, source_relation_name).upper()
+                    ),
                 )
                 raw_schema.relations.append(relation)
+            # A cast for a table that isn't in the raw schema would otherwise be silently ignored
+            for table_identifier in self.column_casts:
+                schema_identifier, _, table_name = table_identifier.rpartition(".")
+                if (
+                    schema_identifier == raw_schema_name.upper()
+                    and table_name not in raw_schema_relations[app_source_schema]
+                ):
+                    logger.warning(
+                        "column_casts.yml has casts for {}, which is not in the raw schema.".format(
+                            table_identifier
+                        )
+                    )
             app_raw_schemas.append(raw_schema)
 
         app_object = App(

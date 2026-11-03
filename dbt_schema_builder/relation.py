@@ -27,11 +27,12 @@ class Relation:
     def __init__(
         self, source_relation_name, meta_data, app, app_path,
         snowflake_keywords, unmanaged_tables, redactions, downstream_sources_allow_list, prefix=None,
-        column_renames=None
+        column_renames=None, column_casts=None
     ):
         self.snowflake_keywords = snowflake_keywords
         self.redactions = redactions
         self.column_renames = column_renames or {}
+        self.column_casts = column_casts or {}
         self.prefix = prefix
         self.source_relation_name = source_relation_name
         self.relation = self._get_model_name_alias()
@@ -82,6 +83,35 @@ class Relation:
             renames[raw_name] = rename
         return renames
 
+    def get_column_casts(self):
+        """
+        Return the entries of column_casts.yml for this relation whose column exists in it, as
+        {column name: type}.
+
+        Raises:
+            InvalidConfigurationException: When a cast column is also renamed by column_renames.yml.
+        """
+        column_names = {colname.upper() for colname in self.meta_data}
+        renames = self.get_column_renames()
+        casts = {}
+        for column_name, cast_type in self.column_casts.items():
+            if column_name not in column_names:
+                logger.warning(
+                    "column_casts.yml has a cast for {}.{}, which is not in the table.".format(
+                        self.source_relation_name, column_name
+                    )
+                )
+                continue
+            if column_name in renames:
+                raise InvalidConfigurationException(
+                    "{table}.{column} is both cast (column_casts.yml) and renamed (column_renames.yml); "
+                    "put the cast in the rename's expression instead".format(
+                        table=self.source_relation_name, column=column_name
+                    )
+                )
+            casts[column_name] = cast_type
+        return casts
+
     def get_view_column_names(self):
         """
         Return the column names of the generated views, i.e. the raw column names with
@@ -99,6 +129,7 @@ class Relation:
         """
         columns = []
         renames = self.get_column_renames()
+        casts = self.get_column_casts()
 
         for colname in self.meta_data:
             if colname.upper() in renames:
@@ -112,6 +143,8 @@ class Relation:
                 column = {"name": f'"{colname.upper()}"'}
             else:
                 column = {"name": colname.upper()}
+            if colname.upper() in casts:
+                column["cast"] = casts[colname.upper()]
             columns.append(column)
 
         model = {

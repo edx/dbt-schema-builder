@@ -108,6 +108,27 @@ Builder stops with an error.
 Columns whose names end in ``__SNOWFLAKE_DELETED`` are always skipped. Openflow
 keeps columns that were dropped at the source under that suffix.
 
+Casting columns
+---------------
+
+An optional ``column_casts.yml`` file, next to ``redactions.yml``, casts
+columns of specific raw tables to another type in the generated views. Keys are
+the raw table as ``DATABASE.SCHEMA.TABLE``, so a cast only applies while the
+table is read from that schema. For example, Openflow lands MySQL
+``tinyint(1)`` columns as ``NUMBER``, and Fivetran landed them as
+``BOOLEAN``::
+
+    RAW_DB.OPENFLOW_LMS.AUTH_USER:
+      IS_ACTIVE: BOOLEAN
+      IS_STAFF: BOOLEAN
+
+This adds ``IS_ACTIVE::BOOLEAN as IS_ACTIVE`` to both the safe and the PII
+views. Column names do not change. In the safe view a redaction of the same
+column wins over the cast. A column can't be both cast and renamed; put the
+cast in the rename's ``expression`` instead. Schema Builder logs a warning for
+casts whose table is not in the raw schema, or whose column is not in the
+table.
+
 Required Parameters
 -------------------
 

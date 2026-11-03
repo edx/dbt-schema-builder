@@ -432,3 +432,58 @@ def test_column_rename_clash():
     with pytest.raises(InvalidConfigurationException) as excinfo:
         relation.prep_meta_data()
     assert 'has both _SNOWFLAKE_DELETED and _FIVETRAN_DELETED' in str(excinfo.value)
+
+
+def _get_relation_with_casts(columns, column_casts):
+    return Relation(
+        'AUTH_USER',
+        columns,
+        'LMS',
+        'models/PROD/LMS',
+        ['START'],
+        [],
+        {'LMS.AUTH_USER': {'EMAIL': "'redacted@edx.invalid'", 'IS_STAFF': 'NULL'}},
+        [],
+        column_renames=COLUMN_RENAMES,
+        column_casts=column_casts,
+    )
+
+
+@pytest.mark.parametrize("view_type", ["SAFE", "PII"])
+def test_sql_column_casts(view_type):
+    relation = _get_relation_with_casts(
+        ['ID', 'EMAIL', 'IS_ACTIVE', 'IS_STAFF', 'START', '_SNOWFLAKE_DELETED'],
+        {'IS_ACTIVE': 'BOOLEAN', 'IS_STAFF': 'BOOLEAN', 'START': 'BOOLEAN'},
+    )
+    sql = Relation.render_sql('LMS', view_type, relation.prep_meta_data(), _get_fake_raw_schema(), relation.redactions)
+
+    assert 'IS_ACTIVE::BOOLEAN as IS_ACTIVE,' in sql
+    # Snowflake keywords stay quoted
+    assert '"START"::BOOLEAN as "START",' in sql
+    # Columns without a cast are unchanged
+    assert 'ID::' not in sql
+    assert 'COALESCE(_SNOWFLAKE_DELETED, FALSE) as _FIVETRAN_DELETED' in sql
+    if view_type == 'SAFE':
+        # Redactions win over casts in the safe view
+        assert 'NULL as IS_STAFF,' in sql
+        assert 'IS_STAFF::BOOLEAN' not in sql
+    else:
+        assert 'IS_STAFF::BOOLEAN as IS_STAFF,' in sql
+
+
+def test_column_casts_view_column_names_unchanged():
+    columns = ['ID', 'IS_ACTIVE']
+    relation = _get_relation_with_casts(columns, {'IS_ACTIVE': 'BOOLEAN'})
+    assert relation.get_view_column_names() == columns
+
+
+def test_column_cast_for_missing_column_is_skipped():
+    relation = _get_relation_with_casts(['ID', 'IS_ACTIVE'], {'IS_ACTIVE': 'BOOLEAN', 'IS_GONE': 'BOOLEAN'})
+    assert relation.get_column_casts() == {'IS_ACTIVE': 'BOOLEAN'}
+
+
+def test_column_cast_of_renamed_column():
+    relation = _get_relation_with_casts(['ID', '_SNOWFLAKE_DELETED'], {'_SNOWFLAKE_DELETED': 'BOOLEAN'})
+    with pytest.raises(InvalidConfigurationException) as excinfo:
+        relation.prep_meta_data()
+    assert 'AUTH_USER._SNOWFLAKE_DELETED is both cast' in str(excinfo.value)

@@ -6,6 +6,8 @@ SELECT
 {% for col in relation.columns %}
     {% if col.alias -%}
     {{ col.expression }} as {{ col.alias }}
+    {%- elif col.cast -%}
+    {{ col.name|upper }}::{{ col.cast }} as {{ col.name|upper }}
     {%- else -%}
     {{ col.name|upper|indent }}
     {%- endif -%}
