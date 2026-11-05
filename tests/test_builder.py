@@ -280,3 +280,77 @@ def test_build_app_with_column_renames():
         schema = yaml.safe_load(fp)
     for model in schema['models']:
         assert model['columns'] == [{'name': 'COLUMN_A'}, {'name': '_FIVETRAN_DELETED'}]
+
+
+def test_validate_column_casts():
+    column_casts = {
+        'raw_db.openflow_lms.auth_user': {'is_active': 'boolean', 'IS_STAFF': 'BOOLEAN'},
+        'RAW_DB.OPENFLOW_LMS.GRADES_PERSISTENTCOURSEGRADE': {'PERCENT_GRADE': 'NUMBER(5, 2)'},
+    }
+    assert SchemaBuilder.validate_column_casts(column_casts) == {
+        'RAW_DB.OPENFLOW_LMS.AUTH_USER': {'IS_ACTIVE': 'BOOLEAN', 'IS_STAFF': 'BOOLEAN'},
+        'RAW_DB.OPENFLOW_LMS.GRADES_PERSISTENTCOURSEGRADE': {'PERCENT_GRADE': 'NUMBER(5, 2)'},
+    }
+
+
+@pytest.mark.parametrize("column_casts", [None, {}])
+def test_validate_column_casts_empty(column_casts):
+    assert not SchemaBuilder.validate_column_casts(column_casts)
+
+
+@pytest.mark.parametrize("column_casts,err_msg", [
+    (['RAW_DB.OPENFLOW_LMS.AUTH_USER'], "must map DATABASE.SCHEMA.TABLE identifiers"),
+    ({'OPENFLOW_LMS.AUTH_USER': {'IS_ACTIVE': 'BOOLEAN'}}, "must be a DATABASE.SCHEMA.TABLE identifier"),
+    ({'RAW_DB.OPENFLOW_LMS.AUTH_USER': None}, "must map column names to types"),
+    ({'RAW_DB.OPENFLOW_LMS.AUTH_USER': ['IS_ACTIVE']}, "must map column names to types"),
+    ({'RAW_DB.OPENFLOW_LMS.AUTH_USER': {'IS_ACTIVE': 'BOOLEAN) --'}}, "has an invalid type"),
+    ({'RAW_DB.OPENFLOW_LMS.AUTH_USER': {'IS_ACTIVE': 'IS_ACTIVE = 1'}}, "has an invalid type"),
+])
+def test_invalid_column_casts(column_casts, err_msg):
+    with pytest.raises(InvalidConfigurationException) as excinfo:
+        SchemaBuilder.validate_column_casts(column_casts)
+    assert err_msg in str(excinfo.value)
+
+
+@patch.object(SchemaBuilder, 'get_redactions', lambda x: {})
+@patch.object(SchemaBuilder, 'get_snowflake_keywords', lambda x: {})
+@patch.object(SchemaBuilder, 'get_banned_columns', lambda x: {})
+@patch.object(SchemaBuilder, 'get_unmanaged_tables', lambda x: {})
+@patch.object(SchemaBuilder, 'get_downstream_sources_allow_list', lambda x: {})
+def test_build_app_with_column_casts():
+    app_name = 'DB_1.APP'
+    # The same table in two raw schemas; only the Openflow one is cast
+    app_config = {app_name: {
+        'DB_2.FIVETRAN_SCHEMA': {'INCLUDE': ['TABLE_B']},
+        'DB_2.OPF_SCHEMA': {'INCLUDE': ['TABLE_A']},
+    }}
+
+    temp_dir = mkdtemp()
+    with open(os.path.join(temp_dir, 'column_casts.yml'), 'w') as fp:
+        yaml.safe_dump({
+            'DB_2.OPF_SCHEMA.TABLE_A': {'IS_ACTIVE': 'BOOLEAN'},
+            'DB_2.OPF_SCHEMA.TABLE_MISSING': {'IS_ACTIVE': 'BOOLEAN'},
+        }, fp)
+    mock_get_catalog_task = MagicMock(GetCatalogTask)
+    mock_get_catalog_task.run.return_value = [
+        {"TABLE_NAME": "TABLE_A", "COLUMN_NAME": "ID"},
+        {"TABLE_NAME": "TABLE_A", "COLUMN_NAME": "IS_ACTIVE"},
+        {"TABLE_NAME": "TABLE_B", "COLUMN_NAME": "ID"},
+        {"TABLE_NAME": "TABLE_B", "COLUMN_NAME": "IS_ACTIVE"},
+    ]
+    with patch.object(SchemaBuilder, 'build_app_path', lambda x, y, z: temp_dir):
+        with patch.object(SchemaBuilder, 'get_app_schema_configs', lambda x: app_config):
+            with patch('dbt_schema_builder.builder.logger') as mock_logger:
+                builder = SchemaBuilder(temp_dir, temp_dir, temp_dir, mock_get_catalog_task)
+                builder.build_app(app_name, app_config[app_name])
+
+    for sql_path in ('APP/APP_TABLE_A.sql', 'APP_PII/APP_PII_TABLE_A.sql'):
+        with open(os.path.join(temp_dir, sql_path)) as fp:
+            assert 'IS_ACTIVE::BOOLEAN as IS_ACTIVE' in fp.read()
+    for sql_path in ('APP/APP_TABLE_B.sql', 'APP_PII/APP_PII_TABLE_B.sql'):
+        with open(os.path.join(temp_dir, sql_path)) as fp:
+            assert '::BOOLEAN' not in fp.read()
+
+    mock_logger.warning.assert_called_once_with(
+        'column_casts.yml has casts for DB_2.OPF_SCHEMA.TABLE_MISSING, which is not in the raw schema.'
+    )

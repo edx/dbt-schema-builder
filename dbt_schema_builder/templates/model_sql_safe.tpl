@@ -9,7 +9,9 @@ SELECT
     {{ col.expression }} as {{ col.alias }}
   {%- elif app_table in redactions and col.name in redactions[app_table] -%}
     {{ redactions[app_table][col.name]|safe }} as {{ col.name|upper|indent -}}
-  {% else -%}
+  {% elif col.cast -%}
+    {{ col.name|upper }}::{{ col.cast }} as {{ col.name|upper }}
+  {%- else -%}
     {{ col.name|upper|indent }}
   {%- endif -%}
   {{- ", " if not loop.last }}
